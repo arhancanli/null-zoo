@@ -1,0 +1,263 @@
+{
+ "schema": "canli.null-zoo.v0",
+ "design": {
+  "trials": 20,
+  "observations": 504,
+  "periodsPerYear": 252,
+  "skill": 2,
+  "level": 0.05
+ },
+ "reps": 2000,
+ "validators": {
+  "luck_trials": {
+   "sides": 1
+  },
+  "luck_trials_lo": {
+   "sides": 1
+  },
+  "luck_trials_nonnormal_se": {
+   "sides": 1
+  },
+  "haircut_bonferroni": {
+   "sides": 2
+  },
+  "haircut_bonferroni_lo": {
+   "sides": 2
+  },
+  "haircut_holm": {
+   "sides": 2
+  },
+  "deflated_sharpe": {
+   "sides": 1
+  },
+  "bootstrap_best": {
+   "sides": 1
+  }
+ },
+ "rows": [
+  {
+   "family": "iid_normal",
+   "size": {
+    "luck_trials": 0.0595,
+    "luck_trials_lo": 0.061,
+    "luck_trials_nonnormal_se": 0.0595,
+    "haircut_bonferroni": 0.0275,
+    "haircut_bonferroni_lo": 0.036,
+    "haircut_holm": 0.0275,
+    "deflated_sharpe": 0,
+    "bootstrap_best": 0.048
+   },
+   "power": {
+    "luck_trials": 0.5335,
+    "luck_trials_lo": 0.5295,
+    "luck_trials_nonnormal_se": 0.528,
+    "haircut_bonferroni": 0.43,
+    "haircut_bonferroni_lo": 0.4285,
+    "haircut_holm": 0.43,
+    "deflated_sharpe": 0.0905,
+    "bootstrap_best": 0.4715
+   },
+   "power_best_is_skilled_trial": 0.809,
+   "seeds": [
+    1000,
+    1001
+   ]
+  },
+  {
+   "family": "student_t4",
+   "size": {
+    "luck_trials": 0.0535,
+    "luck_trials_lo": 0.0545,
+    "luck_trials_nonnormal_se": 0.072,
+    "haircut_bonferroni": 0.0275,
+    "haircut_bonferroni_lo": 0.0275,
+    "haircut_holm": 0.0275,
+    "deflated_sharpe": 0.0005,
+    "bootstrap_best": 0.06
+   },
+   "power": {
+    "luck_trials": 0.515,
+    "luck_trials_lo": 0.5145,
+    "luck_trials_nonnormal_se": 0.5155,
+    "haircut_bonferroni": 0.42,
+    "haircut_bonferroni_lo": 0.4245,
+    "haircut_holm": 0.42,
+    "deflated_sharpe": 0.107,
+    "bootstrap_best": 0.4685
+   },
+   "power_best_is_skilled_trial": 0.8035,
+   "seeds": [
+    1002,
+    1003
+   ]
+  },
+  {
+   "family": "skew_negative",
+   "size": {
+    "luck_trials": 0.088,
+    "luck_trials_lo": 0.088,
+    "luck_trials_nonnormal_se": 0.051,
+    "haircut_bonferroni": 0.0545,
+    "haircut_bonferroni_lo": 0.0555,
+    "haircut_holm": 0.0545,
+    "deflated_sharpe": 0.0005,
+    "bootstrap_best": 0.053
+   },
+   "power": {
+    "luck_trials": 0.556,
+    "luck_trials_lo": 0.5635,
+    "luck_trials_nonnormal_se": 0.451,
+    "haircut_bonferroni": 0.461,
+    "haircut_bonferroni_lo": 0.466,
+    "haircut_holm": 0.461,
+    "deflated_sharpe": 0.079,
+    "bootstrap_best": 0.4235
+   },
+   "power_best_is_skilled_trial": 0.78,
+   "seeds": [
+    1004,
+    1005
+   ]
+  },
+  {
+   "family": "skew_positive",
+   "size": {
+    "luck_trials": 0.0365,
+    "luck_trials_lo": 0.0375,
+    "luck_trials_nonnormal_se": 0.07,
+    "haircut_bonferroni": 0.014,
+    "haircut_bonferroni_lo": 0.0165,
+    "haircut_holm": 0.014,
+    "deflated_sharpe": 0.001,
+    "bootstrap_best": 0.0575
+   },
+   "power": {
+    "luck_trials": 0.5495,
+    "luck_trials_lo": 0.5455,
+    "luck_trials_nonnormal_se": 0.6495,
+    "haircut_bonferroni": 0.45,
+    "haircut_bonferroni_lo": 0.4525,
+    "haircut_holm": 0.45,
+    "deflated_sharpe": 0.121,
+    "bootstrap_best": 0.544
+   },
+   "power_best_is_skilled_trial": 0.847,
+   "seeds": [
+    1006,
+    1007
+   ]
+  },
+  {
+   "family": "garch",
+   "size": {
+    "luck_trials": 0.046,
+    "luck_trials_lo": 0.05,
+    "luck_trials_nonnormal_se": 0.048,
+    "haircut_bonferroni": 0.0235,
+    "haircut_bonferroni_lo": 0.0265,
+    "haircut_holm": 0.0235,
+    "deflated_sharpe": 0,
+    "bootstrap_best": 0.048
+   },
+   "power": {
+    "luck_trials": 0.544,
+    "luck_trials_lo": 0.5465,
+    "luck_trials_nonnormal_se": 0.544,
+    "haircut_bonferroni": 0.444,
+    "haircut_bonferroni_lo": 0.445,
+    "haircut_holm": 0.444,
+    "deflated_sharpe": 0.1045,
+    "bootstrap_best": 0.4765
+   },
+   "power_best_is_skilled_trial": 0.8085,
+   "seeds": [
+    1008,
+    1009
+   ]
+  },
+  {
+   "family": "ar1",
+   "size": {
+    "luck_trials": 0.2,
+    "luck_trials_lo": 0.059,
+    "luck_trials_nonnormal_se": 0.201,
+    "haircut_bonferroni": 0.132,
+    "haircut_bonferroni_lo": 0.027,
+    "haircut_holm": 0.133,
+    "deflated_sharpe": 0.002,
+    "bootstrap_best": 0.1705
+   },
+   "power": {
+    "luck_trials": 0.6025,
+    "luck_trials_lo": 0.3585,
+    "luck_trials_nonnormal_se": 0.604,
+    "haircut_bonferroni": 0.5085,
+    "haircut_bonferroni_lo": 0.268,
+    "haircut_holm": 0.509,
+    "deflated_sharpe": 0.071,
+    "bootstrap_best": 0.5445
+   },
+   "power_best_is_skilled_trial": 0.6755,
+   "seeds": [
+    1010,
+    1011
+   ]
+  },
+  {
+   "family": "regimes",
+   "size": {
+    "luck_trials": 0.051,
+    "luck_trials_lo": 0.0515,
+    "luck_trials_nonnormal_se": 0.0555,
+    "haircut_bonferroni": 0.025,
+    "haircut_bonferroni_lo": 0.0235,
+    "haircut_holm": 0.025,
+    "deflated_sharpe": 0,
+    "bootstrap_best": 0.051
+   },
+   "power": {
+    "luck_trials": 0.5395,
+    "luck_trials_lo": 0.5375,
+    "luck_trials_nonnormal_se": 0.5405,
+    "haircut_bonferroni": 0.4505,
+    "haircut_bonferroni_lo": 0.45,
+    "haircut_holm": 0.4505,
+    "deflated_sharpe": 0.1215,
+    "bootstrap_best": 0.4885
+   },
+   "power_best_is_skilled_trial": 0.8135,
+   "seeds": [
+    1012,
+    1013
+   ]
+  },
+  {
+   "family": "correlated_trials",
+   "size": {
+    "luck_trials": 0.0345,
+    "luck_trials_lo": 0.0345,
+    "luck_trials_nonnormal_se": 0.0335,
+    "haircut_bonferroni": 0.0165,
+    "haircut_bonferroni_lo": 0.019,
+    "haircut_holm": 0.0165,
+    "deflated_sharpe": 0.013,
+    "bootstrap_best": 0.0315
+   },
+   "power": {
+    "luck_trials": 0.5015,
+    "luck_trials_lo": 0.502,
+    "luck_trials_nonnormal_se": 0.4985,
+    "haircut_bonferroni": 0.4025,
+    "haircut_bonferroni_lo": 0.4045,
+    "haircut_holm": 0.4025,
+    "deflated_sharpe": 0.225,
+    "bootstrap_best": 0.442
+   },
+   "power_best_is_skilled_trial": 0.972,
+   "seeds": [
+    1014,
+    1015
+   ]
+  }
+ ]
+}

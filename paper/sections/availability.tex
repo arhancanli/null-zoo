@@ -1,0 +1,5 @@
+\section*{Code and data availability}
+All code, result files and the source of this paper are at \url{https://github.com/arhancanli/null-zoo} (release v1.0.0, MIT licence). The benchmark itself, in \nolinkurl{src/}, is copied unchanged from \url{https://github.com/arhancanli/canlicapital} at commit \nolinkurl{\nzSourceCommit}, where it is maintained; its published result file (SHA-256 \nolinkurl{\nzVzeroSha}) reproduces byte for byte with \texttt{npm run reproduce:v0} under Node.js~24. Every number in the text and tables is generated from the result files by \nolinkurl{analysis/tables.mjs}, and none is typed by hand. Continuous integration checks the instrument tests, the byte-for-byte reproduction and that the committed tables match the result files.
+
+\section*{Competing interests}
+The author designed the luck-equivalent-trials statistic scored here and maintains open-source implementations of several of the scored methods. No external funding was received.

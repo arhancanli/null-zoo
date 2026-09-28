@@ -1,0 +1,11 @@
+ruvector.db
+.claude-flow/
+.swarm/
+.hive-mind/
+node_modules/
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+.DS_Store

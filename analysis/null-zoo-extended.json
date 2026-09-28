@@ -1,0 +1,948 @@
+{
+ "schema": "canli.null-zoo.extended.v2",
+ "generator": "xoshiro128** seeded by splitmix32; Box-Muller normals",
+ "design": {
+  "trials": 20,
+  "observations": 504,
+  "periodsPerYear": 252,
+  "skill": 2,
+  "level": 0.05
+ },
+ "reps": 10000,
+ "bootstrap_draws": 1999,
+ "notes": {
+  "one_sided": "*_one_sided reads each two-sided haircut p-value as p/2",
+  "size_adjusted": "power at the largest cutoff whose rejection rate in the same family's null arm is at most the level",
+  "counts": "size, power, correct and size_adjusted counts are out of reps"
+ },
+ "rows": [
+  {
+   "family": "iid_normal",
+   "seeds": [
+    20260929,
+    20260930
+   ],
+   "size": {
+    "luck_trials": 516,
+    "luck_trials_lo": 559,
+    "luck_trials_nonnormal_se": 503,
+    "haircut_bonferroni": 244,
+    "haircut_bonferroni_lo": 277,
+    "haircut_holm": 245,
+    "haircut_bonferroni_one_sided": 504,
+    "haircut_bonferroni_lo_one_sided": 545,
+    "haircut_holm_one_sided": 506,
+    "deflated_sharpe": 2,
+    "bootstrap_best": 494
+   },
+   "power": {
+    "luck_trials": 5303,
+    "luck_trials_lo": 5320,
+    "luck_trials_nonnormal_se": 5302,
+    "haircut_bonferroni": 4302,
+    "haircut_bonferroni_lo": 4315,
+    "haircut_holm": 4303,
+    "haircut_bonferroni_one_sided": 5272,
+    "haircut_bonferroni_lo_one_sided": 5291,
+    "haircut_holm_one_sided": 5276,
+    "deflated_sharpe": 952,
+    "bootstrap_best": 5178
+   },
+   "correct": {
+    "luck_trials": 5022,
+    "luck_trials_lo": 5020,
+    "luck_trials_nonnormal_se": 5019,
+    "haircut_bonferroni": 4138,
+    "haircut_bonferroni_lo": 4146,
+    "haircut_holm": 4139,
+    "haircut_bonferroni_one_sided": 4996,
+    "haircut_bonferroni_lo_one_sided": 4995,
+    "haircut_holm_one_sided": 5000,
+    "deflated_sharpe": 951,
+    "bootstrap_best": 4911
+   },
+   "size_adjusted": {
+    "luck_trials": {
+     "cutoff": 0.04834712320841927,
+     "null_rate_count": 500,
+     "power": 5261
+    },
+    "luck_trials_lo": {
+     "cutoff": 0.044481855203211774,
+     "null_rate_count": 500,
+     "power": 5159
+    },
+    "luck_trials_nonnormal_se": {
+     "cutoff": 0.04966770408941541,
+     "null_rate_count": 500,
+     "power": 5292
+    },
+    "haircut_bonferroni": {
+     "cutoff": 0.09898718856658281,
+     "null_rate_count": 500,
+     "power": 5261
+    },
+    "haircut_bonferroni_lo": {
+     "cutoff": 0.09089961029293596,
+     "null_rate_count": 500,
+     "power": 5159
+    },
+    "haircut_holm": {
+     "cutoff": 0.09878808111595383,
+     "null_rate_count": 500,
+     "power": 5261
+    },
+    "haircut_bonferroni_one_sided": {
+     "cutoff": 0.049493594283291406,
+     "null_rate_count": 500,
+     "power": 5261
+    },
+    "haircut_bonferroni_lo_one_sided": {
+     "cutoff": 0.04544980514646798,
+     "null_rate_count": 500,
+     "power": 5159
+    },
+    "haircut_holm_one_sided": {
+     "cutoff": 0.049394040557976915,
+     "null_rate_count": 500,
+     "power": 5261
+    },
+    "deflated_sharpe": {
+     "cutoff": 0.22898395614954503,
+     "null_rate_count": 500,
+     "power": 4694
+    },
+    "bootstrap_best": {
+     "cutoff": 0.04883012474683423,
+     "null_rate_count": 494,
+     "power": 5178
+    }
+   },
+   "best_is_skilled_trial": 8115,
+   "diagnostics": {
+    "null": {
+     "cross_trial_sd_over_iid_se": 0.9895789888930887,
+     "mean_skew_best": 0.0001307236788297146,
+     "mean_skew_others": -0.0004581863554628809
+    },
+    "skill": {
+     "cross_trial_sd_over_iid_se": 1.1713015262124595,
+     "mean_skew_best": 0.0001561243993105537,
+     "mean_skew_others": -0.00021485103645350098
+    }
+   }
+  },
+  {
+   "family": "student_t4",
+   "seeds": [
+    20260931,
+    20260932
+   ],
+   "size": {
+    "luck_trials": 492,
+    "luck_trials_lo": 512,
+    "luck_trials_nonnormal_se": 676,
+    "haircut_bonferroni": 228,
+    "haircut_bonferroni_lo": 246,
+    "haircut_holm": 228,
+    "haircut_bonferroni_one_sided": 484,
+    "haircut_bonferroni_lo_one_sided": 500,
+    "haircut_holm_one_sided": 485,
+    "deflated_sharpe": 10,
+    "bootstrap_best": 646
+   },
+   "power": {
+    "luck_trials": 5426,
+    "luck_trials_lo": 5427,
+    "luck_trials_nonnormal_se": 5415,
+    "haircut_bonferroni": 4453,
+    "haircut_bonferroni_lo": 4447,
+    "haircut_holm": 4454,
+    "haircut_bonferroni_one_sided": 5385,
+    "haircut_bonferroni_lo_one_sided": 5398,
+    "haircut_holm_one_sided": 5387,
+    "deflated_sharpe": 1090,
+    "bootstrap_best": 5417
+   },
+   "correct": {
+    "luck_trials": 5163,
+    "luck_trials_lo": 5148,
+    "luck_trials_nonnormal_se": 5078,
+    "haircut_bonferroni": 4314,
+    "haircut_bonferroni_lo": 4292,
+    "haircut_holm": 4315,
+    "haircut_bonferroni_one_sided": 5129,
+    "haircut_bonferroni_lo_one_sided": 5123,
+    "haircut_holm_one_sided": 5131,
+    "deflated_sharpe": 1088,
+    "bootstrap_best": 5091
+   },
+   "size_adjusted": {
+    "luck_trials": {
+     "cutoff": 0.05056702896920447,
+     "null_rate_count": 500,
+     "power": 5440
+    },
+    "luck_trials_lo": {
+     "cutoff": 0.04875624745227273,
+     "null_rate_count": 500,
+     "power": 5396
+    },
+    "luck_trials_nonnormal_se": {
+     "cutoff": 0.03500534342153198,
+     "null_rate_count": 500,
+     "power": 4883
+    },
+    "haircut_bonferroni": {
+     "cutoff": 0.1036461763341186,
+     "null_rate_count": 500,
+     "power": 5440
+    },
+    "haircut_bonferroni_lo": {
+     "cutoff": 0.09984505421245446,
+     "null_rate_count": 500,
+     "power": 5396
+    },
+    "haircut_holm": {
+     "cutoff": 0.1036461763341186,
+     "null_rate_count": 500,
+     "power": 5441
+    },
+    "haircut_bonferroni_one_sided": {
+     "cutoff": 0.0518230881670593,
+     "null_rate_count": 500,
+     "power": 5440
+    },
+    "haircut_bonferroni_lo_one_sided": {
+     "cutoff": 0.04992252710622723,
+     "null_rate_count": 500,
+     "power": 5396
+    },
+    "haircut_holm_one_sided": {
+     "cutoff": 0.0518230881670593,
+     "null_rate_count": 500,
+     "power": 5441
+    },
+    "deflated_sharpe": {
+     "cutoff": 0.22997154244536167,
+     "null_rate_count": 500,
+     "power": 4825
+    },
+    "bootstrap_best": {
+     "cutoff": 0.02957632308948082,
+     "null_rate_count": 394,
+     "power": 4679
+    }
+   },
+   "best_is_skilled_trial": 8105,
+   "diagnostics": {
+    "null": {
+     "cross_trial_sd_over_iid_se": 0.9885658448799238,
+     "mean_skew_best": 0.5948555258005266,
+     "mean_skew_others": -0.02872510281239786
+    },
+    "skill": {
+     "cross_trial_sd_over_iid_se": 1.1769594958092688,
+     "mean_skew_best": 0.23113640937276786,
+     "mean_skew_others": -0.006074905819607234
+    }
+   }
+  },
+  {
+   "family": "skew_negative",
+   "seeds": [
+    20260933,
+    20260934
+   ],
+   "size": {
+    "luck_trials": 760,
+    "luck_trials_lo": 807,
+    "luck_trials_nonnormal_se": 420,
+    "haircut_bonferroni": 406,
+    "haircut_bonferroni_lo": 449,
+    "haircut_holm": 406,
+    "haircut_bonferroni_one_sided": 745,
+    "haircut_bonferroni_lo_one_sided": 793,
+    "haircut_holm_one_sided": 745,
+    "deflated_sharpe": 7,
+    "bootstrap_best": 480
+   },
+   "power": {
+    "luck_trials": 5458,
+    "luck_trials_lo": 5486,
+    "luck_trials_nonnormal_se": 4420,
+    "haircut_bonferroni": 4512,
+    "haircut_bonferroni_lo": 4558,
+    "haircut_holm": 4514,
+    "haircut_bonferroni_one_sided": 5425,
+    "haircut_bonferroni_lo_one_sided": 5468,
+    "haircut_holm_one_sided": 5427,
+    "deflated_sharpe": 792,
+    "bootstrap_best": 4613
+   },
+   "correct": {
+    "luck_trials": 5024,
+    "luck_trials_lo": 5025,
+    "luck_trials_nonnormal_se": 4147,
+    "haircut_bonferroni": 4236,
+    "haircut_bonferroni_lo": 4254,
+    "haircut_holm": 4238,
+    "haircut_bonferroni_one_sided": 4994,
+    "haircut_bonferroni_lo_one_sided": 5013,
+    "haircut_holm_one_sided": 4996,
+    "deflated_sharpe": 791,
+    "bootstrap_best": 4292
+   },
+   "size_adjusted": {
+    "luck_trials": {
+     "cutoff": 0.030893958239958032,
+     "null_rate_count": 500,
+     "power": 4829
+    },
+    "luck_trials_lo": {
+     "cutoff": 0.02851962328416663,
+     "null_rate_count": 500,
+     "power": 4752
+    },
+    "luck_trials_nonnormal_se": {
+     "cutoff": 0.058977253554745604,
+     "null_rate_count": 500,
+     "power": 4687
+    },
+    "haircut_bonferroni": {
+     "cutoff": 0.06271326435129565,
+     "null_rate_count": 500,
+     "power": 4829
+    },
+    "haircut_bonferroni_lo": {
+     "cutoff": 0.05782657940141911,
+     "null_rate_count": 500,
+     "power": 4752
+    },
+    "haircut_holm": {
+     "cutoff": 0.06271326435129565,
+     "null_rate_count": 500,
+     "power": 4832
+    },
+    "haircut_bonferroni_one_sided": {
+     "cutoff": 0.031356632175647825,
+     "null_rate_count": 500,
+     "power": 4829
+    },
+    "haircut_bonferroni_lo_one_sided": {
+     "cutoff": 0.028913289700709555,
+     "null_rate_count": 500,
+     "power": 4752
+    },
+    "haircut_holm_one_sided": {
+     "cutoff": 0.031356632175647825,
+     "null_rate_count": 500,
+     "power": 4832
+    },
+    "deflated_sharpe": {
+     "cutoff": 0.21533739265014962,
+     "null_rate_count": 500,
+     "power": 4243
+    },
+    "bootstrap_best": {
+     "cutoff": 0.04883012474683423,
+     "null_rate_count": 480,
+     "power": 4613
+    }
+   },
+   "best_is_skilled_trial": 7715,
+   "diagnostics": {
+    "null": {
+     "cross_trial_sd_over_iid_se": 0.9928690355345626,
+     "mean_skew_best": -1.2181003763428033,
+     "mean_skew_others": -1.289378306629249
+    },
+    "skill": {
+     "cross_trial_sd_over_iid_se": 1.1779375137363974,
+     "mean_skew_best": -1.2565624382172094,
+     "mean_skew_others": -1.2885631367972086
+    }
+   }
+  },
+  {
+   "family": "skew_positive",
+   "seeds": [
+    20260935,
+    20260936
+   ],
+   "size": {
+    "luck_trials": 267,
+    "luck_trials_lo": 290,
+    "luck_trials_nonnormal_se": 530,
+    "haircut_bonferroni": 121,
+    "haircut_bonferroni_lo": 132,
+    "haircut_holm": 121,
+    "haircut_bonferroni_one_sided": 262,
+    "haircut_bonferroni_lo_one_sided": 282,
+    "haircut_holm_one_sided": 264,
+    "deflated_sharpe": 5,
+    "bootstrap_best": 419
+   },
+   "power": {
+    "luck_trials": 5282,
+    "luck_trials_lo": 5299,
+    "luck_trials_nonnormal_se": 6217,
+    "haircut_bonferroni": 4227,
+    "haircut_bonferroni_lo": 4245,
+    "haircut_holm": 4229,
+    "haircut_bonferroni_one_sided": 5245,
+    "haircut_bonferroni_lo_one_sided": 5271,
+    "haircut_holm_one_sided": 5250,
+    "deflated_sharpe": 1147,
+    "bootstrap_best": 5832
+   },
+   "correct": {
+    "luck_trials": 5114,
+    "luck_trials_lo": 5117,
+    "luck_trials_nonnormal_se": 5923,
+    "haircut_bonferroni": 4148,
+    "haircut_bonferroni_lo": 4162,
+    "haircut_holm": 4148,
+    "haircut_bonferroni_one_sided": 5079,
+    "haircut_bonferroni_lo_one_sided": 5092,
+    "haircut_holm_one_sided": 5084,
+    "deflated_sharpe": 1146,
+    "bootstrap_best": 5573
+   },
+   "size_adjusted": {
+    "luck_trials": {
+     "cutoff": 0.08568724658660894,
+     "null_rate_count": 500,
+     "power": 6140
+    },
+    "luck_trials_lo": {
+     "cutoff": 0.07776656409652186,
+     "null_rate_count": 500,
+     "power": 6006
+    },
+    "luck_trials_nonnormal_se": {
+     "cutoff": 0.046928816833033335,
+     "null_rate_count": 500,
+     "power": 6128
+    },
+    "haircut_bonferroni": {
+     "cutoff": 0.17876451660094192,
+     "null_rate_count": 500,
+     "power": 6140
+    },
+    "haircut_bonferroni_lo": {
+     "cutoff": 0.16158654709351766,
+     "null_rate_count": 500,
+     "power": 6006
+    },
+    "haircut_holm": {
+     "cutoff": 0.17846461278970288,
+     "null_rate_count": 500,
+     "power": 6149
+    },
+    "haircut_bonferroni_one_sided": {
+     "cutoff": 0.08938225830047096,
+     "null_rate_count": 500,
+     "power": 6140
+    },
+    "haircut_bonferroni_lo_one_sided": {
+     "cutoff": 0.08079327354675883,
+     "null_rate_count": 500,
+     "power": 6006
+    },
+    "haircut_holm_one_sided": {
+     "cutoff": 0.08923230639485144,
+     "null_rate_count": 500,
+     "power": 6149
+    },
+    "deflated_sharpe": {
+     "cutoff": 0.254079391526012,
+     "null_rate_count": 500,
+     "power": 5271
+    },
+    "bootstrap_best": {
+     "cutoff": 0.04883012474683423,
+     "null_rate_count": 419,
+     "power": 5832
+    }
+   },
+   "best_is_skilled_trial": 8385,
+   "diagnostics": {
+    "null": {
+     "cross_trial_sd_over_iid_se": 0.9893650763621213,
+     "mean_skew_best": 1.3131192913997463,
+     "mean_skew_others": 1.2842050776334346
+    },
+    "skill": {
+     "cross_trial_sd_over_iid_se": 1.1740486639893688,
+     "mean_skew_best": 1.2918852407095227,
+     "mean_skew_others": 1.2852206866670453
+    }
+   }
+  },
+  {
+   "family": "garch",
+   "seeds": [
+    20260937,
+    20260938
+   ],
+   "size": {
+    "luck_trials": 440,
+    "luck_trials_lo": 496,
+    "luck_trials_nonnormal_se": 453,
+    "haircut_bonferroni": 209,
+    "haircut_bonferroni_lo": 229,
+    "haircut_holm": 209,
+    "haircut_bonferroni_one_sided": 433,
+    "haircut_bonferroni_lo_one_sided": 480,
+    "haircut_holm_one_sided": 433,
+    "deflated_sharpe": 4,
+    "bootstrap_best": 442
+   },
+   "power": {
+    "luck_trials": 5569,
+    "luck_trials_lo": 5524,
+    "luck_trials_nonnormal_se": 5545,
+    "haircut_bonferroni": 4546,
+    "haircut_bonferroni_lo": 4562,
+    "haircut_holm": 4547,
+    "haircut_bonferroni_one_sided": 5522,
+    "haircut_bonferroni_lo_one_sided": 5492,
+    "haircut_holm_one_sided": 5528,
+    "deflated_sharpe": 1080,
+    "bootstrap_best": 5385
+   },
+   "correct": {
+    "luck_trials": 5250,
+    "luck_trials_lo": 5208,
+    "luck_trials_nonnormal_se": 5223,
+    "haircut_bonferroni": 4363,
+    "haircut_bonferroni_lo": 4385,
+    "haircut_holm": 4364,
+    "haircut_bonferroni_one_sided": 5211,
+    "haircut_bonferroni_lo_one_sided": 5182,
+    "haircut_holm_one_sided": 5216,
+    "deflated_sharpe": 1076,
+    "bootstrap_best": 5071
+   },
+   "size_adjusted": {
+    "luck_trials": {
+     "cutoff": 0.05590719684368422,
+     "null_rate_count": 500,
+     "power": 5711
+    },
+    "luck_trials_lo": {
+     "cutoff": 0.050196500755025936,
+     "null_rate_count": 500,
+     "power": 5527
+    },
+    "luck_trials_nonnormal_se": {
+     "cutoff": 0.054193810601851994,
+     "null_rate_count": 500,
+     "power": 5664
+    },
+    "haircut_bonferroni": {
+     "cutoff": 0.11489628734522013,
+     "null_rate_count": 500,
+     "power": 5711
+    },
+    "haircut_bonferroni_lo": {
+     "cutoff": 0.1028678178013682,
+     "null_rate_count": 500,
+     "power": 5527
+    },
+    "haircut_holm": {
+     "cutoff": 0.11354674846992861,
+     "null_rate_count": 500,
+     "power": 5701
+    },
+    "haircut_bonferroni_one_sided": {
+     "cutoff": 0.057448143672610065,
+     "null_rate_count": 500,
+     "power": 5711
+    },
+    "haircut_bonferroni_lo_one_sided": {
+     "cutoff": 0.0514339089006841,
+     "null_rate_count": 500,
+     "power": 5527
+    },
+    "haircut_holm_one_sided": {
+     "cutoff": 0.056773374234964306,
+     "null_rate_count": 500,
+     "power": 5701
+    },
+    "deflated_sharpe": {
+     "cutoff": 0.236506372209508,
+     "null_rate_count": 500,
+     "power": 4992
+    },
+    "bootstrap_best": {
+     "cutoff": 0.04883012474683423,
+     "null_rate_count": 442,
+     "power": 5385
+    }
+   },
+   "best_is_skilled_trial": 8122,
+   "diagnostics": {
+    "null": {
+     "cross_trial_sd_over_iid_se": 0.9868290369123425,
+     "mean_skew_best": 0.04030066321687538,
+     "mean_skew_others": -0.0018261291663064665
+    },
+    "skill": {
+     "cross_trial_sd_over_iid_se": 1.1784304717630074,
+     "mean_skew_best": 0.014403130664976059,
+     "mean_skew_others": -0.0006625049262348299
+    }
+   }
+  },
+  {
+   "family": "ar1",
+   "seeds": [
+    20260939,
+    20260940
+   ],
+   "size": {
+    "luck_trials": 1965,
+    "luck_trials_lo": 552,
+    "luck_trials_nonnormal_se": 1954,
+    "haircut_bonferroni": 1236,
+    "haircut_bonferroni_lo": 278,
+    "haircut_holm": 1248,
+    "haircut_bonferroni_one_sided": 1939,
+    "haircut_bonferroni_lo_one_sided": 539,
+    "haircut_holm_one_sided": 1954,
+    "deflated_sharpe": 30,
+    "bootstrap_best": 1879
+   },
+   "power": {
+    "luck_trials": 5981,
+    "luck_trials_lo": 3488,
+    "luck_trials_nonnormal_se": 5971,
+    "haircut_bonferroni": 4945,
+    "haircut_bonferroni_lo": 2608,
+    "haircut_holm": 4947,
+    "haircut_bonferroni_one_sided": 5951,
+    "haircut_bonferroni_lo_one_sided": 3448,
+    "haircut_holm_one_sided": 5961,
+    "deflated_sharpe": 815,
+    "bootstrap_best": 5793
+   },
+   "correct": {
+    "luck_trials": 4755,
+    "luck_trials_lo": 3086,
+    "luck_trials_nonnormal_se": 4753,
+    "haircut_bonferroni": 4106,
+    "haircut_bonferroni_lo": 2390,
+    "haircut_holm": 4108,
+    "haircut_bonferroni_one_sided": 4738,
+    "haircut_bonferroni_lo_one_sided": 3055,
+    "haircut_holm_one_sided": 4744,
+    "deflated_sharpe": 797,
+    "bootstrap_best": 4629
+   },
+   "size_adjusted": {
+    "luck_trials": {
+     "cutoff": 0.0065200263417361385,
+     "null_rate_count": 500,
+     "power": 3478
+    },
+    "luck_trials_lo": {
+     "cutoff": 0.045155529509060995,
+     "null_rate_count": 500,
+     "power": 3329
+    },
+    "luck_trials_nonnormal_se": {
+     "cutoff": 0.006520633604293089,
+     "null_rate_count": 500,
+     "power": 3478
+    },
+    "haircut_bonferroni": {
+     "cutoff": 0.013080609870245726,
+     "null_rate_count": 500,
+     "power": 3478
+    },
+    "haircut_bonferroni_lo": {
+     "cutoff": 0.09230694847862025,
+     "null_rate_count": 500,
+     "power": 3329
+    },
+    "haircut_holm": {
+     "cutoff": 0.013046903024320105,
+     "null_rate_count": 500,
+     "power": 3476
+    },
+    "haircut_bonferroni_one_sided": {
+     "cutoff": 0.006540304935122863,
+     "null_rate_count": 500,
+     "power": 3478
+    },
+    "haircut_bonferroni_lo_one_sided": {
+     "cutoff": 0.04615347423931013,
+     "null_rate_count": 500,
+     "power": 3329
+    },
+    "haircut_holm_one_sided": {
+     "cutoff": 0.006523451512160053,
+     "null_rate_count": 500,
+     "power": 3476
+    },
+    "deflated_sharpe": {
+     "cutoff": 0.1858485192131507,
+     "null_rate_count": 500,
+     "power": 2954
+    },
+    "bootstrap_best": {
+     "cutoff": null,
+     "null_rate_count": 0,
+     "power": 0
+    }
+   },
+   "best_is_skilled_trial": 6537,
+   "diagnostics": {
+    "null": {
+     "cross_trial_sd_over_iid_se": 1.2114729634243266,
+     "mean_skew_best": -0.0029669728247097467,
+     "mean_skew_others": -0.00026280470253700405
+    },
+    "skill": {
+     "cross_trial_sd_over_iid_se": 1.36500565206091,
+     "mean_skew_best": -0.0014838619953726647,
+     "mean_skew_others": 0.00011521797222137545
+    }
+   }
+  },
+  {
+   "family": "regimes",
+   "seeds": [
+    20260941,
+    20260942
+   ],
+   "size": {
+    "luck_trials": 525,
+    "luck_trials_lo": 526,
+    "luck_trials_nonnormal_se": 582,
+    "haircut_bonferroni": 274,
+    "haircut_bonferroni_lo": 274,
+    "haircut_holm": 274,
+    "haircut_bonferroni_one_sided": 515,
+    "haircut_bonferroni_lo_one_sided": 513,
+    "haircut_holm_one_sided": 515,
+    "deflated_sharpe": 4,
+    "bootstrap_best": 535
+   },
+   "power": {
+    "luck_trials": 5368,
+    "luck_trials_lo": 5391,
+    "luck_trials_nonnormal_se": 5355,
+    "haircut_bonferroni": 4495,
+    "haircut_bonferroni_lo": 4470,
+    "haircut_holm": 4495,
+    "haircut_bonferroni_one_sided": 5336,
+    "haircut_bonferroni_lo_one_sided": 5366,
+    "haircut_holm_one_sided": 5341,
+    "deflated_sharpe": 1178,
+    "bootstrap_best": 5293
+   },
+   "correct": {
+    "luck_trials": 5105,
+    "luck_trials_lo": 5122,
+    "luck_trials_nonnormal_se": 5070,
+    "haircut_bonferroni": 4362,
+    "haircut_bonferroni_lo": 4334,
+    "haircut_holm": 4362,
+    "haircut_bonferroni_one_sided": 5074,
+    "haircut_bonferroni_lo_one_sided": 5097,
+    "haircut_holm_one_sided": 5078,
+    "deflated_sharpe": 1177,
+    "bootstrap_best": 5015
+   },
+   "size_adjusted": {
+    "luck_trials": {
+     "cutoff": 0.04752982272792569,
+     "null_rate_count": 500,
+     "power": 5293
+    },
+    "luck_trials_lo": {
+     "cutoff": 0.04746315619269021,
+     "null_rate_count": 500,
+     "power": 5336
+    },
+    "luck_trials_nonnormal_se": {
+     "cutoff": 0.0432737607334062,
+     "null_rate_count": 500,
+     "power": 5157
+    },
+    "haircut_bonferroni": {
+     "cutoff": 0.0972744936457213,
+     "null_rate_count": 500,
+     "power": 5293
+    },
+    "haircut_bonferroni_lo": {
+     "cutoff": 0.0971348521072746,
+     "null_rate_count": 500,
+     "power": 5336
+    },
+    "haircut_holm": {
+     "cutoff": 0.0972744936457213,
+     "null_rate_count": 500,
+     "power": 5296
+    },
+    "haircut_bonferroni_one_sided": {
+     "cutoff": 0.04863724682286065,
+     "null_rate_count": 500,
+     "power": 5293
+    },
+    "haircut_bonferroni_lo_one_sided": {
+     "cutoff": 0.0485674260536373,
+     "null_rate_count": 500,
+     "power": 5336
+    },
+    "haircut_holm_one_sided": {
+     "cutoff": 0.04863724682286065,
+     "null_rate_count": 500,
+     "power": 5296
+    },
+    "deflated_sharpe": {
+     "cutoff": 0.22312521373492267,
+     "null_rate_count": 500,
+     "power": 4655
+    },
+    "bootstrap_best": {
+     "cutoff": 0.03924904297365725,
+     "null_rate_count": 448,
+     "power": 4980
+    }
+   },
+   "best_is_skilled_trial": 8049,
+   "diagnostics": {
+    "null": {
+     "cross_trial_sd_over_iid_se": 0.9889501632943313,
+     "mean_skew_best": 0.141369091050206,
+     "mean_skew_others": -0.007641815978912258
+    },
+    "skill": {
+     "cross_trial_sd_over_iid_se": 1.1816084873977553,
+     "mean_skew_best": 0.051185340526685656,
+     "mean_skew_others": -0.0013937624472650306
+    }
+   }
+  },
+  {
+   "family": "correlated_trials",
+   "seeds": [
+    20260943,
+    20260944
+   ],
+   "size": {
+    "luck_trials": 317,
+    "luck_trials_lo": 327,
+    "luck_trials_nonnormal_se": 313,
+    "haircut_bonferroni": 151,
+    "haircut_bonferroni_lo": 167,
+    "haircut_holm": 151,
+    "haircut_bonferroni_one_sided": 309,
+    "haircut_bonferroni_lo_one_sided": 322,
+    "haircut_holm_one_sided": 309,
+    "deflated_sharpe": 158,
+    "bootstrap_best": 300
+   },
+   "power": {
+    "luck_trials": 5146,
+    "luck_trials_lo": 5147,
+    "luck_trials_nonnormal_se": 5143,
+    "haircut_bonferroni": 4230,
+    "haircut_bonferroni_lo": 4273,
+    "haircut_holm": 4231,
+    "haircut_bonferroni_one_sided": 5120,
+    "haircut_bonferroni_lo_one_sided": 5112,
+    "haircut_holm_one_sided": 5121,
+    "deflated_sharpe": 2513,
+    "bootstrap_best": 4954
+   },
+   "correct": {
+    "luck_trials": 5105,
+    "luck_trials_lo": 5108,
+    "luck_trials_nonnormal_se": 5101,
+    "haircut_bonferroni": 4202,
+    "haircut_bonferroni_lo": 4244,
+    "haircut_holm": 4203,
+    "haircut_bonferroni_one_sided": 5079,
+    "haircut_bonferroni_lo_one_sided": 5073,
+    "haircut_holm_one_sided": 5080,
+    "deflated_sharpe": 2501,
+    "bootstrap_best": 4911
+   },
+   "size_adjusted": {
+    "luck_trials": {
+     "cutoff": 0.08285732692004563,
+     "null_rate_count": 500,
+     "power": 5820
+    },
+    "luck_trials_lo": {
+     "cutoff": 0.07883630320098044,
+     "null_rate_count": 500,
+     "power": 5727
+    },
+    "luck_trials_nonnormal_se": {
+     "cutoff": 0.08241080618964437,
+     "null_rate_count": 500,
+     "power": 5810
+    },
+    "haircut_bonferroni": {
+     "cutoff": 0.17261095739777255,
+     "null_rate_count": 500,
+     "power": 5820
+    },
+    "haircut_bonferroni_lo": {
+     "cutoff": 0.16389833744187088,
+     "null_rate_count": 500,
+     "power": 5727
+    },
+    "haircut_holm": {
+     "cutoff": 0.17261095739777255,
+     "null_rate_count": 500,
+     "power": 5824
+    },
+    "haircut_bonferroni_one_sided": {
+     "cutoff": 0.08630547869888627,
+     "null_rate_count": 500,
+     "power": 5820
+    },
+    "haircut_bonferroni_lo_one_sided": {
+     "cutoff": 0.08194916872093544,
+     "null_rate_count": 500,
+     "power": 5727
+    },
+    "haircut_holm_one_sided": {
+     "cutoff": 0.08630547869888627,
+     "null_rate_count": 500,
+     "power": 5824
+    },
+    "deflated_sharpe": {
+     "cutoff": 0.10217273992908738,
+     "null_rate_count": 500,
+     "power": 4021
+    },
+    "bootstrap_best": {
+     "cutoff": 0.07703173539859691,
+     "null_rate_count": 449,
+     "power": 5627
+    }
+   },
+   "best_is_skilled_trial": 9689,
+   "diagnostics": {
+    "null": {
+     "cross_trial_sd_over_iid_se": 0.6987842721009797,
+     "mean_skew_best": 0.00044346839811228785,
+     "mean_skew_others": 0.0006473217440428435
+    },
+    "skill": {
+     "cross_trial_sd_over_iid_se": 0.9407769077363951,
+     "mean_skew_best": 0.0004242092160894482,
+     "mean_skew_others": 0.00027557740209594166
+    }
+   }
+  }
+ ]
+}

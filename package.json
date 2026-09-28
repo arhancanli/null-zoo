@@ -1,0 +1,17 @@
+{
+  "name": "null-zoo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Size and power of backtest-overfitting corrections on synthetic searches with known ground truth.",
+  "author": "Arhan Canli",
+  "license": "MIT",
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "test": "node --test src/scripts/research/null-zoo/null-zoo.test.mjs",
+    "reproduce:v0": "node src/scripts/research/null-zoo/run.mjs 2000 > /tmp/null-zoo-v0.json && cmp /tmp/null-zoo-v0.json src/config/research/null-zoo-v0.json && echo 'v0 reproduces byte for byte'",
+    "tables": "node analysis/tables.mjs",
+    "robustness": "node analysis/extend.mjs 10000 1999 > analysis/null-zoo-extended.json",
+    "bootstrap-res": "node analysis/bootstrap-resolution.mjs 10000 > analysis/bootstrap-resolution.json"
+  }
+}

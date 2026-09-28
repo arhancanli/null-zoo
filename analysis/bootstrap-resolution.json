@@ -1,0 +1,68 @@
+{
+ "schema": "canli.null-zoo.bootstrap-resolution.v1",
+ "design": {
+  "trials": 20,
+  "observations": 504,
+  "periodsPerYear": 252,
+  "skill": 2,
+  "level": 0.05
+ },
+ "reps": 10000,
+ "draws": [
+  400,
+  1999
+ ],
+ "rows": [
+  {
+   "family": "iid_normal",
+   "seeds": [
+    20261000,
+    20261001
+   ],
+   "size": {
+    "luck_trials": 459,
+    "bootstrap_400": 428,
+    "bootstrap_1999": 450
+   },
+   "power": {
+    "luck_trials": 5265,
+    "bootstrap_400": 4674,
+    "bootstrap_1999": 5087
+   }
+  },
+  {
+   "family": "student_t4",
+   "seeds": [
+    20261002,
+    20261003
+   ],
+   "size": {
+    "luck_trials": 480,
+    "bootstrap_400": 586,
+    "bootstrap_1999": 624
+   },
+   "power": {
+    "luck_trials": 5414,
+    "bootstrap_400": 4905,
+    "bootstrap_1999": 5391
+   }
+  },
+  {
+   "family": "skew_negative",
+   "seeds": [
+    20261004,
+    20261005
+   ],
+   "size": {
+    "luck_trials": 802,
+    "bootstrap_400": 489,
+    "bootstrap_1999": 526
+   },
+   "power": {
+    "luck_trials": 5486,
+    "bootstrap_400": 4092,
+    "bootstrap_1999": 4599
+   }
+  }
+ ]
+}
