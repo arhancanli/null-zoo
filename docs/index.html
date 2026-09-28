@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Null Zoo: Size and Power of Backtest-Overfitting Corrections on Synthetic Searches with Known Ground Truth</title>
+<link rel="canonical" href="https://arhancanli.github.io/null-zoo/">
+<meta name="citation_title" content="The Null Zoo: Size and Power of Backtest-Overfitting Corrections on Synthetic Searches with Known Ground Truth">
+<meta name="citation_author" content="Canli, Arhan">
+<meta name="citation_author_institution" content="Canli Capital">
+<meta name="citation_publication_date" content="2026/09/28">
+<meta name="citation_online_date" content="2026/09/28">
+<meta name="citation_pdf_url" content="https://arhancanli.github.io/null-zoo/null-zoo-v1.0.0.pdf">
+<meta name="citation_abstract_html_url" content="https://arhancanli.github.io/null-zoo/">
+<meta name="citation_doi" content="10.5281/zenodo.23018988">
+<meta name="citation_technical_report_institution" content="Canli Capital">
+<meta name="citation_technical_report_number" content="Null Zoo v1.0.0">
+<meta name="citation_language" content="en">
+<meta name="citation_keywords" content="backtest overfitting">
+<meta name="citation_keywords" content="multiple testing">
+<meta name="citation_keywords" content="Sharpe ratio">
+<meta name="citation_keywords" content="deflated Sharpe ratio">
+<meta name="citation_keywords" content="simulation study">
+<meta name="citation_keywords" content="quantitative finance">
+<meta name="citation_reference" content="citation_title=The Deflated Sharpe Ratio: Correcting for Selection Bias, Backtest Overfitting, and Non-Normality; citation_author=Bailey, David H.; citation_publication_date=2014; citation_journal_title=The Journal of Portfolio Management">
+<meta name="citation_reference" content="citation_title=Pseudo-Mathematics and Financial Charlatanism: The Effects of Backtest Overfitting on Out-of-Sample Performance; citation_author=Bailey, David H.; citation_publication_date=2014; citation_journal_title=Notices of the American Mathematical Society">
+<meta name="citation_reference" content="citation_title=The Probability of Backtest Overfitting; citation_author=Bailey, David H.; citation_publication_date=2017; citation_journal_title=Journal of Computational Finance">
+<meta name="citation_reference" content="citation_title=Backtesting; citation_author=Harvey, Campbell R.; citation_publication_date=2015; citation_journal_title=The Journal of Portfolio Management">
+<meta name="citation_reference" content="citation_title=ldots and the Cross-Section of Expected Returns; citation_author=Harvey, Campbell R.; citation_publication_date=2016; citation_journal_title=The Review of Financial Studies">
+<meta name="citation_reference" content="citation_title=The Statistics of Sharpe Ratios; citation_author=Lo, Andrew W.; citation_publication_date=2002; citation_journal_title=Financial Analysts Journal">
+<meta name="citation_reference" content="citation_title=Comments on Variance of the IID Estimator in Lo (2002); citation_author=Mertens, Elmar; citation_publication_date=; citation_journal_title=Working paper, University of Basel">
+<meta name="citation_reference" content="citation_title=A Reality Check for Data Snooping; citation_author=White, Halbert; citation_publication_date=2000; citation_journal_title=Econometrica">
+<meta name="citation_reference" content="citation_title=A Test for Superior Predictive Ability; citation_author=Hansen, Peter Reinhard; citation_publication_date=2005; citation_journal_title=Journal of Business &amp; Economic Statistics">
+<meta name="citation_reference" content="citation_title=Stepwise Multiple Testing as Formalized Data Snooping; citation_author=Romano, Joseph P.; citation_publication_date=2005; citation_journal_title=Econometrica">
+<meta name="citation_reference" content="citation_title=A Simple Sequentially Rejective Multiple Test Procedure; citation_author=Holm, Sture; citation_publication_date=; citation_journal_title=Scandinavian Journal of Statistics">
+<meta name="citation_reference" content="citation_title=Rectangular Confidence Regions for the Means of Multivariate Normal Distributions; citation_author=vSid&#x27;ak, Zbynvek; citation_publication_date=1967; citation_journal_title=Journal of the American Statistical Association">
+<meta name="citation_reference" content="citation_title=Generalized Autoregressive Conditional Heteroskedasticity; citation_author=Bollerslev, Tim; citation_publication_date=1986; citation_journal_title=Journal of Econometrics">
+<meta name="citation_reference" content="citation_title=Bootstrap Methods: Another Look at the Jackknife; citation_author=Efron, Bradley; citation_publication_date=1979; citation_journal_title=The Annals of Statistics">
+<meta name="citation_reference" content="citation_title=The Stationary Bootstrap; citation_author=Politis, Dimitris N.; citation_publication_date=1994; citation_journal_title=Journal of the American Statistical Association">
+<meta name="citation_reference" content="citation_title=Backtest Overfitting in the Machine Learning Era: A Comparison of Out-of-Sample Testing Methods in a Synthetic Controlled Environment; citation_author=Arian, Hamid R.; citation_publication_date=2024; citation_journal_title=Knowledge-Based Systems">
+<meta name="citation_reference" content="citation_title=Equity Strategy Backtesting: Luck or Edge? The MinervaScore as a Statistical Robustness Grade; citation_author=Santoni, Maria Laura; citation_publication_date=; citation_journal_title=arXiv preprint arXiv:2608.23808">
+<meta name="citation_reference" content="citation_title=Living Synthetic Benchmarks: A Neutral and Cumulative Framework for Simulation Studies; citation_author=Bartovs, Frantivsek; citation_publication_date=; citation_journal_title=arXiv preprint arXiv:2510.19489">
+<meta name="citation_reference" content="citation_title=Using Simulation Studies to Evaluate Statistical Methods; citation_author=Morris, Tim P.; citation_publication_date=2019; citation_journal_title=Statistics in Medicine">
+<meta name="citation_reference" content="citation_title=Scrambled Linear Pseudorandom Number Generators; citation_author=Blackman, David; citation_publication_date=2021; citation_journal_title=ACM Transactions on Mathematical Software">
+<meta name="citation_reference" content="citation_title=Xorshift RNGs; citation_author=Marsaglia, George; citation_publication_date=2003; citation_journal_title=Journal of Statistical Software">
+<meta name="citation_reference" content="citation_title=A Note on the Generation of Random Normal Deviates; citation_author=Box, G. E. P.; citation_publication_date=1958; citation_journal_title=The Annals of Mathematical Statistics">
+<meta name="citation_reference" content="citation_title=Robust Performance Hypothesis Testing with the Sharpe Ratio; citation_author=Ledoit, Olivier; citation_publication_date=2008; citation_journal_title=Journal of Empirical Finance">
+<meta name="citation_reference" content="citation_title=Comparing Sharpe Ratios: So Where Are the p-Values?; citation_author=Opdyke, J. D.; citation_publication_date=2007; citation_journal_title=Journal of Asset Management">
+<meta name="citation_reference" content="citation_title=The Sharpe Ratio Efficient Frontier; citation_author=Bailey, David H.; citation_publication_date=2012; citation_journal_title=The Journal of Risk">
+<meta name="citation_reference" content="citation_title=The Jackknife and the Bootstrap for General Stationary Observations; citation_author=K&quot;unsch, Hans R.; citation_publication_date=1989; citation_journal_title=The Annals of Statistics">
+<meta name="citation_reference" content="citation_title=A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix; citation_author=Newey, Whitney K.; citation_publication_date=1987; citation_journal_title=Econometrica">
+<meta name="citation_reference" content="citation_title=Bootstrap Tests: How Many Bootstraps?; citation_author=Davidson, Russell; citation_publication_date=2000; citation_journal_title=Econometric Reviews">
+<meta name="DC.title" content="The Null Zoo: Size and Power of Backtest-Overfitting Corrections on Synthetic Searches with Known Ground Truth">
+<meta name="DC.creator" content="Canli, Arhan">
+<meta name="DC.date" content="2026-09-28">
+<meta name="DC.identifier" content="doi:10.5281/zenodo.23018988">
+<meta name="DC.type" content="Text.Preprint">
+<meta name="DC.language" content="en">
+<meta name="DC.rights" content="CC BY 4.0">
+<meta name="description" content="Corrections for backtest overfitting—the deflated Sharpe ratio, the multiple-testing haircut, family-wise adjustments and bootstrap tests—are derived under assumptions that real trading research violates. We introduce the Null Zoo, an open and versioned simulation benchmark that draws complete resea">
+<meta name="og:title" content="The Null Zoo: Size and Power of Backtest-Overfitting Corrections on Synthetic Searches with Known Ground Truth">
+<meta name="og:type" content="article">
+<meta name="og:url" content="https://arhancanli.github.io/null-zoo/">
+<meta name="og:description" content="Corrections for backtest overfitting—the deflated Sharpe ratio, the multiple-testing haircut, family-wise adjustments and bootstrap tests—are derived under assumptions that real trading research violates. We introduce the Null Zoo, an open and versioned simulation benchmark that draws complete resea">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "ScholarlyArticle", "headline": "The Null Zoo: Size and Power of Backtest-Overfitting Corrections on Synthetic Searches with Known Ground Truth", "name": "The Null Zoo: Size and Power of Backtest-Overfitting Corrections on Synthetic Searches with Known Ground Truth", "author": [{"@type": "Person", "name": "Arhan Canli", "affiliation": {"@type": "Organization", "name": "Canli Capital"}, "url": "https://github.com/arhancanli"}], "datePublished": "2026-09-28", "abstract": "Corrections for backtest overfitting—the deflated Sharpe ratio, the multiple-testing haircut, family-wise adjustments and bootstrap tests—are derived under assumptions that real trading research violates. We introduce the Null Zoo, an open and versioned simulation benchmark that draws complete research searches (20 strategies of 504 daily returns) from eight return families with known ground truth and scores seven validators by size, raw power and size-adjusted power. A lag-one autocorrelation of 0.2 raises the false-positive rate of every test that ignores it, except the already near-zero deflated Sharpe ratio, to between 18.79% and 19.65% at a nominal 5%; deflating the t-statistic by Lo’s autocorrelation-adjusted annualisation factor brings it to 5.52% in this favourable AR(1) case, at a cost of a slight excess size elsewhere. Under negative skew the Student-t tests reject 7.60%; a non-normal standard error and an i.i.d. bootstrap each repair one shape and break another, and no validator is calibrated across skew and fat tails; under fat tails, selection favours series with a large positive outlier. Under i.i.d. normal returns the deflated Sharpe ratio with its authors’ 0.95 acceptance rule fails to accept 90.5% of searches containing a strategy with a true Sharpe ratio of 2, because the rule tests a harder hypothesis than no skill and the skilled strategy raises its own benchmark; size-adjusted, it recovers most of that power (46.9% against 52.6%) but trails the Šidák test by 5.2–18.0 points across families. A bootstrap’s number of resamples materially affects its power. The published results reproduce byte for byte from the released code, and a robustness run with a different generator, 10,000 replications per cell and a finer bootstrap shows the findings are not artefacts of the generator or of Monte Carlo error.", "keywords": "backtest overfitting, multiple testing, Sharpe ratio, deflated Sharpe ratio, simulation study, quantitative finance", "inLanguage": "en", "identifier": {"@type": "PropertyValue", "propertyID": "DOI", "value": "10.5281/zenodo.23018988"}, "sameAs": ["https://doi.org/10.5281/zenodo.23018988", "https://zenodo.org/records/23018988"], "url": "https://arhancanli.github.io/null-zoo/", "license": "https://creativecommons.org/licenses/by/4.0/", "isAccessibleForFree": true, "encoding": {"@type": "MediaObject", "contentUrl": "https://arhancanli.github.io/null-zoo/null-zoo-v1.0.0.pdf", "encodingFormat": "application/pdf"}, "citation": ["The Deflated Sharpe Ratio: Correcting for Selection Bias, Backtest Overfitting, and Non-Normality", "Pseudo-Mathematics and Financial Charlatanism: The Effects of Backtest Overfitting on Out-of-Sample Performance", "The Probability of Backtest Overfitting", "Backtesting", "ldots and the Cross-Section of Expected Returns", "The Statistics of Sharpe Ratios", "Comments on Variance of the IID Estimator in Lo (2002)", "A Reality Check for Data Snooping", "A Test for Superior Predictive Ability", "Stepwise Multiple Testing as Formalized Data Snooping", "A Simple Sequentially Rejective Multiple Test Procedure", "Rectangular Confidence Regions for the Means of Multivariate Normal Distributions", "Generalized Autoregressive Conditional Heteroskedasticity", "Bootstrap Methods: Another Look at the Jackknife", "The Stationary Bootstrap", "Backtest Overfitting in the Machine Learning Era: A Comparison of Out-of-Sample Testing Methods in a Synthetic Controlled Environment", "Equity Strategy Backtesting: Luck or Edge? The MinervaScore as a Statistical Robustness Grade", "Living Synthetic Benchmarks: A Neutral and Cumulative Framework for Simulation Studies", "Using Simulation Studies to Evaluate Statistical Methods", "Scrambled Linear Pseudorandom Number Generators", "Xorshift RNGs", "A Note on the Generation of Random Normal Deviates", "Robust Performance Hypothesis Testing with the Sharpe Ratio", "Comparing Sharpe Ratios: So Where Are the p-Values?", "The Sharpe Ratio Efficient Frontier", "The Jackknife and the Bootstrap for General Stationary Observations", "A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix", "Bootstrap Tests: How Many Bootstraps?"]}</script>
+<style>
+:root{--fg:#1a1a1a;--muted:#5a5a5a;--bg:#fff;--link:#0b5cad;--rule:#e3e3e3;--code:#f5f5f3}
+@media (prefers-color-scheme:dark){:root{--fg:#e8e8e6;--muted:#a3a3a0;--bg:#121212;--link:#7ab4f5;--rule:#2c2c2c;--code:#1c1c1c}}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.6 Georgia,'Times New Roman',serif}
+main{max-width:720px;margin:0 auto;padding:40px 16px 64px}
+h1{font-size:1.7em;line-height:1.25;margin:0 0 12px}
+.meta{color:var(--muted);font-family:system-ui,sans-serif;font-size:.9em;margin-bottom:24px}
+a{color:var(--link)} h2{font-family:system-ui,sans-serif;font-size:1em;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:32px}
+.links{display:flex;flex-wrap:wrap;gap:10px;font-family:system-ui,sans-serif;font-size:.95em}
+.links a{border:1px solid var(--rule);border-radius:6px;padding:6px 12px;text-decoration:none}
+pre{background:var(--code);padding:12px;overflow-x:auto;font-size:.8em;border-radius:6px}
+</style>
+</head>
+<body>
+<main>
+<h1>The Null Zoo: Size and Power of Backtest-Overfitting Corrections on Synthetic Searches with Known Ground Truth</h1>
+<div class="meta">Arhan Canli · Canli Capital · 28 September 2026 · Preprint, version 1.0.0 · DOI <a href="https://doi.org/10.5281/zenodo.23018988">10.5281/zenodo.23018988</a></div>
+<div class="links"><a href="null-zoo-v1.0.0.pdf">PDF</a><a href="https://zenodo.org/records/23018988">Zenodo record</a><a href="https://github.com/arhancanli/null-zoo">Code and data</a><a href="https://canlicapital.com/research/null-zoo-v0">Research page</a></div>
+<h2>Abstract</h2>
+<p>Corrections for backtest overfitting—the deflated Sharpe ratio, the multiple-testing haircut, family-wise adjustments and bootstrap tests—are derived under assumptions that real trading research violates. We introduce the Null Zoo, an open and versioned simulation benchmark that draws complete research searches (20 strategies of 504 daily returns) from eight return families with known ground truth and scores seven validators by size, raw power and size-adjusted power. A lag-one autocorrelation of 0.2 raises the false-positive rate of every test that ignores it, except the already near-zero deflated Sharpe ratio, to between 18.79% and 19.65% at a nominal 5%; deflating the t-statistic by Lo’s autocorrelation-adjusted annualisation factor brings it to 5.52% in this favourable AR(1) case, at a cost of a slight excess size elsewhere. Under negative skew the Student-t tests reject 7.60%; a non-normal standard error and an i.i.d. bootstrap each repair one shape and break another, and no validator is calibrated across skew and fat tails; under fat tails, selection favours series with a large positive outlier. Under i.i.d. normal returns the deflated Sharpe ratio with its authors’ 0.95 acceptance rule fails to accept 90.5% of searches containing a strategy with a true Sharpe ratio of 2, because the rule tests a harder hypothesis than no skill and the skilled strategy raises its own benchmark; size-adjusted, it recovers most of that power (46.9% against 52.6%) but trails the Šidák test by 5.2–18.0 points across families. A bootstrap’s number of resamples materially affects its power. The published results reproduce byte for byte from the released code, and a robustness run with a different generator, 10,000 replications per cell and a finer bootstrap shows the findings are not artefacts of the generator or of Monte Carlo error.</p>
+<h2>Keywords</h2>
+<p>backtest overfitting, multiple testing, Sharpe ratio, deflated Sharpe ratio, simulation study, quantitative finance</p>
+<h2>Cite</h2>
+<pre>@misc{canli2026nullzoo,
+  author    = {Canli, Arhan},
+  title     = {The Null Zoo: Size and Power of Backtest-Overfitting Corrections on Synthetic Searches with Known Ground Truth},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.23018988},
+  url       = {https://doi.org/10.5281/zenodo.23018988}
+}</pre>
+<h2>Licence</h2>
+<p>Text: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Code: MIT.</p>
+</main>
+</body>
+</html>
