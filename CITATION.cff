@@ -6,6 +6,25 @@ authors:
     given-names: Arhan
     affiliation: Canli Capital
 type: software
+doi: 10.5281/zenodo.23018987
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23018987
+    description: All versions of the paper (Zenodo concept DOI)
+  - type: doi
+    value: 10.5281/zenodo.23018988
+    description: Version 1.0.0 of the paper
+preferred-citation:
+  type: article
+  title: "The Null Zoo: Size and Power of Backtest-Overfitting Corrections on Synthetic Searches with Known Ground Truth"
+  authors:
+    - family-names: Canli
+      given-names: Arhan
+      affiliation: Canli Capital
+  year: 2026
+  doi: 10.5281/zenodo.23018988
+  publisher:
+    name: Zenodo
 license: MIT
 repository-code: "https://github.com/arhancanli/null-zoo"
 version: 1.0.0

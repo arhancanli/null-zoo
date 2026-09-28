@@ -2,7 +2,9 @@
 
 **Size and power of backtest-overfitting corrections on synthetic searches with known ground truth.**
 
-Arhan Canli · [paper (PDF)](paper/main.pdf) · MIT licence
+Arhan Canli · [paper (PDF)](paper/main.pdf) · [DOI 10.5281/zenodo.23018988](https://doi.org/10.5281/zenodo.23018988) · MIT licence
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23018988.svg)](https://doi.org/10.5281/zenodo.23018988)
 
 Corrections for backtest overfitting (the deflated Sharpe ratio, the multiple-testing haircut,
 family-wise adjustments, bootstrap tests) are derived under assumptions that real trading research
