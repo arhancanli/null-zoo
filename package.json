@@ -1,17 +1,22 @@
 {
   "name": "null-zoo",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "Size and power of backtest-overfitting corrections on synthetic searches with known ground truth.",
+  "description": "Size and power of backtest-overfitting and data-snooping tests on synthetic searches with known ground truth.",
   "author": "Arhan Canli",
   "license": "MIT",
   "type": "module",
-  "engines": { "node": ">=24" },
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
-    "test": "node --test src/scripts/research/null-zoo/null-zoo.test.mjs",
+    "test": "node --test src/scripts/research/null-zoo/null-zoo.test.mjs src/scripts/research/null-zoo/v1/v1.test.mjs src/scripts/research/null-zoo/v1/evaluate.test.mjs",
     "reproduce:v0": "node src/scripts/research/null-zoo/run.mjs 2000 > /tmp/null-zoo-v0.json && cmp /tmp/null-zoo-v0.json src/config/research/null-zoo-v0.json && echo 'v0 reproduces byte for byte'",
     "tables": "node analysis/tables.mjs",
     "robustness": "node analysis/extend.mjs 10000 1999 > analysis/null-zoo-extended.json",
-    "bootstrap-res": "node analysis/bootstrap-resolution.mjs 10000 > analysis/bootstrap-resolution.json"
+    "bootstrap-res": "node analysis/bootstrap-resolution.mjs 10000 > analysis/bootstrap-resolution.json",
+    "v2": "python analysis/v2/run_v2.py > analysis/v2/results-v2.json 2> analysis/v2/run-v2.log && python analysis/v2/arch_check.py > analysis/v2/arch-check-v2.json 2> analysis/v2/arch-check-v2.log && python analysis/v2/evaluate_v2.py",
+    "reproduce:v1": "node src/scripts/research/null-zoo/v1/run.mjs 10000 > /tmp/null-zoo-v1.json && cmp /tmp/null-zoo-v1.json src/config/research/null-zoo-v1.json && echo 'v1 reproduces byte for byte'",
+    "reproduce:v1b": "node src/scripts/research/null-zoo/v1/run.mjs 10000 $(nproc 2>/dev/null || sysctl -n hw.ncpu) 20261005 > /tmp/null-zoo-v1b.json && cmp /tmp/null-zoo-v1b.json src/config/research/null-zoo-v1b.json && echo 'v1b reproduces byte for byte'"
   }
 }

@@ -14,13 +14,25 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0 # the paper quotes the commit that added the v2 pre-registration
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
-      - name: Instrument tests
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Python packages (pinned)
+        run: python -m pip install -r analysis/v2/requirements.txt
+      - name: Instrument tests (v0 and v1, JavaScript)
         run: npm test
-      - name: Published run reproduces byte for byte
+      - name: Instrument tests (v2, Python)
+        run: python -m unittest analysis/v2/test_nzpy.py
+      - name: Published v0 run reproduces byte for byte
         run: npm run reproduce:v0
+      - name: The v2 scoring reproduces the committed evaluation
+        run: |
+          python analysis/v2/evaluate_v2.py
+          git diff --exit-code -- analysis/v2/evaluation-v2.json
       - name: Committed tables and numbers match the result files
         run: |
           npm run tables

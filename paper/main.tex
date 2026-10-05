@@ -10,11 +10,17 @@
 \usepackage{microtype}
 \usepackage{xurl}
 
-\input{generated/numbers.tex}
+% Every number in the text is read from paper/generated/values.tex, which analysis/tables.mjs writes
+% from the result files. \nz{key} stops the build if a key is missing.
+\makeatletter
+\newcommand{\nzdef}[2]{\expandafter\def\csname nz@#1\endcsname{#2}}
+\newcommand{\nz}[1]{\ifcsname nz@#1\endcsname\csname nz@#1\endcsname\else\errmessage{Null Zoo value #1 is not defined}\fi}
+\makeatother
+\input{generated/values.tex}
 
-\title{The Null Zoo: Size and Power of Backtest-Overfitting Corrections\\on Synthetic Searches with Known Ground Truth}
+\title{The Null Zoo: Size and Power of Backtest-Overfitting and\\Data-Snooping Tests on Synthetic Searches with Known Ground Truth}
 \author{Arhan Canli\\\small Canli Capital, Dubai\\\small\url{https://github.com/arhancanli}}
-\date{\small September 2026}
+\date{\small October 2026}
 
 \begin{document}
 \maketitle
@@ -23,8 +29,10 @@
 \input{sections/introduction.tex}
 \input{sections/design.tex}
 \input{sections/results.tex}
+\input{sections/snooping.tex}
 \input{sections/discussion.tex}
 \input{sections/availability.tex}
+\ifdefined\withdisclosure\input{sections/acknowledgements.tex}\fi
 
 \bibliographystyle{plainnat}
 \bibliography{references}
