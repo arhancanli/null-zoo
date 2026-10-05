@@ -1,0 +1,43 @@
+{
+  "schema": "canli.null-zoo.v1.prereg",
+  "written": "2026-10-04, committed before the v1 run (scripts/research/null-zoo/v1/run.mjs); the commit time is the evidence",
+  "purpose": "Choose audit_backtest's calibrated headline test by measured size and power, never by preference.",
+  "design": {
+    "trials": 20,
+    "observations": 504,
+    "periods_per_year": 252,
+    "skills": [0, 1, 2, 3],
+    "searches_per_cell": 10000,
+    "families": ["iid_normal", "student_t4", "skew_negative", "skew_positive", "garch", "ar1", "regimes", "correlated_trials", "block_cluster"],
+    "monte_carlo_standard_error_of_a_5_percent_size": 0.0022
+  },
+  "bar": {
+    "size": "at most 0.06 at a nominal 0.05, on every one of the nine families",
+    "power": "at least 0.45 on iid_normal at a true annualized Sharpe of 2 (504 days, 20 trials)",
+    "unchanged_after_the_run": "The bar is not moved after results are seen. A family on which no candidate is calibrated is published as a failure for that return shape."
+  },
+  "ceiling": {
+    "validator": "oracle_hac_t",
+    "meaning": "a one-sided Newey-West t-test on the skilled trial alone; it knows which trial has skill, so no valid best-of-20 test can beat it",
+    "rule": "If the ceiling on iid_normal at skill 2 is below 0.45, the power bar is reported as unreachable, not lowered."
+  },
+  "candidates": {
+    "with_variants": ["spa_consistent", "spa_upper"],
+    "single_series": ["bootstrap_t_sidak", "hac_t_sidak", "luck_trials_lo"]
+  },
+  "selection_rule": "For each path, the headline test is the first candidate in its list that meets both bars on all nine families. If none does, it is the candidate that meets the size bar on the most families (ties go to the earlier one), it must still meet the power bar, and every family where it misses is listed as a failure in the result.",
+  "shape_mapping": {
+    "purpose": "Which family's measured size an audit result quotes for the caller's returns. Fixed here so no result can quote the friendliest family.",
+    "rules_in_order": [
+      "with variants and a mean pairwise correlation of at least 0.3 between them: block_cluster if the correlations are uneven (standard deviation of the pairwise correlations at least 0.15), otherwise correlated_trials",
+      "absolute lag-1 autocorrelation of the returns at least 0.1: ar1",
+      "skewness at most -0.5: skew_negative",
+      "skewness at least 0.5: skew_positive",
+      "excess kurtosis at least 2 and lag-1 autocorrelation of squared returns at least 0.1: garch",
+      "excess kurtosis at least 2: student_t4",
+      "lag-1 autocorrelation of squared returns at least 0.1: regimes",
+      "otherwise: iid_normal"
+    ],
+    "always_also_reported": "the largest measured size of the headline test across all nine families"
+  }
+}

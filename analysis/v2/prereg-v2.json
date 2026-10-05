@@ -1,0 +1,67 @@
+{
+  "schema": "canli.null-zoo.v2.prereg",
+  "written": "2026-10-05. Committed, with analysis/v2/run_v2.py, analysis/v2/arch_check.py and analysis/v2/evaluate_v2.py, before either run script was run at full size; the commit and its push time on GitHub are the evidence.",
+  "author": "Arhan Canli",
+  "questions": [
+    "Null Zoo v1 and its confirmation run v1b found Hansen's (2005) studentized SPA test (and Romano-Wolf StepM, which uses the same studentized statistic) oversized at T = 504, k = 20 in most return families, while White's (2000) Reality Check was close to its nominal level. Does an independent implementation in a second language reproduce this?",
+    "Is the excess size caused by studentizing with a fixed, noisy long-run variance estimate that the bootstrap does not re-estimate, and does re-studentizing inside the bootstrap repair it?",
+    "How does the excess size depend on the number of periods, the number of strategies and the block length, including arch's default block length?",
+    "Where should studentizing and Hansen's consistent recentring pay off (strategies with unequal volatilities; clearly poor alternatives), and do they?"
+  ],
+  "background": {
+    "v1_results": "src/config/research/null-zoo-v1-evaluation.json and src/config/research/null-zoo-v1b-evaluation.json (10,000 searches per cell, xoshiro128**), copied unchanged from github.com/arhancanli/canlicapital at ea3985981ec873bd2df09850e8045ffcbc685bb1.",
+    "arch_8_0_0": "In arch 8.0.0 (the latest release on PyPI on 2026-10-05) the SPA test statistic and its bootstrap values are the unstudentized mean loss differentials; the studentize option changes neither, and the variance estimate enters only the consistent recentring threshold. The Reality Check is the same class, read at the upper p-value.",
+    "arch_pr_871": "Pull request bashtage/arch#871 (opened 2026-09-27; head 6f1ca7f18482eb4ca74406cf8a23c59d8883ed7a; open, unmerged and without maintainer comment when this file was written) proposes dividing both by the fixed standard error sqrt(variance / t), with the Politis-Romano variance at the bootstrap's block length, which defaults to int(sqrt(t)). This study does not run that pull request's code; the variant spa_c at block 22 below implements the same formula independently."
+  },
+  "pilot": {
+    "disclosure": "Before this file was written, a pilot of the same tests (an earlier draft of analysis/v2/nzpy.py) ran with base seed 20261008: 2,000 null searches in each of iid_normal, skew_negative, student_t4 and ar1, then 10,000 null searches in ar1 to check an apparent difference from v1. Its results shaped the choice of variants below. The governed run uses base seed 20261009 and shares no search with the pilot.",
+    "results_size_at_5pct": {
+      "iid_normal": { "spa_c": 0.0745, "rc": 0.053, "spa_c_unstud": 0.055, "spa_c_sd": 0.0535, "spa_c_boot_t": 0.052 },
+      "skew_negative": { "spa_c": 0.1285, "rc": 0.056, "spa_c_unstud": 0.0585, "spa_c_sd": 0.107, "spa_c_boot_t": 0.058 },
+      "student_t4": { "spa_c": 0.0695, "rc": 0.04, "spa_c_unstud": 0.043, "spa_c_sd": 0.0495, "spa_c_boot_t": 0.049 },
+      "ar1": { "spa_c": 0.1025, "rc": 0.072, "spa_c_unstud": 0.073, "spa_c_sd": 0.0785, "spa_c_boot_t": 0.0765 },
+      "ar1_10000_searches": { "spa_c": 0.0944, "rc": 0.0641 }
+    }
+  },
+  "implementation": {
+    "code": "analysis/v2/nzpy.py: families, circular stationary bootstrap (Politis and Romano 1994), Politis-Romano closed-form variance, the tests below. Written from the published definitions, not from src/.",
+    "checks": "analysis/v2/test_nzpy.py: closed-form variance against the direct sum and against the bootstrap variance of the mean; resample length and mean block length; family moments; studentized SPA against a loop-by-loop transcription of Hansen (2005); the unstudentized consistent SPA and the Reality Check against arch 8.0.0 within Monte Carlo error. Every check was shown to fail on a planted fault.",
+    "generator": "numpy PCG64 via SeedSequence([20261009, experiment, cell, chunk]); chunks of 250 searches merged in order, so output does not depend on the number of workers.",
+    "bootstrap_reps": 1000,
+    "block": "round(n^(1/3)) unless stated (8 at n = 504); arch's default int(sqrt(n)) = 22 where marked _b22."
+  },
+  "tests": {
+    "spa_c": "Hansen (2005) consistent p-value: T = max(0, max_k sqrt(n) m_k / w_k), w_k^2 the Politis-Romano variance at the block length, held fixed in the bootstrap; resampled statistics max(0, max_k sqrt(n) (m*_k - g_k) / w_k) with g_k = m_k if m_k >= -sqrt(w_k^2 / n * 2 ln ln n), else 0.",
+    "spa_u": "As spa_c with g_k = m_k (upper p-value).",
+    "rc": "White (2000): max_k m_k against max_k (m*_k - m_k); not studentized.",
+    "spa_c_unstud": "Consistent recentring, statistic not studentized and not floored at zero: arch 8.0.0's SPA computation.",
+    "spa_c_sd": "As spa_c, studentized by the sample standard deviation (the Politis-Romano variance at block 1) instead of the long-run variance; the bootstrap is unchanged.",
+    "spa_c_boot_t": "Consistent recentring; observed statistic studentized by each strategy's sample standard deviation, every resampled statistic by that resample's own standard deviation (a bootstrap-t).",
+    "suffix _b22": "The same test on a second, independent bootstrap at block 22 (arch's default for n = 504), with the variance also at block 22; spa_c_b22 is the studentization proposed in bashtage/arch#871 at arch's default settings, rc_b22 and spa_c_unstud_b22 are arch 8.0.0 at its default settings.",
+    "sidak_t": "The best Sharpe ratio's one-sided Student-t p-value with n - 1 degrees of freedom, Sidak-adjusted for k strategies (the v0/v1 luck-equivalent-trials test). Experiment C only."
+  },
+  "experiments": {
+    "A": "Mechanism on the v1 design: the nine v1 families (iid_normal, student_t4, skew_negative, skew_positive, garch, ar1, regimes, correlated_trials, block_cluster), n = 504, k = 20; null (every strategy's true Sharpe 0) and skill (strategy 0 has a true annualized Sharpe of 2); 10,000 searches per cell; tests spa_c, spa_u, rc, spa_c_unstud, spa_c_sd, spa_c_boot_t at block 8 and spa_c, rc, spa_c_unstud at block 22.",
+    "B": "Sample size and number of strategies, null only: iid_normal and skew_negative at (n, k) = (252, 20), (504, 20), (1260, 20), (2520, 20), (504, 5), (504, 100), block round(n^(1/3)); 5,000 searches per cell; tests spa_c, rc, spa_c_unstud, spa_c_sd, spa_c_boot_t.",
+    "C": "Where studentizing and recentring should help, i.i.d. normal returns, n = 504, k = 20, block 8, 10,000 searches per cell, all A tests at block 8 plus sidak_t. heterogeneous_volatility: volatilities 0.5 * 4^(j/19) for strategies j = 0..19 (0.5 to 2); null all Sharpe 0; skill: strategy 0, the least volatile, has annualized Sharpe 2. poor_alternatives: unit volatility; strategies 1..19 have annualized Sharpe -3; null: strategy 0 has Sharpe 0; skill: strategy 0 has Sharpe 2.",
+    "D": "arch 8.0.0 itself (analysis/v2/arch_check.py): 2,000 null searches in each of iid_normal, skew_negative and ar1 (n = 504, k = 20); arch.bootstrap.SPA with bootstrap='stationary', reps 1000, at block 8 and at its default block, with studentize=True and studentize=False from the same seed; this repository's spa_c_unstud, rc and spa_c on the same searches with their own bootstrap."
+  },
+  "measures": {
+    "size": "Share of null searches with p <= 0.05.",
+    "power": "Share of skill searches with p <= 0.05.",
+    "size_adjusted_power": "Power at the largest attainable cutoff at which the same test rejects at most 5% of the matching null cell (same family or design), as in v1.",
+    "monte_carlo_se": "sqrt(p (1 - p) / searches); 0.0022 at 5% for 10,000 searches and 0.0031 for 5,000."
+  },
+  "predictions": [
+    { "id": "P1", "statement": "Replication: in every one of the nine families, the null size of spa_c and of rc in experiment A differs from v1b's spa_consistent and reality_check by at most three combined Monte Carlo standard errors." },
+    { "id": "P2", "statement": "Variance noise: spa_c_sd has size at most 0.06 in iid_normal, student_t4, skew_positive, garch, regimes, correlated_trials and block_cluster (experiment A)." },
+    { "id": "P3", "statement": "Skew: in skew_negative, spa_c_sd has size above 0.08 and spa_c_boot_t has size at most 0.065 (experiment A)." },
+    { "id": "P4", "statement": "Bootstrap-t: spa_c_boot_t has size at most 0.065 in all eight families other than ar1 (experiment A)." },
+    { "id": "P5", "statement": "arch 8.0.0: spa_c_unstud has size at most 0.065 in all eight families other than ar1 (experiment A), and in experiment D arch's p-values are identical under studentize=True and studentize=False on every search." },
+    { "id": "P6", "statement": "Default block: in iid_normal, spa_c_b22 has size at least one percentage point above spa_c at block 8 (experiment A)." },
+    { "id": "P7", "statement": "Sample size and strategies: in iid_normal, the size of spa_c at n = 2520 is at least one percentage point below its size at n = 252, and at k = 100 at least one percentage point above its size at k = 5 (experiment B)." },
+    { "id": "P8", "statement": "Studentizing pays off: in heterogeneous_volatility, the size-adjusted power of spa_c_boot_t exceeds that of rc by at least 0.05; in poor_alternatives, the raw power of spa_c_boot_t exceeds that of rc by at least 0.05 (experiment C)." },
+    { "id": "P9", "statement": "Recentring: in poor_alternatives under the null, rc has size below 0.03 and spa_c_boot_t has size at most 0.065 (experiment C)." }
+  ],
+  "reporting": "Every cell and every test is reported, whether or not a prediction holds. analysis/v2/evaluate_v2.py, committed with this file, scores each prediction from the result files without hand input. Nothing in this file is changed after the run; a corrected or added analysis is labelled as exploratory."
+}

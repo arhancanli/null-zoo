@@ -9,3 +9,5 @@ node_modules/
 *.bbl
 *.blg
 .DS_Store
+__pycache__/
+*.pyc
