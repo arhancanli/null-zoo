@@ -12,3 +12,5 @@ node_modules/
 __pycache__/
 *.pyc
 analysis/empirical/data/
+agentdb.rvf
+agentdb.rvf.lock

@@ -1,0 +1,66 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Size of the single-series corrections: percentage of skill-less searches (20 strategies, 504 daily returns) whose best strategy is called skilled at the nominal 5\% level. Null Zoo v1, 10{,}000 searches per cell.}
+\label{tab:size-single}
+\begin{tabular}{lrrrrrrrr}
+\toprule
+Family & LET & LET-Lo & LET-NN & HL & DSR & Boot & HAC-$t$ & SB-$t$ \\
+\midrule
+IID normal & 4.9 & 5.1 & 4.9 & 4.8 & \textit{0.1} & 4.8 & \textbf{5.6} & \textbf{6.1} \\
+Student $t_4$ & 4.8 & 5.2 & \textbf{6.7} & 4.6 & \textit{0.1} & \textbf{6.3} & \textbf{5.7} & \textbf{7.9} \\
+Skew $-1.32$ & \textbf{8.3} & \textbf{8.7} & \textit{4.4} & \textbf{8.1} & \textit{0.1} & 5.5 & \textbf{9.0} & \textbf{6.7} \\
+Skew $+1.32$ & \textit{3.0} & \textit{3.4} & \textbf{6.1} & \textit{2.9} & \textit{0.1} & 4.9 & \textit{3.7} & \textbf{6.6} \\
+GARCH(1,1) & 4.9 & 5.0 & 5.1 & 4.8 & \textit{0.1} & 4.9 & 5.3 & \textbf{6.0} \\
+AR(1), $\phi=0.2$ & \textbf{19.5} & 5.3 & \textbf{19.4} & \textbf{19.1} & \textit{0.3} & \textbf{18.4} & \textbf{7.4} & \textbf{7.6} \\
+Two vol.\ regimes & 5.0 & 5.2 & 5.5 & 4.9 & \textit{0.1} & 5.4 & 5.1 & \textbf{6.0} \\
+Correlated, $\rho=0.5$ & \textit{3.5} & \textit{3.8} & \textit{3.6} & \textit{3.5} & \textit{1.7} & \textit{3.3} & \textit{4.0} & \textit{4.3} \\
+Clusters, $\rho=0.8$ & \textit{3.3} & \textit{3.5} & \textit{3.3} & \textit{3.2} & \textit{0.0} & \textit{3.2} & \textit{3.7} & \textit{3.9} \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Bold: above the 99\% Monte Carlo band around 5\% (4.44--5.56 for 10{,}000 searches); italic: below it. HL is the Harvey--Liu haircut read one-sided (two-sided $p$ halved); Boot uses 1{,}999 resamples and SB-$t$ 4{,}999.\end{minipage}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\caption{Power when one strategy has a true annualized Sharpe ratio of 2, Null Zoo v1 (percent). The oracle knows which strategy is skilled and tests it alone; its power is a natural benchmark, and no best-of-20 test in the table exceeds it.}
+\label{tab:power}
+\par\textit{Raw power}\par\smallskip
+\begin{tabular}{lrrrrrrrr}
+\toprule
+Family & Oracle & LET & LET-Lo & DSR & Boot & HAC-$t$ & RC & SPA$_c$ \\
+\midrule
+IID normal & 87.7 & 52.9 & 52.9 & 9.2 & 51.2 & 54.0 & 53.5 & 56.9 \\
+Student $t_4$ & 88.7 & 54.0 & 54.0 & 10.3 & 53.3 & 55.5 & 52.0 & 58.2 \\
+Skew $-1.32$ & 87.5 & 55.3 & 55.4 & 7.7 & 46.4 & 56.1 & 56.1 & 61.7 \\
+Skew $+1.32$ & 89.3 & 52.6 & 53.1 & 11.8 & 58.2 & 53.6 & 51.4 & 54.3 \\
+GARCH(1,1) & 87.7 & 54.7 & 54.8 & 11.3 & 53.2 & 55.6 & 51.5 & 58.4 \\
+AR(1), $\phi=0.2$ & 77.3 & 60.3 & 35.4 & 8.0 & 58.4 & 40.3 & 38.5 & 42.5 \\
+Two vol.\ regimes & 87.9 & 55.8 & 55.5 & 11.7 & 54.5 & 56.7 & 50.4 & 58.6 \\
+Correlated, $\rho=0.5$ & 88.1 & 51.8 & 51.6 & 24.7 & 50.4 & 52.3 & 59.2 & 61.0 \\
+Clusters, $\rho=0.8$ & 88.4 & 51.9 & 51.9 & 15.5 & 50.2 & 52.9 & 59.9 & 62.1 \\
+\bottomrule
+\end{tabular}
+\par
+\medskip
+\par\textit{Size-adjusted power}\par\smallskip
+\begin{tabular}{lrrrrrrrr}
+\toprule
+Family & Oracle & LET & LET-Lo & DSR & Boot & HAC-$t$ & RC & SPA$_c$ \\
+\midrule
+IID normal & 86.7 & 53.2 & 52.7 & 40.4 & 51.2 & 52.4 & 53.2 & 50.2 \\
+Student $t_4$ & 88.1 & 54.6 & 53.5 & 41.9 & 45.8 & 53.5 & 52.0 & 51.7 \\
+Skew $-1.32$ & 84.9 & 47.1 & 46.4 & 39.2 & 42.8 & 46.0 & 54.8 & 44.6 \\
+Skew $+1.32$ & 90.0 & 60.0 & 58.6 & 43.0 & 58.2 & 57.6 & 51.7 & 56.4 \\
+GARCH(1,1) & 87.6 & 54.9 & 54.8 & 42.9 & 53.2 & 54.6 & 51.8 & 53.8 \\
+AR(1), $\phi=0.2$ & 75.1 & 35.4 & 34.2 & 29.8 & n/a & 34.3 & 34.8 & 32.4 \\
+Two vol.\ regimes & 87.4 & 55.6 & 54.9 & 43.5 & 51.3 & 56.1 & 50.8 & 56.5 \\
+Correlated, $\rho=0.5$ & 87.5 & 56.8 & 55.8 & 40.8 & 54.9 & 56.1 & 56.9 & 54.2 \\
+Clusters, $\rho=0.8$ & 88.1 & 58.9 & 58.1 & 51.3 & 57.0 & 58.1 & 58.7 & 55.8 \\
+\bottomrule
+\end{tabular}
+\par
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Size-adjusted power is power at the cutoff at which the same test rejects at most 5\% of the matching null cell; a user who does not know the return family cannot apply it, but it shows how well each statistic ranks skilled searches above skill-less ones. n/a: the test's smallest attainable $p$-value already occurs in more than 5\% of the null cell, so no cutoff attains the level. The Monte Carlo standard error of raw power is at most 0.5 points. Size-adjusted power also carries the error of the estimated cutoff, and the joint tests' $p$-values lie on a grid of $1/1{,}000$, so their achieved null rejection rate at the cutoff can be below 5\%.\end{minipage}
+\end{table}
+

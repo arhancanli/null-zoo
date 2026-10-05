@@ -1,0 +1,37 @@
+{
+  "schema": "canli.null-zoo.provenance",
+  "note": "Commit hashes and times of every pre-registration and result, read from GitHub (signed commits). v1 and v1b were developed in https://github.com/arhancanli/canlicapital/pull/379 and squash-merged as ea3985981ec8; the branch commits below remain listed on that pull request.",
+  "v1": {
+    "repository": "arhancanli/canlicapital",
+    "prereg_commit": "b3102e90",
+    "prereg_utc": "2026-10-04T05:09:00Z",
+    "results_commit": "412f1907",
+    "results_utc": "2026-10-04T05:39:46Z"
+  },
+  "v1b": {
+    "repository": "arhancanli/canlicapital",
+    "prereg_commit": "abbf2dae",
+    "prereg_utc": "2026-10-04T05:41:10Z",
+    "results_commit": "5c0926b8",
+    "results_utc": "2026-10-04T06:28:31Z"
+  },
+  "v2": {
+    "repository": "arhancanli/null-zoo",
+    "prereg_commit": "7658b3b46ddb",
+    "prereg_utc": "2026-10-05T15:43:53Z",
+    "run_start_utc": "2026-10-05T15:44:17Z"
+  },
+  "v2b": {
+    "repository": "arhancanli/null-zoo",
+    "prereg_commit": "ea2d963e3825",
+    "prereg_utc": "2026-10-05T18:01:36Z",
+    "data_download_utc": "2026-10-05T18:01:55Z",
+    "run_start_utc": "2026-10-05T18:04:22Z",
+    "run_end_utc": "2026-10-05T19:00:49Z",
+    "empirical_run_start_utc": "2026-10-05T18:04:21Z"
+  },
+  "reruns": {
+    "v1": "Re-run with 4 worker threads (the published run used 12) on 2026-10-05: byte-identical, SHA-256 433166b4af950cd586c4b3941de8b4c4c18bde55833087e4bd30e8346229f031.",
+    "v2": "Re-run with 6 worker processes (the published run used 8) on 2026-10-05: byte-identical, SHA-256 15a0fa993d142a0863f3ef39c56b29c3b1626addc24b46caadf31c44fc72774d."
+  }
+}

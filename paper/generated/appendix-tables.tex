@@ -1,24 +1,24 @@
 \begin{table}[t]
 \centering
 \small
-\caption{Size of the remaining v1 validators, and of every joint test in the confirmation run v1b (percent, 10,000 searches per cell).}
+\caption{Size of the remaining v1 validators, and of the other joint tests in the confirmation run v1b (percent, 10{,}000 searches per cell).}
 \label{tab:size-more}
 \begin{tabular}{lrrrrrr}
 \toprule
-Family & HC 2s & HC-Lo & Holm & Oracle & SPA$_u$ v1b & StepM v1b \\
+Family & HL 2s & HL-Lo & Holm & Oracle & SPA$_u$ v1b & Step-SPA v1b \\
 \midrule
-IID normal & \textit{2.2} & 5.0 & 4.8 & \textbf{5.6} & \textbf{7.5} & \textbf{7.7} \\
-Student $t_4$ & \textit{2.3} & 5.1 & 4.6 & 5.4 & \textbf{7.5} & \textbf{7.6} \\
-Skew $-1.32$ & \textit{4.4} & \textbf{8.5} & \textbf{8.1} & \textbf{5.9} & \textbf{12.3} & \textbf{12.6} \\
-Skew $+1.32$ & \textit{1.3} & \textit{3.3} & \textit{2.9} & 4.5 & \textit{4.0} & \textit{4.3} \\
-GARCH(1,1) & \textit{2.3} & 4.9 & 4.9 & 5.1 & \textbf{6.2} & \textbf{6.3} \\
-AR(1), $\phi=0.2$ & \textbf{11.9} & 5.3 & \textbf{19.3} & \textbf{5.7} & \textbf{8.9} & \textbf{9.1} \\
-Two vol.\ regimes & \textit{2.7} & 5.1 & 5.0 & 5.3 & \textbf{6.0} & \textbf{6.1} \\
-Correlated, $\rho=0.5$ & \textit{1.9} & \textit{3.7} & \textit{3.5} & 5.4 & \textbf{6.9} & \textbf{6.9} \\
-Clusters, $\rho=0.8$ & \textit{1.6} & \textit{3.4} & \textit{3.3} & 5.1 & \textbf{6.9} & \textbf{7.0} \\
+IID normal & 2.2 & 5.0 & 4.8 & \textbf{5.6} & \textbf{7.5} & \textbf{7.7} \\
+Student $t_4$ & 2.3 & 5.1 & 4.6 & 5.4 & \textbf{7.5} & \textbf{7.6} \\
+Skew $-1.32$ & 4.4 & \textbf{8.5} & \textbf{8.1} & \textbf{5.9} & \textbf{12.3} & \textbf{12.6} \\
+Skew $+1.32$ & 1.3 & \textit{3.3} & \textit{2.9} & 4.5 & \textit{4.0} & \textit{4.3} \\
+GARCH(1,1) & 2.3 & 4.9 & 4.9 & 5.1 & \textbf{6.2} & \textbf{6.3} \\
+AR(1), $\phi=0.2$ & 11.9 & 5.3 & \textbf{19.3} & \textbf{5.7} & \textbf{8.9} & \textbf{9.1} \\
+Two vol.\ regimes & 2.7 & 5.1 & 5.0 & 5.3 & \textbf{6.0} & \textbf{6.1} \\
+Correlated, $\rho=0.5$ & 1.9 & \textit{3.7} & \textit{3.5} & 5.4 & \textbf{6.9} & \textbf{6.9} \\
+Clusters, $\rho=0.8$ & 1.6 & \textit{3.4} & \textit{3.3} & 5.1 & \textbf{6.9} & \textbf{7.0} \\
 \bottomrule
 \end{tabular}
-\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Bold: above the 99\% Monte Carlo band around 5\% (4.44--5.56 for 10,000 searches); italic: below it. HC 2s: the haircut with the two-sided $p$-values its authors define, so its nominal one-sided level is 2.5\%.\end{minipage}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Bold: above the 99\% Monte Carlo band around 5\% (4.44--5.56 for 10{,}000 searches); italic: below it. HL 2s: the haircut with the two-sided $p$-values its authors define; its nominal one-sided level is 2.5\%, so it is not flagged.\end{minipage}
 \end{table}
 
 \begin{table}[t]
@@ -69,7 +69,7 @@ Clusters, $\rho=0.8$ & 99.5 & 93.1 & 92.9 & 59.9 & 92.1 & 93.1 & 95.5 & 95.5 \\
 \centering
 \footnotesize
 \setlength{\tabcolsep}{3.5pt}
-\caption{Power (raw / size-adjusted) of the SPA variants at a true annualized Sharpe ratio of 2, Null Zoo v2 experiment A.}
+\caption{Power (raw\,/\,size-adjusted) of the SPA variants at a true annualized Sharpe ratio of 2, Null Zoo v2 experiment A.}
 \label{tab:mechanism-power}
 \begin{tabular}{lrrrrr}
 \toprule
@@ -90,9 +90,30 @@ Clusters, $\rho=0.8$ & 61.9\,/\,53.8 & 60.8\,/\,55.6 & 60.2\,/\,55.6 & 60.1\,/\,
 
 \begin{table}[t]
 \centering
+\small
+\caption{Unequal volatilities with the skill on the least volatile strategy, and poor alternatives, with the strict inequality (Null Zoo v2, experiment C; i.i.d.\ normal returns, 504 periods, 20 strategies, 10{,}000 searches per cell). Size\,/\,power\,/\,size-adjusted power, in percent.}
+\label{tab:fair}
+\begin{tabular}{lrr}
+\toprule
+Test & Unequal volatilities & Poor alternatives \\
+\midrule
+RC & 5.5\,/\,5.0\,/\,4.4 & \textit{0.2}\,/\,51.4\,/\,88.9 \\
+SPA$_c$-U & \textbf{5.7}\,/\,5.2\,/\,4.3 & 4.8\,/\,87.3\,/\,87.7 \\
+SPA$_c$ & \textbf{7.6}\,/\,56.7\,/\,48.9 & \textbf{7.4}\,/\,87.4\,/\,82.7 \\
+SPA$_u$ & \textbf{7.5}\,/\,56.4\,/\,49.0 & \textit{0.3}\,/\,53.3\,/\,88.3 \\
+SPA$_c$-SD & 5.6\,/\,53.8\,/\,52.2 & \textbf{7.4}\,/\,87.3\,/\,82.4 \\
+SPA$_c$-BT & 5.2\,/\,53.1\,/\,52.4 & \textbf{7.3}\,/\,87.1\,/\,82.2 \\
+LET & 4.8\,/\,52.4\,/\,53.0 & \textit{0.2}\,/\,50.7\,/\,88.8 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize The designs of Table~\ref{tab:fair2}, before ties were counted: every floored test here uses the strict inequality $p=\#\{T^*>T\}/B$.\end{minipage}
+\end{table}
+
+\begin{table}[t]
+\centering
 \footnotesize
 \setlength{\tabcolsep}{3.5pt}
-\caption{arch 8.0.0 on Null Zoo searches (experiment D, 2,000 null searches per family): size of arch's consistent and upper $p$-values and of this paper's implementation on the same searches, at block length 8 and at arch's default (22).}
+\caption{arch 8.0.0 on Null Zoo searches (experiment D, 2{,}000 null searches per family): size of arch's consistent and upper $p$-values and of this paper's implementation on the same searches, at mean block length 8 and at arch's default (22).}
 \label{tab:arch}
 \begin{tabular}{lrrrrrrr}
 \toprule
@@ -103,14 +124,14 @@ IID normal & 5.7 & 6.0 & 5.6 & 5.8 & \textbf{6.5} & \textbf{6.5} & \textbf{12.7}
 Skew $-1.32$ & 5.1 & 5.0 & 5.0 & 4.7 & 5.5 & 5.5 & \textbf{17.9} \\
 \bottomrule
 \end{tabular}
-\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Bold: above the 99\% Monte Carlo band around 5\% (3.74--6.26 for 2,000 searches); italic: below it. Searches on which arch's $p$-values differed between \texttt{studentize=True} and \texttt{studentize=False}: 0 of 12,000 search-and-block pairs.\end{minipage}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Bold: above the 99\% Monte Carlo band around 5\% (3.74--6.26 for 2{,}000 searches); italic: below it. Searches on which arch's $p$-values differed between \texttt{studentize=True} and \texttt{studentize=False}: 0 of 12{,}000 search-and-block pairs.\end{minipage}
 \end{table}
 
 \begin{table}[t]
 \centering
 \footnotesize
 \setlength{\tabcolsep}{3.5pt}
-\caption{Bootstrap resolution: the same 10,000 searches per cell scored by the single-series bootstrap with 400 and with 1,999 resamples (v0 design, robustness generator). Size and power in percent.}
+\caption{Bootstrap resolution: the same 10{,}000 searches per cell scored by the single-series bootstrap with 400 and with 1,999 resamples (v0 design, robustness generator; not pre-registered). Size and power in percent.}
 \label{tab:bootres}
 \begin{tabular}{lrrrrrr}
 \toprule
@@ -121,6 +142,124 @@ Student $t_4$ & 4.80 & 5.86 & 6.24 & 54.1 & 49.0 & 53.9 \\
 Skew $-1.32$ & 8.02 & 4.89 & 5.26 & 54.9 & 40.9 & 46.0 \\
 \bottomrule
 \end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\caption{The two variants of experiment E not shown in Table~\ref{tab:k-block}: arch's computation (SPA$_c$-U) and Hansen's fixed-variance test with the strict inequality (SPA$_c$ ($>$)); size in percent.}
+\label{tab:k-block-more}
+\begin{tabular}{lrrrrrr}
+\toprule
+ & \multicolumn{3}{c}{SPA$_c$-U} & \multicolumn{3}{c}{SPA$_c$ ($>$)} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+ & 1 & 8 & 22 & 1 & 8 & 22 \\
+\midrule
+$k=1$ & 5.2 & 5.5 & \textbf{6.5} & \textbf{8.0} & \textbf{9.0} & \textbf{10.4} \\
+$k=2$ & 5.6 & 5.7 & \textbf{6.6} & \textbf{5.9} & \textbf{5.8} & \textbf{7.6} \\
+$k=5$ & 5.0 & 5.1 & \textbf{6.8} & 5.1 & \textbf{5.9} & \textbf{9.2} \\
+$k=10$ & 5.3 & 5.7 & \textbf{6.6} & 5.5 & \textbf{7.0} & \textbf{11.2} \\
+$k=20$ & 5.1 & 5.3 & \textbf{6.5} & 5.3 & \textbf{7.5} & \textbf{12.7} \\
+$k=50$ & 5.2 & 5.1 & 5.5 & 5.6 & \textbf{8.1} & \textbf{16.9} \\
+$k=100$ & 4.9 & 5.1 & 4.8 & 5.6 & \textbf{9.1} & \textbf{20.5} \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Bold: above the 99\% Monte Carlo band around 5\% (4.21--5.79 for 5{,}000 searches); italic: below it.\end{minipage}
+\end{table}
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\caption{Experiment F (Null Zoo v2b): size and raw\,/\,size-adjusted power at a Sharpe ratio of 2 of every variant (percent).}
+\label{tab:block-student-power}
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+ & \multicolumn{6}{c}{Size} & \multicolumn{3}{c}{Raw\,/\,size-adjusted power} \\
+\cmidrule(lr){2-7}\cmidrule(lr){8-10}
+Family & RC & SPA$_c$-U & SPA$_c$ ($>$) & SPA$_c$ & SPA$_c$-BT & SPA$_c$-NB & RC & SPA$_c$-BT & SPA$_c$-NB \\
+\midrule
+IID normal & 5.3 & 5.5 & \textbf{7.5} & \textbf{7.5} & 5.5 & \textit{4.0} & 53.7\,/\,52.4 & 53.7\,/\,51.8 & 46.9\,/\,50.3 \\
+Student $t_4$ & 4.6 & 4.8 & \textbf{7.5} & \textbf{7.5} & 5.3 & \textit{4.1} & 51.4\,/\,52.0 & 53.9\,/\,52.9 & 47.4\,/\,50.2 \\
+Skew $-1.32$ & 5.2 & 5.5 & \textbf{12.7} & \textbf{12.7} & 5.5 & \textit{4.1} & 55.8\,/\,55.0 & 48.1\,/\,46.0 & 41.8\,/\,44.1 \\
+Skew $+1.32$ & 5.1 & 5.1 & \textit{4.1} & \textit{4.1} & 5.5 & \textit{3.8} & 51.4\,/\,51.0 & 60.9\,/\,59.5 & 54.4\,/\,58.7 \\
+GARCH(1,1) & 4.8 & 5.0 & \textbf{6.2} & \textbf{6.2} & 4.8 & \textit{3.3} & 50.6\,/\,51.1 & 53.8\,/\,54.1 & 48.6\,/\,54.2 \\
+AR(1), $\phi=0.2$ & \textbf{6.6} & \textbf{6.8} & \textbf{9.7} & \textbf{9.7} & \textbf{6.9} & 5.5 & 39.7\,/\,34.3 & 39.9\,/\,33.8 & 33.5\,/\,31.6 \\
+Two vol.\ regimes & 4.8 & 4.9 & \textbf{6.0} & \textbf{6.0} & 5.4 & \textit{3.4} & 49.7\,/\,50.6 & 54.6\,/\,53.5 & 49.8\,/\,54.5 \\
+Correlated, $\rho=0.5$ & \textbf{5.7} & \textbf{5.7} & \textbf{7.0} & \textbf{7.0} & \textbf{5.7} & \textit{4.3} & 57.7\,/\,55.6 & 57.3\,/\,55.0 & 51.3\,/\,53.5 \\
+Clusters, $\rho=0.8$ & \textbf{5.6} & \textbf{5.7} & \textbf{7.1} & \textbf{7.1} & \textbf{5.6} & \textit{4.4} & 60.4\,/\,58.5 & 60.1\,/\,57.6 & 53.5\,/\,55.7 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Bold: above the 99\% Monte Carlo band around 5\% (4.44--5.56 for 10{,}000 searches); italic: below it.\end{minipage}
+\end{table}
+
+\begin{table}[p]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\caption{Every window of the empirical illustration ($p$-values; Null Zoo v2b, part G).}
+\label{tab:empirical-all}
+\begin{tabular}{lrrrrrrrr}
+\toprule
+ & \multicolumn{5}{c}{Mean block length 8} & \multicolumn{2}{c}{22} & \multicolumn{1}{c}{} \\
+\cmidrule(lr){2-6}\cmidrule(lr){7-8}
+Window & RC & SPA$_c$-U & SPA$_c$ & SPA$_c$-BT & SPA$_c$-NB & SPA$_c$-U & SPA$_c$ & LET \\
+\midrule
+Mar 1927--Nov 1928$^{16}$ & 0.980 & 0.979 & 1.000 & 1.000 & 1.000 & 0.991 & 1.000 & 1.000 \\
+Nov 1928--Jul 1930 & 0.212 & 0.212 & 0.221 & 0.175 & 0.180 & 0.182 & 0.198 & 0.934 \\
+Jul 1930--Apr 1932 & \textbf{0.038} & \textbf{0.038} & \textbf{0.020} & \textbf{0.030} & \textbf{0.027} & \textbf{0.015} & \textbf{0.008} & 0.148 \\
+Apr 1932--Dec 1933 & 0.755 & 0.755 & 0.754 & 0.765 & 0.762 & 0.761 & 0.754 & 1.000 \\
+Dec 1933--Aug 1935 & 0.622 & 0.622 & 0.611 & 0.621 & 0.620 & 0.638 & 0.620 & 1.000 \\
+Aug 1935--Apr 1937 & 0.734 & 0.725 & 0.647 & 0.746 & 0.714 & 0.759 & 0.591 & 1.000 \\
+May 1937--Jan 1939 & 0.289 & 0.289 & 0.270 & 0.287 & 0.287 & 0.271 & 0.275 & 0.970 \\
+Jan 1939--Sep 1940 & 0.267 & 0.267 & 0.245 & 0.258 & 0.254 & 0.278 & 0.262 & 0.956 \\
+Sep 1940--May 1942 & 0.113 & 0.113 & 0.119 & 0.099 & 0.119 & 0.066 & 0.067 & 0.555 \\
+May 1942--Jan 1944 & 0.828 & 0.828 & 0.830 & 0.830 & 0.831 & 0.848 & 0.850 & 1.000 \\
+Jan 1944--Oct 1945$^{14}$ & 0.960 & 0.950 & 1.000 & 1.000 & 1.000 & 0.948 & 1.000 & 1.000 \\
+Oct 1945--Jul 1947 & 0.213 & 0.213 & 0.193 & 0.184 & 0.179 & 0.182 & 0.156 & 0.895 \\
+Jul 1947--Apr 1949 & 0.416 & 0.416 & 0.425 & 0.434 & 0.437 & 0.379 & 0.393 & 0.993 \\
+Apr 1949--Feb 1951 & 0.875 & 0.875 & 1.000 & 1.000 & 1.000 & 0.932 & 1.000 & 1.000 \\
+Feb 1951--Dec 1952 & 0.338 & 0.327 & 0.535 & 0.546 & 0.605 & 0.231 & 0.412 & 0.986 \\
+Dec 1952--Dec 1954 & 0.411 & 0.411 & 0.463 & 0.482 & 0.479 & 0.406 & 0.497 & 0.996 \\
+Dec 1954--Dec 1956 & 0.928 & 0.928 & 1.000 & 1.000 & 1.000 & 0.975 & 1.000 & 1.000 \\
+Dec 1956--Dec 1958 & 0.239 & 0.239 & 0.240 & 0.232 & 0.228 & 0.227 & 0.224 & 0.912 \\
+Dec 1958--Dec 1960 & 0.084 & 0.084 & 0.115 & 0.097 & 0.107 & \textbf{0.032} & 0.056 & 0.572 \\
+Dec 1960--Dec 1962 & 0.072 & 0.072 & \textbf{0.047} & \textbf{0.050} & \textbf{0.024} & 0.101 & 0.084 & 0.486 \\
+Dec 1962--Dec 1964 & 0.934 & 0.934 & 1.000 & 1.000 & 1.000 & 0.970 & 1.000 & 1.000 \\
+Dec 1964--Dec 1966 & 0.099 & 0.099 & 0.090 & 0.089 & 0.067 & 0.087 & 0.070 & 0.422 \\
+Dec 1966--Jan 1969 & 0.085 & 0.085 & 0.166 & 0.169 & 0.269 & 0.069 & 0.112 & 0.584 \\
+Jan 1969--Jan 1971 & \textbf{0.019} & \textbf{0.019} & \textbf{0.010} & \textbf{0.007} & \textbf{0.003} & \textbf{0.022} & \textbf{0.016} & \textbf{0.008} \\
+Jan 1971--Jan 1973 & 0.063 & 0.063 & \textbf{0.049} & 0.115 & 0.094 & \textbf{0.031} & \textbf{0.032} & 0.190 \\
+Jan 1973--Jan 1975 & \textbf{0.010} & \textbf{0.010} & \textbf{0.000} & \textbf{0.004} & \textbf{0.003} & \textbf{0.015} & \textbf{0.001} & \textbf{0.022} \\
+Jan 1975--Jan 1977 & 0.626 & 0.555 & 0.675 & 0.714 & 0.723 & 0.530 & 0.645 & 0.998 \\
+Jan 1977--Jan 1979 & 0.078 & 0.078 & 0.074 & 0.068 & 0.055 & \textbf{0.042} & \textbf{0.048} & 0.248 \\
+Jan 1979--Jan 1981 & 0.405 & 0.405 & 0.539 & 0.526 & 0.571 & 0.383 & 0.528 & 0.995 \\
+Jan 1981--Jan 1983 & 0.159 & 0.159 & 0.125 & 0.145 & 0.134 & 0.116 & 0.081 & 0.540 \\
+Jan 1983--Jan 1985 & 0.287 & 0.287 & 0.295 & 0.338 & 0.330 & 0.232 & 0.269 & 0.927 \\
+Jan 1985--Jan 1987 & 0.856 & 0.791 & 0.817 & 0.817 & 0.815 & 0.831 & 0.840 & 1.000 \\
+Jan 1987--Dec 1988 & 0.324 & 0.324 & 0.334 & 0.307 & 0.327 & 0.298 & 0.317 & 0.994 \\
+Jan 1989--Dec 1990 & 0.347 & 0.347 & 0.339 & 0.337 & 0.348 & 0.334 & 0.337 & 0.977 \\
+Dec 1990--Dec 1992 & 0.919 & 0.871 & 1.000 & 1.000 & 1.000 & 0.876 & 1.000 & 1.000 \\
+Dec 1992--Dec 1994 & 0.754 & 0.754 & 0.750 & 0.751 & 0.753 & 0.769 & 0.764 & 1.000 \\
+Dec 1994--Dec 1996 & 0.952 & 0.952 & 1.000 & 1.000 & 1.000 & 0.978 & 1.000 & 1.000 \\
+Dec 1996--Dec 1998 & 0.740 & 0.740 & 0.741 & 0.753 & 0.749 & 0.791 & 0.796 & 1.000 \\
+Dec 1998--Dec 2000 & 0.897 & 0.897 & 1.000 & 1.000 & 1.000 & 0.912 & 1.000 & 1.000 \\
+Dec 2000--Dec 2002 & 0.225 & 0.225 & 0.184 & 0.202 & 0.196 & 0.208 & 0.172 & 0.902 \\
+Dec 2002--Dec 2004 & 0.894 & 0.894 & 1.000 & 1.000 & 1.000 & 0.909 & 1.000 & 1.000 \\
+Dec 2004--Dec 2006 & 0.939 & 0.928 & 1.000 & 1.000 & 1.000 & 0.955 & 1.000 & 1.000 \\
+Dec 2006--Dec 2008 & 0.236 & 0.236 & 0.231 & 0.247 & 0.239 & 0.218 & 0.240 & 0.989 \\
+Dec 2008--Dec 2010 & 0.932 & 0.932 & 1.000 & 1.000 & 1.000 & 0.964 & 1.000 & 1.000 \\
+Dec 2010--Dec 2012 & 0.894 & 0.894 & 1.000 & 1.000 & 1.000 & 0.917 & 1.000 & 1.000 \\
+Dec 2012--Dec 2014 & 0.963 & 0.895 & 1.000 & 1.000 & 1.000 & 0.846 & 1.000 & 1.000 \\
+Dec 2014--Dec 2016 & 0.924 & 0.918 & 1.000 & 1.000 & 1.000 & 0.972 & 1.000 & 1.000 \\
+Dec 2016--Jan 2019 & 0.610 & 0.610 & 0.603 & 0.630 & 0.643 & 0.607 & 0.596 & 1.000 \\
+Jan 2019--Dec 2020 & 0.598 & 0.598 & 0.600 & 0.615 & 0.615 & 0.596 & 0.594 & 1.000 \\
+Jan 2021--Jan 2023 & 0.599 & 0.599 & 0.616 & 0.612 & 0.626 & 0.594 & 0.607 & 1.000 \\
+Jan 2023--Jan 2025 & 0.973 & 0.970 & 1.000 & 1.000 & 1.000 & 0.981 & 1.000 & 1.000 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize As in Table~\ref{tab:empirical}.\end{minipage}
 \end{table}
 
 \begin{table}[t]
@@ -143,5 +282,27 @@ P8 & Studentizing pays off: in heterogeneous\_volatility, the size-adjusted powe
 P9 & Recentring: in poor\_alternatives under the null, rc has size below 0.03 and spa\_c\_boot\_t has size at most 0.065 (experiment C). & \textbf{did not hold} \\
 \bottomrule
 \end{tabular}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Code names: \texttt{spa\_c} = SPA$_c$; \texttt{spa\_c\_sd} = SPA$_c$-SD; \texttt{spa\_c\_boot\_t} = SPA$_c$-BT; \texttt{rc} = RC; \texttt{spa\_c\_unstud} = SPA$_c$-U; \texttt{spa\_c\_b22} = SPA$_c$ (22); \texttt{spa\_u} = SPA$_u$.\end{minipage}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\caption{The seven predictions registered before the v2b run (analysis/v2b/prereg-v2b.json, commit \texttt{ea2d963e3825}) and whether each held, as scored by analysis/v2b/evaluate\_v2b.py.}
+\label{tab:predictions-v2b}
+\begin{tabular}{lp{0.72\linewidth}l}
+\toprule
+ID & Prediction & Outcome \\
+\midrule
+P10 & Replication on a new grid: in experiment E at k = 20 and block 8, spa\_c\_ge has size at least 0.065. & held \\
+P11 & The bootstrap's own variance: in experiment E at k = 1, rc's size at block 22 exceeds its size at block 1 by at least one percentage point. & held \\
+P12 & Many strategies dampen it: in experiment E at block 8, rc's size at k = 1 exceeds its size at k = 100 by at least half a percentage point. & \textbf{did not hold} \\
+P13 & Block re-studentization: in experiment F, spa\_c\_nb\_ge has size at most 0.065 in all eight families other than ar1. & held \\
+P14 & Under autocorrelation: in experiment F's ar1 family, spa\_c\_nb\_ge's size is at least half a percentage point below spa\_c\_boot\_t\_ge's. & held \\
+P15 & Ranking by mean helps when the skilled strategy is the most volatile: in experiment C2 with the skill on strategy 19, rc's raw power is at least spa\_c\_boot\_t\_ge's. & held \\
+P16 & Counting ties: in experiment C2's poor alternatives, spa\_c\_boot\_t\_ge has size at most 0.065 and raw power at least 0.20 above rc's. & held \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Code names: \texttt{rc} = RC; \texttt{spa\_c\_ge} = SPA$_c$; \texttt{spa\_c\_strict} = SPA$_c$ ($>$); \texttt{spa\_c\_boot\_t\_ge} = SPA$_c$-BT; \texttt{spa\_c\_nb\_ge} = SPA$_c$-NB.\end{minipage}
 \end{table}
 

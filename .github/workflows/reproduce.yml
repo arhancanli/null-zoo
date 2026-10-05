@@ -33,6 +33,10 @@ jobs:
         run: |
           python analysis/v2/evaluate_v2.py
           git diff --exit-code -- analysis/v2/evaluation-v2.json
+      - name: The v2b scoring reproduces the committed evaluation
+        run: |
+          python analysis/v2b/evaluate_v2b.py
+          git diff --exit-code -- analysis/v2b/evaluation-v2b.json
       - name: Committed tables and numbers match the result files
         run: |
           npm run tables
