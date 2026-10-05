@@ -143,3 +143,77 @@ class Tests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class V2bAdditions(unittest.TestCase):
+    def test_flags_mark_every_block_start(self):
+        n, reps = 504, 200
+        idx, flags = nzpy.stationary_draw(n, 8, reps, np.random.default_rng(20))
+        cont = idx[:, 1:] == (idx[:, :-1] + 1) % n
+        self.assertTrue(np.all(flags[:, 1:] | cont))            # no jump without a flag
+        self.assertTrue(np.all(flags[:, 0]))
+        self.assertAlmostEqual(float(flags[:, 1:].mean()), 1 / 8, delta=0.01)
+
+    def test_block_moments_equal_the_period_by_period_computation(self):
+        rng = np.random.default_rng(21)
+        for block in (4, 22):
+            x = rng.standard_normal((300, 5))
+            idx, flags = nzpy.stationary_draw(300, block, 200, rng)
+            xs = x[idx]
+            ms, sq, v = nzpy.block_moments(x, idx, flags)
+            self.assertLess(float(np.abs(ms - xs.mean(1)).max()), 1e-12)
+            self.assertLess(float(np.abs(sq - (xs * xs).mean(1)).max()), 1e-12)
+            direct = np.zeros((200, 5))
+            for r in range(200):
+                d = xs[r] - xs[r].mean(0)
+                starts = list(np.flatnonzero(flags[r])) + [300]
+                for a, b in zip(starts[:-1], starts[1:]):
+                    direct[r] += d[a:b].sum(0) ** 2
+            self.assertLess(float(np.abs(v - direct / 300).max()), 1e-12)
+
+    def test_natural_block_variance_tracks_the_long_run_variance(self):
+        # Averaged over resamples, the block variance of a fixed sample is close to (a few percent below)
+        # that sample's Politis-Romano variance at the same block length, which is the exact bootstrap
+        # variance of the mean; it is not the plain sample variance.
+        rng = np.random.default_rng(22)
+        x = rng.standard_normal((504, 3))
+        idx, flags = nzpy.stationary_draw(504, 8, 20000, rng)
+        ms, _, v = nzpy.block_moments(x, idx, flags)
+        pr = nzpy.pr_variance(x, 8)
+        self.assertTrue(np.all(np.abs(504 * ms.var(0) / pr - 1) < 0.03), 504 * ms.var(0) / pr)
+        self.assertTrue(np.all(np.abs(v.mean(0) / pr - 1) < 0.06), v.mean(0) / pr)
+
+    def test_ties_give_p_one_when_no_strategy_beats_the_benchmark(self):
+        x = nzpy.draw_search("iid_normal", np.random.default_rng(23), n=504, k=1, sharpe=[-4.0])
+        out = nzpy.joint_tests_v2b(x, 8, 1000, np.random.default_rng(24))
+        self.assertEqual(out["spa_c_ge"], 1000)
+        self.assertEqual(out["spa_c_boot_t_ge"], 1000)
+        self.assertEqual(out["spa_c_nb_ge"], 1000)
+        self.assertLess(out["spa_c_strict"], 1000)
+
+    def test_v2b_fixed_variance_test_matches_v2_in_distribution(self):
+        x = nzpy.draw_search("iid_normal", np.random.default_rng(25), n=300, k=6, sharpe=[1.5, 0, 0, 0, 0, -1], vol=[0.3, 1, 2.5, 1, 3, 0.6])
+        reps = 4000
+        a = nzpy.joint_tests(x, 7, reps, np.random.default_rng(26), {"spa_c", "rc"})
+        b = nzpy.joint_tests_v2b(x, 7, reps, np.random.default_rng(27))
+        tol = 4 * np.sqrt(0.25 / reps) * np.sqrt(2)
+        self.assertLess(abs(a["spa_c"] - b["spa_c_strict"]) / reps, tol)
+        self.assertLess(abs(a["rc"] - b["rc"]) / reps, tol)
+
+
+class Empirical(unittest.TestCase):
+    def test_rules_trade_the_next_day_and_match_a_direct_loop(self):
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "empirical"))
+        import run_empirical as emp
+        rng = np.random.default_rng(28)
+        r = rng.normal(0.0004, 0.01, 700)
+        rf = np.full(700, 0.0001)
+        d, day = emp.excess_returns(r, rf)
+        price = np.cumprod(1 + r)
+        for j, L in ((0, 10), (9, 100), (19, 200)):
+            for row in (0, 37, len(day) - 1):
+                t = day[row] - 1                       # the signal day
+                long = price[t] > price[t - L + 1:t + 1].mean()
+                expect = (r[t + 1] if long else rf[t + 1]) - r[t + 1]
+                self.assertAlmostEqual(d[row, j], expect, places=14)
+        self.assertEqual(day[0], 200)
