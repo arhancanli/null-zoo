@@ -584,7 +584,8 @@ snoop += table({
     note: `${BAND_NOTE(V2.B.iid_normal.n504_k20.searches)}`,
   });
 }
-snoop += table({
+let supp = "";
+supp += table({
   caption: `Size against the number of strategies $k$ and the mean block length (1, 8 or 22), Null Zoo v2b, experiment E: i.i.d.\\ normal returns, $T=${T_OBS}$, ${nf(E.k1.b1.searches)} null searches per cell.`,
   label: "tab:k-block", rows: E_K, tight: true, head: "", rowLabel: (k) => `$k=${k}$`,
   groups: [["RC", 3], ["SPA$_c$", 3], ["SPA$_c$-BT", 3], ["SPA$_c$-NB", 3]],
@@ -592,7 +593,7 @@ snoop += table({
   cell: (k, key) => { const [t, b] = key.split(":"); const c = E[`k${k}`][`b${b}`]; return sizeCell(c.size[t], c.searches); },
   note: `${BAND_NOTE(E.k1.b1.searches)} Floored tests count ties. At block length 1 the Politis--Romano variance is the sample variance, so SPA$_c$ is then SPA$_c$-SD. SPA$_c$-NB re-studentizes every resample by its natural block variance. The Reality Check and SPA$_c$-U differ by at most ${values.get("v2b.E.rc_unstud_maxdiff")} points in any cell; SPA$_c$-U and the strict-inequality SPA$_c$ are in Table~\\ref{tab:k-block-more}.`,
 });
-snoop += table({
+supp += table({
   caption: `Re-studentizing every resample, by its own standard deviation (SPA$_c$-BT) or by its natural block variance (SPA$_c$-NB), in the nine families: Null Zoo v2b, experiment F (mean block length 8; ${nf(F.iid_normal.searches_null)} null and ${nf(F.iid_normal.searches_skill)} skill searches per family; size and size-adjusted power at a Sharpe ratio of 2, percent).`,
   label: "tab:block-student", rows: FAMILIES, tight: true, groups: [["Size", 4], ["Size-adjusted power", 3]], colspec: `l${"r".repeat(7)}`,
   cols: [["s:rc", "RC"], ["s:spa_c_ge", "SPA$_c$"], ["s:spa_c_boot_t_ge", "SPA$_c$-BT"], ["s:spa_c_nb_ge", "SPA$_c$-NB"], ["a:rc", "RC"], ["a:spa_c_boot_t_ge", "SPA$_c$-BT"], ["a:spa_c_nb_ge", "SPA$_c$-NB"]],
@@ -602,7 +603,7 @@ snoop += table({
 {
   const T = lbl(["rc", "spa_c_unstud", "spa_c_strict", "spa_c_ge", "spa_c_boot_t_ge", "spa_c_nb_ge", "sidak_t"], V2_LABEL);
   const pw = (c, t) => `${pct(c.power[t])}\\,/\\,${pct(c.size_adjusted_power[t])}`;
-  snoop += table({
+  supp += table({
     caption: `Where studentizing and recentring matter, with ties counted (Null Zoo v2b, experiment C2; i.i.d.\\ normal returns, ${T_OBS} periods, ${N_TRIALS} strategies, ${nf(C2.het_null.searches)} searches per cell; percent).`,
     label: "tab:fair2", rows: T.map(([t]) => t), rowLabel: (t) => T.find(([k]) => k === t)[1], head: "Test", tight: true,
     groups: [["Unequal volatilities", 4], ["Poor alternatives", 2]], colspec: "lrrrrrr",
@@ -641,7 +642,7 @@ const empirical = empTable({
 });
 
 // Appendix tables.
-let app = "";
+let app = supp; // tables moved from the main text to the online appendix come first
 app += table({
   caption: `Size of the remaining v1 validators, and of the other joint tests in the confirmation run v1b (percent, ${nf(nV1)} searches per cell).`,
   label: "tab:size-more", rows: FAMILIES,

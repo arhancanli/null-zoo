@@ -1,0 +1,22 @@
+\section{Proofs}
+\label{app:proofs}
+
+\noindent\textbf{Proof of Lemma 1.} The estimate $\hat\omega^2$ is unchanged when a constant is added to every $x_t$, so take $E[x_t]=0$.
+
+(a) With $\delta_{ts}$ the Kronecker delta, $E[(x_t-\bar x)(x_s-\bar x)]=\sigma^2(\delta_{ts}-1/T)$. Hence $E[\hat\gamma_0]=\sigma^2(T-1)/T$ and, for $i\ge1$, $E[\hat\gamma_i]=-\sigma^2(T-i)/T^2$. Summing with weights $1$ and $2\kappa_i$ gives $E[\hat\omega^2]=\sigma^2 r_T(q)$.
+
+(b) Under normality the sample mean is independent of the vector of deviations $(x_t-\bar x)_t$, and $\hat\omega^2$ is a function of the deviations alone. For the variance, let $\tilde\gamma_i=T^{-1}\sum_{t=1}^{T-i}x_tx_{t+i}$. For independent mean-zero normal variables, $E[x_tx_{t+i}x_sx_{s+j}]$ with $i,j\ge0$ is non-zero only when the four indices pair up. This gives $\operatorname{Var}(\tilde\gamma_0)=2\sigma^4/T$, $\operatorname{Var}(\tilde\gamma_i)=\sigma^4(T-i)/T^2$ for $i\ge1$, and $\operatorname{Cov}(\tilde\gamma_i,\tilde\gamma_j)=0$ for $i\ne j$, so $\operatorname{Var}(\tilde\gamma_0+2\sum_i\kappa_i\tilde\gamma_i)=\sigma^4v_T(q)$. The difference $\hat\gamma_i-\tilde\gamma_i$ consists of terms in $\bar x$ times partial sums of the $x_t$. For fixed $q$, where $\sum_i\kappa_i$ is bounded, these change $\hat\omega^2$ by $O_p(T^{-1})$, and they change its variance by $O(T^{-2})$.
+
+(c) For each $i$, $\kappa_i=(1-i/T)(1-p)^i+(i/T)(1-p)^{T-i}$ is non-negative and decreasing in $p=1/q$, so it increases with $q$. Both $1-r_T(q)$ and $v_T(q)$ are increasing functions of the $\kappa_i$.\hfill$\square$
+
+\medskip\noindent\textbf{Proof of Proposition 1.} By Lemma 1(b), $Z_k=\sqrt T\,\bar x_k/\sigma_k$ is standard normal and independent of $\hat\omega_k$, and the $N$ pairs $(Z_k,\hat\omega_k)$ are independent. With $\hat\omega_k^2/\sigma_k^2=r_TW_k$ and $W_k\sim\chi^2_\nu/\nu$, each statistic is $Z_k/\sqrt{r_TW_k}=t_k/\sqrt{r_T}$, with $t_k$ distributed as Student's $t$ with $\nu$ degrees of freedom. Then $\Pr(\max_kt_k/\sqrt{r_T}>z^*)=1-[1-\bar F_\nu(z^*\sqrt{r_T})]^N$, which is \eqref{eq:size}.
+
+With $\phi$ and $\bar\Phi$ the standard normal density and upper tail, for $c>0$ let $g_c(w)=\bar\Phi(c\sqrt w)$, so that $\bar F_\nu(c)=E[g_c(W)]$ with $W\sim\chi^2_\nu/\nu$. Differentiating twice gives
+\[
+g_c''(w)=\frac{c\,\phi(c\sqrt w)}{4w^{3/2}}\,(1+c^2w)>0,
+\]
+so $g_c$ is convex on $w>0$. Since $E[W]=1$, Jensen's inequality gives $\bar F_\nu(c)\ge\bar\Phi(c)$.
+
+For $\nu_1<\nu_2$, the gamma--beta decomposition gives $W_{\nu_1}\overset{d}{=}W_{\nu_2}M$, with $M=(\nu_2/\nu_1)B$, $B\sim\mathrm{Beta}(\nu_1/2,(\nu_2-\nu_1)/2)$ independent of $W_{\nu_2}$, and $E[M]=1$. Conditioning on $W_{\nu_2}$ and applying Jensen's inequality to the convex function $m\mapsto g_c(W_{\nu_2}m)$ gives $\bar F_{\nu_1}(c)\ge\bar F_{\nu_2}(c)$. So the upper tail at any $c>0$ decreases with the degrees of freedom. It also decreases with $c$.
+
+By Lemma 1(c), a longer block lowers $r_T$, which lowers the argument $z^*\sqrt{r_T}$, and raises $v_T$, which lowers $\nu$. Both raise $\bar F_\nu(z^*\sqrt{r_T})$ and therefore $\pi_T(q)$. Because $r_T<1$ and $\nu<\infty$, $\bar F_\nu(z^*\sqrt{r_T})>\bar\Phi(z^*)=1-(1-\alpha)^{1/N}$, so $\pi_T(q)>\alpha$. As $T\to\infty$ with $q$ fixed, $r_T\to1$ and $\nu\to\infty$, so $\bar F_\nu(z^*\sqrt{r_T})\to\bar\Phi(z^*)$ and $\pi_T(q)\to\alpha$.\hfill$\square$
