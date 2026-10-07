@@ -1,0 +1,21 @@
+name: Reproduction mismatch
+description: A number you got by running the code differs from the paper or the analysis files.
+labels: [reproduction]
+body:
+  - type: input
+    id: where
+    attributes:
+      label: Which number
+      description: Table, figure or file, and the value we report.
+    validations: {required: true}
+  - type: textarea
+    id: command
+    attributes:
+      label: Command you ran and your output
+      render: shell
+    validations: {required: true}
+  - type: input
+    id: env
+    attributes:
+      label: Commit, Python version and operating system
+    validations: {required: true}

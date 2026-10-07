@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions about the method or applying it
+    url: https://github.com/arhancanli/null-zoo/discussions
+    about: Ask in Discussions.
+  - name: Check your own backtest
+    url: https://canlicapital.com/tools/deflated-sharpe
+    about: A free deflated Sharpe ratio calculator.
