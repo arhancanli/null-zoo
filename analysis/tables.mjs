@@ -20,6 +20,7 @@ const V1PRE = read("src/config/research/null-zoo-v1-prereg.json");
 const V2 = read("analysis/v2/evaluation-v2.json");
 const V2RUN = read("analysis/v2/results-v2.json");
 const V2ARCH = read("analysis/v2/arch-check-v2.json");
+const ARCHMERGED = read("analysis/v2/arch-merged-check.json");
 const EXT = read("analysis/null-zoo-extended.json");
 const BR = read("analysis/bootstrap-resolution.json");
 const EXPLORE = read("analysis/v2/explore-floor-v2.json");
@@ -218,6 +219,11 @@ def("v2.D.arch", V2ARCH.arch);
 def("v2.D.default_block", V2ARCH.default_block);
 def("v2.D.total_searches", nf(Object.values(V2.D).reduce((a, c) => a + c.searches, 0)));
 def("v2.D.total_flag_changes", Object.values(V2.D).reduce((a, c) => a + Object.values(c.flag_changes_p).reduce((x, y) => x + y, 0), 0));
+// Unregistered check: arch's own code after pull request 871 was merged (studentize=True, the default).
+def("archm.version", ARCHMERGED.arch);
+def("archm.commit", ARCHMERGED.arch_merge_commit.slice(0, 7));
+def("archm.searches", nf(ARCHMERGED.searches_per_family));
+for (const [fam, cell] of Object.entries(ARCHMERGED.families)) for (const [k, x] of Object.entries(cell.rejections_at_5pct)) def(`archm.size.${k}.${fam}`, pct(x / cell.searches));
 // The text says arch's p-values were identical under both flag values on every pair.
 if (values.get("v2.D.total_flag_changes") !== "0") throw new Error("arch: the studentize flag changed some p-values");
 const PRED = Object.keys(V2.predictions).sort();
