@@ -1,0 +1,41 @@
+{
+ "schema": "canli.null-zoo.v2.restudent-check",
+ "registered": false,
+ "base_seed": 20261008,
+ "searches_per_family": 2000,
+ "reps": 1000,
+ "n": 504,
+ "k": 20,
+ "blocks": [
+  8,
+  22
+ ],
+ "ties_counted": true,
+ "families": {
+  "iid_normal": {
+   "boot_t_pr_b22": 0.065,
+   "boot_t_pr_b8": 0.061,
+   "boot_t_sd_b22": 0.0605,
+   "boot_t_sd_b8": 0.054,
+   "fixed_b22": 0.1275,
+   "fixed_b8": 0.083
+  },
+  "skew_negative": {
+   "boot_t_pr_b22": 0.064,
+   "boot_t_pr_b8": 0.0605,
+   "boot_t_sd_b22": 0.061,
+   "boot_t_sd_b8": 0.0555,
+   "fixed_b22": 0.194,
+   "fixed_b8": 0.128
+  },
+  "ar1": {
+   "boot_t_pr_b22": 0.055,
+   "boot_t_pr_b8": 0.057,
+   "boot_t_sd_b22": 0.061,
+   "boot_t_sd_b8": 0.064,
+   "fixed_b22": 0.1265,
+   "fixed_b8": 0.0915
+  }
+ },
+ "seconds": 789.4
+}
