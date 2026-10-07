@@ -21,6 +21,7 @@ const V2 = read("analysis/v2/evaluation-v2.json");
 const V2RUN = read("analysis/v2/results-v2.json");
 const V2ARCH = read("analysis/v2/arch-check-v2.json");
 const ARCHMERGED = read("analysis/v2/arch-merged-check.json");
+const ANOM = read("analysis/anomalies/anomalies-results.json");
 const EXT = read("analysis/null-zoo-extended.json");
 const BR = read("analysis/bootstrap-resolution.json");
 const EXPLORE = read("analysis/v2/explore-floor-v2.json");
@@ -635,10 +636,34 @@ function empTable({ caption, label, windows, placement = "t", note, summary, fon
   return `${t}${tableNote(note)}\\end{table}\n\n`;
 }
 const EMP_NOTE = `$p$-values with ${nf(EMP.bootstrap_reps)} stationary-bootstrap resamples; bold: at most 0.05. LET is the \\v{S}id\\'ak-adjusted $t$ test on the best rule's Sharpe ratio, with no resampling. Floored tests count ties. A superscript gives the number of rules used when some rules never left the market in a window and so had no excess return.`;
-const empirical = empTable({
+let empirical = empTable({
   caption: `Twenty moving-average timing rules against buy-and-hold on the US market, in the ${EW.filter((w) => EMP_TESTS.some((t) => w.p[t] <= LEVEL)).length} of ${EW.length} non-overlapping two-year windows in which at least one test rejects at 5\\% (Null Zoo v2b, part G; $p$-values).`,
   label: "tab:empirical", windows: EW.filter((w) => EMP_TESTS.some((t) => w.p[t] <= LEVEL)), summary: true,
   note: `${EMP_NOTE} Windows rejected: of all ${EW.length} windows. $^{\\dagger}$${values.get("emp.first_day")} to ${values.get("emp.last_day")}, ${nf(EMP.full_sample.periods)} days, mean block length ${EMP.full_sample.block} for the first five tests. Every window is in Table~\\ref{tab:empirical-all}.`,
+});
+
+// Anomalies illustration (analysis/anomalies, pre-registered): stepwise tests on published predictors.
+const ANOM_TESTS = [["fixed_q10", "Fixed, $q=10$"], ["fixed", "Fixed, $q=5$"], ["boot_t", "Bootstrap-$t$"], ["rc", "Reality Check"]];
+const ANOM_TOT = Object.fromEntries(ANOM_TESTS.map(([t]) => [t, ANOM.windows.reduce((a, w) => a + w.tests[t].superior, 0)]));
+def("anom.windows", ANOM.windows.length);
+def("anom.reps", nf(ANOM.reps));
+def("anom.k_min", Math.min(...ANOM.windows.map((w) => w.predictors)));
+def("anom.k_max", Math.max(...ANOM.windows.map((w) => w.predictors)));
+for (const [t] of ANOM_TESTS) def(`anom.total.${t}`, ANOM_TOT[t]);
+def("anom.excess_fixed_pct", pct(ANOM_TOT.fixed / ANOM_TOT.boot_t - 1, 0));
+def("anom.excess_q10_pct", pct(ANOM_TOT.fixed_q10 / ANOM_TOT.boot_t - 1, 0));
+def("anom.windows_fixed_ge_boot", ANOM.windows.filter((w) => w.tests.fixed.superior >= w.tests.boot_t.superior).length);
+for (const w of ANOM.windows) for (const [t] of ANOM_TESTS) def(`anom.${w.start.slice(0, 4)}.${t}`, w.tests[t].superior);
+const ANOM_PRED = { A1: ANOM_TOT.fixed > ANOM_TOT.boot_t, A2: ANOM_TOT.fixed_q10 >= ANOM_TOT.fixed, A3: values.get("anom.windows_fixed_ge_boot") >= 5 };
+def("anom.pred_held", Object.values(ANOM_PRED).filter(Boolean).length);
+def("prereg.total_all", Number(values.get("prereg.total")) + Object.keys(ANOM_PRED).length);
+def("prereg.held_all", Number(values.get("prereg.held")) + Object.values(ANOM_PRED).filter(Boolean).length);
+empirical += table({
+  caption: `Published cross-sectional predictors declared superior to zero by Romano--Wolf stepwise tests at 5\\%, in ten-year windows of monthly long-short returns (pre-registered illustration; counts of predictors).`,
+  label: "tab:anomalies", rows: ANOM.windows, head: "Window",
+  rowLabel: (w) => `${w.start.slice(0, 4)}--${w.end.slice(0, 4)} ($k=${w.predictors}$)`,
+  cols: ANOM_TESTS, cell: (w, t) => String(w.tests[t].superior),
+  note: `Data: Open Source Asset Pricing release 2.0.0 \\citep{chen2022open}, every predictor with a return in all 120 months of the window. Stationary bootstrap with ${nf(ANOM.reps)} resamples shared by all tests; mean block length $q=5$ except where stated. Fixed: Hansen's studentization, the Politis--Romano standard deviation held fixed in every resample (at $q=10$, arch's default, this is the computation arch merged in October 2026). Bootstrap-$t$: each resample studentized by its own standard deviation. Totals over the windows: ${ANOM_TESTS.map(([t, l]) => `${l} ${ANOM_TOT[t]}`).join(", ")}.`,
 });
 
 // Appendix tables.

@@ -25,3 +25,26 @@ Full sample$^{\dagger}$ & \textbf{0.050} & \textbf{0.050} & \textbf{0.042} & \te
 \par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize $p$-values with 1{,}000 stationary-bootstrap resamples; bold: at most 0.05. LET is the \v{S}id\'ak-adjusted $t$ test on the best rule's Sharpe ratio, with no resampling. Floored tests count ties. A superscript gives the number of rules used when some rules never left the market in a window and so had no excess return. Windows rejected: of all 51 windows. $^{\dagger}$4 March 1927 to 31 August 2026, 26{,}117 days, mean block length 30 for the first five tests. Every window is in Table~\ref{tab:empirical-all}.\end{minipage}
 \end{table}
 
+\begin{table}[t]
+\centering
+\small
+\caption{Published cross-sectional predictors declared superior to zero by Romano--Wolf stepwise tests at 5\%, in ten-year windows of monthly long-short returns (pre-registered illustration; counts of predictors).}
+\label{tab:anomalies}
+\begin{tabular}{lrrrr}
+\toprule
+Window & Fixed, $q=10$ & Fixed, $q=5$ & Bootstrap-$t$ & Reality Check \\
+\midrule
+1975--1984 ($k=162$) & 45 & 43 & 27 & 8 \\
+1980--1989 ($k=179$) & 69 & 67 & 58 & 13 \\
+1985--1994 ($k=188$) & 61 & 53 & 42 & 22 \\
+1990--1999 ($k=193$) & 64 & 56 & 42 & 15 \\
+1995--2004 ($k=202$) & 46 & 40 & 32 & 1 \\
+2000--2009 ($k=206$) & 17 & 15 & 12 & 1 \\
+2005--2014 ($k=206$) & 17 & 9 & 5 & 1 \\
+2010--2019 ($k=207$) & 26 & 15 & 7 & 2 \\
+2015--2024 ($k=195$) & 3 & 0 & 0 & 3 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Data: Open Source Asset Pricing release 2.0.0 \citep{chen2022open}, every predictor with a return in all 120 months of the window. Stationary bootstrap with 1{,}999 resamples shared by all tests; mean block length $q=5$ except where stated. Fixed: Hansen's studentization, the Politis--Romano standard deviation held fixed in every resample (at $q=10$, arch's default, this is the computation arch merged in October 2026). Bootstrap-$t$: each resample studentized by its own standard deviation. Totals over the windows: Fixed, $q=10$ 348, Fixed, $q=5$ 298, Bootstrap-$t$ 225, Reality Check 66.\end{minipage}
+\end{table}
+
