@@ -1,0 +1,55 @@
+{
+ "arch": "8.0.1.dev83+g818d64a1b",
+ "arch_merge_commit": "818d64a1bb2fcad0bdde467804ee7eefc2ea2d2c",
+ "base_seed": 20261007,
+ "bootstrap_reps": 1000,
+ "default_block": 22,
+ "families": {
+  "ar1": {
+   "rejections_at_5pct": {
+    "arch_b8_consistent": 187,
+    "arch_b8_upper": 183,
+    "arch_default_consistent": 265,
+    "arch_default_upper": 257,
+    "ours_b8_rc": 133,
+    "ours_b8_spa_c": 179,
+    "ours_default_rc": 136,
+    "ours_default_spa_c": 269
+   },
+   "searches": 2000
+  },
+  "iid_normal": {
+   "rejections_at_5pct": {
+    "arch_b8_consistent": 165,
+    "arch_b8_upper": 160,
+    "arch_default_consistent": 270,
+    "arch_default_upper": 265,
+    "ours_b8_rc": 104,
+    "ours_b8_spa_c": 163,
+    "ours_default_rc": 117,
+    "ours_default_spa_c": 261
+   },
+   "searches": 2000
+  },
+  "skew_negative": {
+   "rejections_at_5pct": {
+    "arch_b8_consistent": 268,
+    "arch_b8_upper": 258,
+    "arch_default_consistent": 383,
+    "arch_default_upper": 376,
+    "ours_b8_rc": 123,
+    "ours_b8_spa_c": 268,
+    "ours_default_rc": 132,
+    "ours_default_spa_c": 383
+   },
+   "searches": 2000
+  }
+ },
+ "k": 20,
+ "n": 504,
+ "numpy": "2.5.3",
+ "registered": false,
+ "schema": "canli.null-zoo.v2.arch-merged-check",
+ "searches_per_family": 2000,
+ "seconds": 143.5
+}

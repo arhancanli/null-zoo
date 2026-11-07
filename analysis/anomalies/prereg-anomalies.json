@@ -1,0 +1,33 @@
+{
+  "schema": "canli.null-zoo.anomalies.prereg",
+  "written": "2026-10-07. Committed, with analysis/anomalies/run_anomalies.py and analysis/anomalies/evaluate_anomalies.py, before either script was run on the data. The data file had been downloaded and its shape inspected (column names, first and last dates, value range, months of coverage per predictor), but no test statistic had been computed on it. The commit and its push time on GitHub are the evidence.",
+  "author": "Arhan Canli",
+  "why": "The paper's empirical illustration applies the joint tests to twenty moving-average rules. Strategy research also searches over published cross-sectional predictors. This illustration asks how many predictors a stepwise data-snooping test declares superior to zero, and whether the fixed-variance studentization (Hansen's SPA statistic, and the computation arch merged on 6 October 2026) declares more than a bootstrap-t, on real long-short returns.",
+  "data": {
+    "source": "Open Source Asset Pricing, release 2.0.0 (October 2025), Chen and Zimmermann (2022, Critical Finance Review 11(2), 207-264): https://www.openassetpricing.com/data/",
+    "file": "PredictorLSretWide.csv (monthly long-short returns of 212 predictors following the original papers, in percent)",
+    "sha256": "79aa0896d79924e1efa83f9afe51a3b4ce94137adfd2c5c3fd2d5d350532ee18",
+    "redistribution": "The file is not committed; the script takes its path and checks the hash."
+  },
+  "design": {
+    "windows": "Nine ten-year windows of calendar months: January 1975 to December 1984, then starting every five years, the last January 2015 to December 2024 (T = 120 each).",
+    "universe": "In each window, every predictor with a return in every month of the window.",
+    "benchmark": "Zero: a long-short return is already an excess return.",
+    "bootstrap": "Stationary bootstrap, B = 1999 resamples, drawn once per window and shared by every test (paired); seed numpy SeedSequence([20261007, 31, window index]).",
+    "block": "Mean block length q = round(T^(1/3)) = 5, the paper's rule; one test also at q = int(sqrt(T)) = 10, arch's default.",
+    "tests": {
+      "fixed": "Romano-Wolf stepwise procedure on t_k = sqrt(T) mean_k / w_k with w_k the Politis-Romano long-run standard deviation at q = 5, held fixed in every resample (upper recentring).",
+      "fixed_q10": "As fixed, with q = 10 for both the bootstrap and the variance.",
+      "boot_t": "Stepwise on t_k = sqrt(T) mean_k / s_k with s_k the sample standard deviation; each resample studentized by its own standard deviation (q = 5).",
+      "rc": "Stepwise on sqrt(T) mean_k, not studentized (q = 5)."
+    },
+    "stepwise": "At each step the critical value is the (1 - 0.05) quantile (numpy method 'higher') of the maximum, over the predictors not yet declared superior, of the recentred resampled statistics; every predictor whose statistic exceeds it is declared superior; repeat until none is added.",
+    "outcomes": "Per window and test: the number of predictors declared superior, and the joint p-value of the first step, #{max* >= max t} / B."
+  },
+  "predictions": [
+    {"id": "A1", "statement": "Summed over the nine windows, fixed declares more predictors superior than boot_t."},
+    {"id": "A2", "statement": "Summed over the nine windows, fixed_q10 declares at least as many predictors superior as fixed."},
+    {"id": "A3", "statement": "In at least five of the nine windows, fixed declares at least as many predictors superior as boot_t."}
+  ],
+  "reporting": "Every window and test is reported whether or not a prediction holds. evaluate_anomalies.py scores each prediction without hand input. Nothing in this file is changed after the run; any further analysis is labelled exploratory."
+}

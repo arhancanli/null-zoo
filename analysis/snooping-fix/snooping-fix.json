@@ -1,0 +1,473 @@
+{
+ "schema": "canli.null-zoo.snooping-fix-check",
+ "registered": false,
+ "what": "Size of the author's SPA, StepM and Reality Check before (canlicapital ea398598, as in v1) and after (canlicapital 4c7e429e, PR 562) re-studentizing every resample and counting ties, on the same skill-less searches and bootstrap seeds",
+ "cores": {
+  "old": "src/js/snooping-core.js (canlicapital ea3985981ec873bd2df09850e8045ffcbc685bb1)",
+  "new": "analysis/snooping-fix/js/snooping-core.js (canlicapital 4c7e429e760206cf95debccf19ad164bf01b366b)"
+ },
+ "design": {
+  "trials": 20,
+  "observations": 504,
+  "periodsPerYear": 252,
+  "reps": 1000,
+  "chunk": 100,
+  "baseSeed": 20261107,
+  "levels": [
+   0.01,
+   0.05,
+   0.1
+  ],
+  "poorSharpe": -3,
+  "designs": [
+   "iid_normal",
+   "student_t4",
+   "skew_negative",
+   "skew_positive",
+   "garch",
+   "ar1",
+   "regimes",
+   "correlated_trials",
+   "block_cluster",
+   "poor_alternatives"
+  ]
+ },
+ "searches_per_design": 4000,
+ "block": 8,
+ "monte_carlo_se_at_5_percent": 0.003446,
+ "note": "stepm_any is at alpha 0.05 only (null at 1% and 10%); the Reality Check is unchanged by the fix and serves as a check that both versions saw the same draws",
+ "size": {
+  "iid_normal": {
+   "old.spa_consistent": {
+    "0.01": 0.0155,
+    "0.05": 0.0725,
+    "0.1": 0.13625
+   },
+   "old.spa_upper": {
+    "0.01": 0.01525,
+    "0.05": 0.07,
+    "0.1": 0.1335
+   },
+   "old.stepm_any": {
+    "0.01": null,
+    "0.05": 0.0725,
+    "0.1": null
+   },
+   "old.reality_check": {
+    "0.01": 0.0095,
+    "0.05": 0.052,
+    "0.1": 0.10425
+   },
+   "new.spa_consistent": {
+    "0.01": 0.01075,
+    "0.05": 0.05325,
+    "0.1": 0.10625
+   },
+   "new.spa_upper": {
+    "0.01": 0.01025,
+    "0.05": 0.0525,
+    "0.1": 0.104
+   },
+   "new.stepm_any": {
+    "0.01": null,
+    "0.05": 0.05325,
+    "0.1": null
+   },
+   "new.reality_check": {
+    "0.01": 0.0095,
+    "0.05": 0.052,
+    "0.1": 0.10425
+   }
+  },
+  "student_t4": {
+   "old.spa_consistent": {
+    "0.01": 0.01825,
+    "0.05": 0.072,
+    "0.1": 0.138
+   },
+   "old.spa_upper": {
+    "0.01": 0.018,
+    "0.05": 0.0705,
+    "0.1": 0.13475
+   },
+   "old.stepm_any": {
+    "0.01": null,
+    "0.05": 0.072,
+    "0.1": null
+   },
+   "old.reality_check": {
+    "0.01": 0.00925,
+    "0.05": 0.05225,
+    "0.1": 0.1055
+   },
+   "new.spa_consistent": {
+    "0.01": 0.009,
+    "0.05": 0.0525,
+    "0.1": 0.11175
+   },
+   "new.spa_upper": {
+    "0.01": 0.009,
+    "0.05": 0.0505,
+    "0.1": 0.10875
+   },
+   "new.stepm_any": {
+    "0.01": null,
+    "0.05": 0.0525,
+    "0.1": null
+   },
+   "new.reality_check": {
+    "0.01": 0.00925,
+    "0.05": 0.05225,
+    "0.1": 0.1055
+   }
+  },
+  "skew_negative": {
+   "old.spa_consistent": {
+    "0.01": 0.03725,
+    "0.05": 0.12025,
+    "0.1": 0.193
+   },
+   "old.spa_upper": {
+    "0.01": 0.036,
+    "0.05": 0.11775,
+    "0.1": 0.18925
+   },
+   "old.stepm_any": {
+    "0.01": null,
+    "0.05": 0.12025,
+    "0.1": null
+   },
+   "old.reality_check": {
+    "0.01": 0.012,
+    "0.05": 0.05125,
+    "0.1": 0.10475
+   },
+   "new.spa_consistent": {
+    "0.01": 0.0115,
+    "0.05": 0.05175,
+    "0.1": 0.1035
+   },
+   "new.spa_upper": {
+    "0.01": 0.01075,
+    "0.05": 0.05075,
+    "0.1": 0.10175
+   },
+   "new.stepm_any": {
+    "0.01": null,
+    "0.05": 0.05175,
+    "0.1": null
+   },
+   "new.reality_check": {
+    "0.01": 0.012,
+    "0.05": 0.05125,
+    "0.1": 0.10475
+   }
+  },
+  "skew_positive": {
+   "old.spa_consistent": {
+    "0.01": 0.00675,
+    "0.05": 0.04325,
+    "0.1": 0.09225
+   },
+   "old.spa_upper": {
+    "0.01": 0.0065,
+    "0.05": 0.0415,
+    "0.1": 0.09025
+   },
+   "old.stepm_any": {
+    "0.01": null,
+    "0.05": 0.04325,
+    "0.1": null
+   },
+   "old.reality_check": {
+    "0.01": 0.00625,
+    "0.05": 0.04925,
+    "0.1": 0.10975
+   },
+   "new.spa_consistent": {
+    "0.01": 0.008,
+    "0.05": 0.054,
+    "0.1": 0.1125
+   },
+   "new.spa_upper": {
+    "0.01": 0.008,
+    "0.05": 0.053,
+    "0.1": 0.10925
+   },
+   "new.stepm_any": {
+    "0.01": null,
+    "0.05": 0.054,
+    "0.1": null
+   },
+   "new.reality_check": {
+    "0.01": 0.00625,
+    "0.05": 0.04925,
+    "0.1": 0.10975
+   }
+  },
+  "garch": {
+   "old.spa_consistent": {
+    "0.01": 0.0145,
+    "0.05": 0.066,
+    "0.1": 0.12425
+   },
+   "old.spa_upper": {
+    "0.01": 0.01375,
+    "0.05": 0.06325,
+    "0.1": 0.12175
+   },
+   "old.stepm_any": {
+    "0.01": null,
+    "0.05": 0.06575,
+    "0.1": null
+   },
+   "old.reality_check": {
+    "0.01": 0.0075,
+    "0.05": 0.048,
+    "0.1": 0.10675
+   },
+   "new.spa_consistent": {
+    "0.01": 0.00825,
+    "0.05": 0.05425,
+    "0.1": 0.109
+   },
+   "new.spa_upper": {
+    "0.01": 0.008,
+    "0.05": 0.05225,
+    "0.1": 0.1065
+   },
+   "new.stepm_any": {
+    "0.01": null,
+    "0.05": 0.054,
+    "0.1": null
+   },
+   "new.reality_check": {
+    "0.01": 0.0075,
+    "0.05": 0.048,
+    "0.1": 0.10675
+   }
+  },
+  "ar1": {
+   "old.spa_consistent": {
+    "0.01": 0.0275,
+    "0.05": 0.10025,
+    "0.1": 0.1695
+   },
+   "old.spa_upper": {
+    "0.01": 0.025,
+    "0.05": 0.09775,
+    "0.1": 0.16425
+   },
+   "old.stepm_any": {
+    "0.01": null,
+    "0.05": 0.10025,
+    "0.1": null
+   },
+   "old.reality_check": {
+    "0.01": 0.0125,
+    "0.05": 0.067,
+    "0.1": 0.13075
+   },
+   "new.spa_consistent": {
+    "0.01": 0.014,
+    "0.05": 0.0685,
+    "0.1": 0.13025
+   },
+   "new.spa_upper": {
+    "0.01": 0.01375,
+    "0.05": 0.06675,
+    "0.1": 0.128
+   },
+   "new.stepm_any": {
+    "0.01": null,
+    "0.05": 0.0685,
+    "0.1": null
+   },
+   "new.reality_check": {
+    "0.01": 0.0125,
+    "0.05": 0.067,
+    "0.1": 0.13075
+   }
+  },
+  "regimes": {
+   "old.spa_consistent": {
+    "0.01": 0.0125,
+    "0.05": 0.0585,
+    "0.1": 0.11425
+   },
+   "old.spa_upper": {
+    "0.01": 0.0125,
+    "0.05": 0.05725,
+    "0.1": 0.11175
+   },
+   "old.stepm_any": {
+    "0.01": null,
+    "0.05": 0.05825,
+    "0.1": null
+   },
+   "old.reality_check": {
+    "0.01": 0.008,
+    "0.05": 0.047,
+    "0.1": 0.09375
+   },
+   "new.spa_consistent": {
+    "0.01": 0.0095,
+    "0.05": 0.0495,
+    "0.1": 0.10275
+   },
+   "new.spa_upper": {
+    "0.01": 0.00925,
+    "0.05": 0.046,
+    "0.1": 0.09825
+   },
+   "new.stepm_any": {
+    "0.01": null,
+    "0.05": 0.0495,
+    "0.1": null
+   },
+   "new.reality_check": {
+    "0.01": 0.008,
+    "0.05": 0.047,
+    "0.1": 0.09375
+   }
+  },
+  "correlated_trials": {
+   "old.spa_consistent": {
+    "0.01": 0.0245,
+    "0.05": 0.07675,
+    "0.1": 0.12525
+   },
+   "old.spa_upper": {
+    "0.01": 0.0245,
+    "0.05": 0.07675,
+    "0.1": 0.12525
+   },
+   "old.stepm_any": {
+    "0.01": null,
+    "0.05": 0.0765,
+    "0.1": null
+   },
+   "old.reality_check": {
+    "0.01": 0.01525,
+    "0.05": 0.06,
+    "0.1": 0.116
+   },
+   "new.spa_consistent": {
+    "0.01": 0.01625,
+    "0.05": 0.06025,
+    "0.1": 0.1145
+   },
+   "new.spa_upper": {
+    "0.01": 0.01625,
+    "0.05": 0.06025,
+    "0.1": 0.1145
+   },
+   "new.stepm_any": {
+    "0.01": null,
+    "0.05": 0.06,
+    "0.1": null
+   },
+   "new.reality_check": {
+    "0.01": 0.01525,
+    "0.05": 0.06,
+    "0.1": 0.116
+   }
+  },
+  "block_cluster": {
+   "old.spa_consistent": {
+    "0.01": 0.022,
+    "0.05": 0.07525,
+    "0.1": 0.13475
+   },
+   "old.spa_upper": {
+    "0.01": 0.0215,
+    "0.05": 0.07375,
+    "0.1": 0.13175
+   },
+   "old.stepm_any": {
+    "0.01": null,
+    "0.05": 0.07525,
+    "0.1": null
+   },
+   "old.reality_check": {
+    "0.01": 0.01325,
+    "0.05": 0.061,
+    "0.1": 0.1175
+   },
+   "new.spa_consistent": {
+    "0.01": 0.01275,
+    "0.05": 0.0615,
+    "0.1": 0.117
+   },
+   "new.spa_upper": {
+    "0.01": 0.01275,
+    "0.05": 0.0605,
+    "0.1": 0.115
+   },
+   "new.stepm_any": {
+    "0.01": null,
+    "0.05": 0.0615,
+    "0.1": null
+   },
+   "new.reality_check": {
+    "0.01": 0.01325,
+    "0.05": 0.061,
+    "0.1": 0.1175
+   }
+  },
+  "poor_alternatives": {
+   "old.spa_consistent": {
+    "0.01": 0.015,
+    "0.05": 0.07275,
+    "0.1": 0.12125
+   },
+   "old.spa_upper": {
+    "0.01": 0.00075,
+    "0.05": 0.00325,
+    "0.1": 0.00675
+   },
+   "old.stepm_any": {
+    "0.01": null,
+    "0.05": 0.05075,
+    "0.1": null
+   },
+   "old.reality_check": {
+    "0.01": 0.00025,
+    "0.05": 0.0025,
+    "0.1": 0.00625
+   },
+   "new.spa_consistent": {
+    "0.01": 0.01175,
+    "0.05": 0.04975,
+    "0.1": 0.09675
+   },
+   "new.spa_upper": {
+    "0.01": 0,
+    "0.05": 0.00275,
+    "0.1": 0.00625
+   },
+   "new.stepm_any": {
+    "0.01": null,
+    "0.05": 0.04975,
+    "0.1": null
+   },
+   "new.reality_check": {
+    "0.01": 0.00025,
+    "0.05": 0.0025,
+    "0.1": 0.00625
+   }
+  }
+ },
+ "spa_consistent_disagreements": {
+  "iid_normal": 143,
+  "student_t4": 152,
+  "skew_negative": 280,
+  "skew_positive": 117,
+  "garch": 141,
+  "ar1": 177,
+  "regimes": 146,
+  "correlated_trials": 94,
+  "block_cluster": 85,
+  "poor_alternatives": 94
+ }
+}

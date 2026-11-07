@@ -1,0 +1,19 @@
+{
+ "design": "experiment C poor_alternatives null: iid normal, n 504, k 20, block 8, strategy 0 Sharpe 0, 19 at -3",
+ "exploratory": true,
+ "schema": "canli.null-zoo.v2.explore-floor",
+ "searches": 10000,
+ "seed": 20261010,
+ "share_T_zero": 0.491,
+ "share_T_zero_and_all_below_threshold": 0.0269,
+ "size": {
+  "spa_c_boot_t_strict": 0.0781,
+  "spa_c_boot_t_ties_count": 0.0527,
+  "spa_c_strict": 0.0796,
+  "spa_c_ties_count": 0.0542
+ },
+ "size_from_searches_with_T_zero": {
+  "spa_c_boot_t_strict": 0.0254,
+  "spa_c_strict": 0.0254
+ }
+}

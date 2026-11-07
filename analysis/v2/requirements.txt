@@ -1,0 +1,4 @@
+numpy==2.5.3
+scipy==1.18.1
+arch==8.0.0
+pandas==3.0.6

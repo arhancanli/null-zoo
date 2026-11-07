@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use the Null Zoo, please cite it as below."
-title: "The Null Zoo: Size and Power of Backtest-Overfitting Corrections on Synthetic Searches with Known Ground Truth"
+title: "The Null Zoo: Size and Power of Backtest-Overfitting and Data-Snooping Tests on Synthetic Searches with Known Ground Truth"
 authors:
   - family-names: Canli
     given-names: Arhan
@@ -16,22 +16,26 @@ identifiers:
     description: Version 1.0.0 of the paper
 preferred-citation:
   type: article
-  title: "The Null Zoo: Size and Power of Backtest-Overfitting Corrections on Synthetic Searches with Known Ground Truth"
+  title: "The Null Zoo: Size and Power of Backtest-Overfitting and Data-Snooping Tests on Synthetic Searches with Known Ground Truth"
   authors:
     - family-names: Canli
       given-names: Arhan
       affiliation: Canli Capital
   year: 2026
-  doi: 10.5281/zenodo.23018988
+  doi: 10.5281/zenodo.23018987
   publisher:
     name: Zenodo
 license: MIT
 repository-code: "https://github.com/arhancanli/null-zoo"
-version: 1.0.0
-date-released: 2026-09-28
+version: 2.0.0
+date-released: 2026-10-05
 keywords:
   - backtest overfitting
   - multiple testing
   - Sharpe ratio
   - deflated Sharpe ratio
   - simulation benchmark
+  - data snooping
+  - superior predictive ability
+  - Reality Check
+  - pre-registration

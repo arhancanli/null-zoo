@@ -1,0 +1,102 @@
+{
+ "arch": "8.0.0",
+ "base_seed": 20261009,
+ "bootstrap_reps": 1000,
+ "default_block": 22,
+ "families": {
+  "ar1": {
+   "mean_abs_p_difference_arch_vs_ours": {
+    "b8": {
+     "consistent": 0.013881000000000001,
+     "upper": 0.0138705
+    },
+    "default": {
+     "consistent": 0.014320000000000001,
+     "upper": 0.014326
+    }
+   },
+   "rejections_at_5pct": {
+    "arch_b8_consistent": 156,
+    "arch_b8_upper": 154,
+    "arch_default_consistent": 148,
+    "arch_default_upper": 144,
+    "ours_b8_rc": 149,
+    "ours_b8_spa_c": 211,
+    "ours_b8_spa_c_unstud": 152,
+    "ours_default_rc": 149,
+    "ours_default_spa_c": 278,
+    "ours_default_spa_c_unstud": 154
+   },
+   "searches": 2000,
+   "searches_where_studentize_flag_changes_p": {
+    "b8": 0,
+    "default": 0
+   }
+  },
+  "iid_normal": {
+   "mean_abs_p_difference_arch_vs_ours": {
+    "b8": {
+     "consistent": 0.014046500000000002,
+     "upper": 0.01405
+    },
+    "default": {
+     "consistent": 0.014492999999999999,
+     "upper": 0.0143985
+    }
+   },
+   "rejections_at_5pct": {
+    "arch_b8_consistent": 114,
+    "arch_b8_upper": 112,
+    "arch_default_consistent": 130,
+    "arch_default_upper": 128,
+    "ours_b8_rc": 116,
+    "ours_b8_spa_c": 169,
+    "ours_b8_spa_c_unstud": 120,
+    "ours_default_rc": 125,
+    "ours_default_spa_c": 254,
+    "ours_default_spa_c_unstud": 129
+   },
+   "searches": 2000,
+   "searches_where_studentize_flag_changes_p": {
+    "b8": 0,
+    "default": 0
+   }
+  },
+  "skew_negative": {
+   "mean_abs_p_difference_arch_vs_ours": {
+    "b8": {
+     "consistent": 0.014296999999999999,
+     "upper": 0.0143625
+    },
+    "default": {
+     "consistent": 0.014765,
+     "upper": 0.014619500000000002
+    }
+   },
+   "rejections_at_5pct": {
+    "arch_b8_consistent": 102,
+    "arch_b8_upper": 99,
+    "arch_default_consistent": 110,
+    "arch_default_upper": 107,
+    "ours_b8_rc": 94,
+    "ours_b8_spa_c": 239,
+    "ours_b8_spa_c_unstud": 99,
+    "ours_default_rc": 105,
+    "ours_default_spa_c": 358,
+    "ours_default_spa_c_unstud": 111
+   },
+   "searches": 2000,
+   "searches_where_studentize_flag_changes_p": {
+    "b8": 0,
+    "default": 0
+   }
+  }
+ },
+ "k": 20,
+ "n": 504,
+ "numpy": "2.5.3",
+ "prereg": "analysis/v2/prereg-v2.json",
+ "schema": "canli.null-zoo.v2.arch-check",
+ "searches_per_family": 2000,
+ "seconds": 844.6
+}

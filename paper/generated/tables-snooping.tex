@@ -1,0 +1,152 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Size of the joint resampling tests in Null Zoo v1 and in its confirmation run v1b (fresh seeds), 10{,}000 searches per cell each, 1{,}000 stationary-bootstrap resamples with mean block length 8.}
+\label{tab:size-joint}
+\begin{tabular}{lrrrrrr}
+\toprule
+Family & RC v1 & RC v1b & SPA$_c$ v1 & SPA$_c$ v1b & SPA$_u$ v1 & Step-SPA v1 \\
+\midrule
+IID normal & 5.1 & 5.4 & \textbf{7.5} & \textbf{7.8} & \textbf{7.4} & \textbf{7.5} \\
+Student $t_4$ & 4.9 & 4.9 & \textbf{7.3} & \textbf{7.6} & \textbf{7.2} & \textbf{7.3} \\
+Skew $-1.32$ & 5.4 & 5.3 & \textbf{12.5} & \textbf{12.6} & \textbf{12.2} & \textbf{12.5} \\
+Skew $+1.32$ & 4.9 & 5.2 & \textit{4.3} & \textit{4.3} & \textit{4.2} & \textit{4.3} \\
+GARCH(1,1) & 4.8 & 4.5 & \textbf{6.5} & \textbf{6.3} & \textbf{6.4} & \textbf{6.5} \\
+AR(1), $\phi=0.2$ & \textbf{6.3} & \textbf{6.4} & \textbf{8.9} & \textbf{9.1} & \textbf{8.8} & \textbf{8.9} \\
+Two vol.\ regimes & 4.8 & 5.1 & \textbf{5.7} & \textbf{6.2} & 5.5 & \textbf{5.7} \\
+Correlated, $\rho=0.5$ & \textbf{5.6} & 5.5 & \textbf{7.1} & \textbf{6.9} & \textbf{7.1} & \textbf{7.1} \\
+Clusters, $\rho=0.8$ & 5.5 & \textbf{5.7} & \textbf{6.9} & \textbf{7.0} & \textbf{6.8} & \textbf{6.9} \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Bold: above the 99\% Monte Carlo band around 5\% (4.44--5.56 for 10{,}000 searches); italic: below it. Step-SPA is scored as a decision (at least one strategy declared superior at 5\%).\end{minipage}
+\end{table}
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\caption{Why the studentized SPA test is oversized: size of variants of the consistent SPA test on the same searches (Null Zoo v2, experiment A; second implementation, 10{,}000 searches per cell, mean block length 8 unless marked 22).}
+\label{tab:mechanism}
+\begin{tabular}{lrrrrrrr}
+\toprule
+Family & SPA$_c$ & SPA$_c$-SD & SPA$_c$-BT & RC & SPA$_c$-U & SPA$_c$ (22) & SPA$_c$-U (22) \\
+\midrule
+IID normal & \textbf{7.5} & 5.5 & 5.2 & 5.1 & 5.3 & \textbf{12.9} & \textbf{5.8} \\
+Student $t_4$ & \textbf{6.9} & 5.1 & 5.1 & 4.5 & 4.6 & \textbf{11.9} & 5.6 \\
+Skew $-1.32$ & \textbf{12.3} & \textbf{10.2} & 5.4 & 5.2 & 5.5 & \textbf{17.8} & \textbf{5.7} \\
+Skew $+1.32$ & \textit{4.2} & \textit{2.8} & 5.4 & 5.1 & 5.1 & \textbf{8.6} & \textbf{6.0} \\
+GARCH(1,1) & \textbf{6.6} & 5.1 & 5.1 & 4.9 & 5.1 & \textbf{11.3} & 5.4 \\
+AR(1), $\phi=0.2$ & \textbf{9.4} & \textbf{6.9} & \textbf{6.6} & \textbf{6.1} & \textbf{6.2} & \textbf{13.5} & \textbf{6.3} \\
+Two vol.\ regimes & \textbf{5.8} & 4.8 & 5.0 & 4.5 & 4.8 & \textbf{9.3} & 5.0 \\
+Correlated, $\rho=0.5$ & \textbf{6.7} & \textbf{5.6} & 5.5 & 5.4 & 5.4 & \textbf{10.2} & \textbf{6.3} \\
+Clusters, $\rho=0.8$ & \textbf{7.6} & \textbf{6.4} & \textbf{6.2} & \textbf{6.1} & \textbf{6.2} & \textbf{11.4} & \textbf{7.3} \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Bold: above the 99\% Monte Carlo band around 5\% (4.44--5.56 for 10{,}000 searches); italic: below it. SPA$_c$: Hansen's statistic studentized by a fixed Politis--Romano long-run variance. SPA$_c$-SD: studentized by the sample standard deviation instead. SPA$_c$-BT: every resample re-studentized by its own standard deviation (bootstrap-$t$). SPA$_c$-U: neither studentized nor floored at zero, the computation arch~8.0.0 performs. (22): mean block length 22, arch's default for 504 periods.\end{minipage}
+\end{table}
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\caption{Size against the number of periods $T$ and strategies $k$ (Null Zoo v2, experiment B, 5{,}000 null searches per cell; mean block length $b=\mathrm{round}(T^{1/3})$).}
+\label{tab:grid}
+\begin{tabular}{lrrrrrrrr}
+\toprule
+ & \multicolumn{4}{c}{IID normal} & \multicolumn{4}{c}{Skew $-1.32$} \\
+\cmidrule(lr){2-5}\cmidrule(lr){6-9}
+Design & SPA$_c$ & SPA$_c$-SD & SPA$_c$-BT & RC & SPA$_c$ & SPA$_c$-SD & SPA$_c$-BT & RC \\
+\midrule
+$T=252$, $k=20$ ($b=6$) & \textbf{9.5} & \textbf{6.0} & 5.5 & 5.2 & \textbf{16.2} & \textbf{12.7} & 5.8 & 5.0 \\
+$T=504$, $k=20$ ($b=8$) & \textbf{7.1} & 5.6 & 5.2 & 5.0 & \textbf{12.1} & \textbf{10.0} & 5.0 & 5.1 \\
+$T=1{,}260$, $k=20$ ($b=11$) & \textbf{7.1} & \textbf{6.2} & \textbf{6.0} & \textbf{5.8} & \textbf{9.1} & \textbf{7.9} & 5.1 & 5.1 \\
+$T=2{,}520$, $k=20$ ($b=14$) & \textbf{6.2} & 5.6 & 5.5 & 5.4 & \textbf{7.7} & \textbf{6.9} & 4.9 & 4.7 \\
+$T=504$, $k=5$ ($b=8$) & \textbf{6.9} & \textbf{6.3} & \textbf{6.2} & \textbf{6.0} & \textbf{8.7} & \textbf{8.0} & 5.4 & 5.7 \\
+$T=504$, $k=100$ ($b=8$) & \textbf{9.5} & 5.3 & 4.9 & 4.8 & \textbf{18.4} & \textbf{12.3} & 4.3 & \textit{3.9} \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Bold: above the 99\% Monte Carlo band around 5\% (4.21--5.79 for 5{,}000 searches); italic: below it.\end{minipage}
+\end{table}
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\caption{arch after its fix (pull request 882, merge commit \texttt{bbfa879}): size of arch's studentized SPA test, which re-studentizes every resample by its own bootstrap-implied long-run variance, beside this paper's fixed-variance test and Reality Check on the same 2{,}000 new skill-less searches per family (unregistered check).}
+\label{tab:arch882}
+\begin{tabular}{lrrrrrr}
+\toprule
+ & \multicolumn{3}{c}{Mean block length 8} & \multicolumn{3}{c}{arch's default, 22} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Family & arch$_c$ & SPA$_c$ & RC & arch$_c$ & SPA$_c$ & RC \\
+\midrule
+IID normal & 4.9 & 5.9 & \textit{3.5} & 5.3 & \textbf{10.4} & 4.0 \\
+Student $t_4$ & 5.3 & \textbf{7.1} & 5.3 & 5.7 & \textbf{11.9} & 6.0 \\
+Skew $-1.32$ & 5.2 & \textbf{12.3} & 5.1 & 5.2 & \textbf{17.8} & 5.3 \\
+Skew $+1.32$ & 5.8 & 4.5 & 4.9 & 5.4 & \textbf{8.5} & 5.7 \\
+GARCH(1,1) & 4.8 & \textbf{6.6} & 5.2 & 4.5 & \textbf{10.8} & 5.3 \\
+AR(1), $\phi=0.2$ & 5.3 & \textbf{9.2} & 5.8 & 6.0 & \textbf{13.1} & 5.7 \\
+Two vol.\ regimes & 4.0 & 4.9 & 4.0 & 3.8 & \textbf{8.6} & 4.7 \\
+Correlated, $\rho=0.5$ & 5.0 & \textbf{6.4} & 5.4 & 5.9 & \textbf{10.1} & 6.1 \\
+Clusters, $\rho=0.8$ & 5.9 & \textbf{7.2} & \textbf{6.5} & \textbf{6.4} & \textbf{10.5} & \textbf{7.3} \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Bold: above the 99\% Monte Carlo band around 5\% (3.74--6.26 for 2{,}000 searches); italic: below it. arch$_c$: arch 8.0.1.dev102{+}gbbfa879a9 with its defaults (\texttt{studentize=True}, \texttt{nested=False}, stationary bootstrap, 1{,}000 resamples), consistent $p$-value. SPA$_c$: Hansen's statistic with the Politis--Romano variance held fixed, the computation arch adopted in pull request 871 and replaced in pull request 882. Both are unreleased; the latest release, 8.0.0, does not studentize (Table~\ref{tab:arch}).\end{minipage}
+\end{table}
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\caption{The author's implementation before and after the fix: size of the consistent SPA test, the stepwise SPA test and the Reality Check on the same 4{,}000 new skill-less searches per design and the same bootstrap draws (unregistered check; 1{,}000 resamples, mean block length 8).}
+\label{tab:fix}
+\begin{tabular}{lrrrrr}
+\toprule
+ & \multicolumn{2}{c}{Before (v1 code)} & \multicolumn{2}{c}{After (bootstrap-$t$, ties)} & \multicolumn{1}{c}{} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Family & SPA$_c$ & Step & SPA$_c$ & Step & RC \\
+\midrule
+IID normal & \textbf{7.2} & \textbf{7.2} & 5.3 & 5.3 & 5.2 \\
+Student $t_4$ & \textbf{7.2} & \textbf{7.2} & 5.3 & 5.3 & 5.2 \\
+Skew $-1.32$ & \textbf{12.0} & \textbf{12.0} & 5.2 & 5.2 & 5.1 \\
+Skew $+1.32$ & 4.3 & 4.3 & 5.4 & 5.4 & 4.9 \\
+GARCH(1,1) & \textbf{6.6} & \textbf{6.6} & 5.4 & 5.4 & 4.8 \\
+AR(1), $\phi=0.2$ & \textbf{10.0} & \textbf{10.0} & \textbf{6.9} & \textbf{6.9} & \textbf{6.7} \\
+Two vol.\ regimes & 5.9 & 5.8 & 5.0 & 5.0 & 4.7 \\
+Correlated, $\rho=0.5$ & \textbf{7.7} & \textbf{7.6} & \textbf{6.0} & \textbf{6.0} & \textbf{6.0} \\
+Clusters, $\rho=0.8$ & \textbf{7.5} & \textbf{7.5} & \textbf{6.2} & \textbf{6.2} & \textbf{6.1} \\
+Poor alternatives & \textbf{7.3} & 5.1 & 5.0 & 5.0 & \textit{0.3} \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Bold: above the 99\% Monte Carlo band around 5\% (4.11--5.89 for 4{,}000 searches); italic: below it. Before: the code that scored v1 and v1b (Politis--Romano standard deviation held fixed, $p=\#\{T^*>T\}/B$). After: canlicapital pull request 562, each resample divided by its own standard deviation, ties counted and the stepwise critical value floored at zero. Step: at least one strategy declared superior at 5\%. RC is unchanged by the fix. Poor alternatives: one strategy with mean zero and 19 with a true annualized Sharpe ratio of $-3$, i.i.d.\ normal returns.\end{minipage}
+\end{table}
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\caption{Pre-registered confirmation (v2c): size of the joint tests on fresh seeds, nine families and three small autocorrelations (percent at a nominal 5\%). Left: 3{,}000 searches per row, arch at the merge commit of pull request 882 and this paper's fixed-variance SPA test and Reality Check on the same searches. Right: 3{,}000 other searches per row, the author's implementation as v1 ran it and as corrected, with the same bootstrap draws.}
+\label{tab:confirm-joint}
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+ & \multicolumn{2}{c}{arch 882} & \multicolumn{2}{c}{Fixed-variance SPA$_c$} & \multicolumn{1}{c}{RC} & \multicolumn{1}{c}{v1 code} & \multicolumn{3}{c}{Corrected} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-6}\cmidrule(lr){7-7}\cmidrule(lr){8-10}
+Family & 8 & 22 & 8 & 22 & 8 & SPA$_c$ & SPA$_c$ & StepM & RC \\
+\midrule
+IID normal & 5.4 & \textbf{6.6} & \textbf{7.7} & \textbf{13.0} & 5.3 & \textbf{7.1} & 4.9 & 4.9 & 4.7 \\
+Student $t_4$ & 4.5 & 4.9 & 5.8 & \textbf{11.2} & 4.0 & \textbf{6.2} & 4.8 & 4.8 & 4.3 \\
+Skew $-1.32$ & 5.8 & 5.8 & \textbf{12.4} & \textbf{18.2} & 5.0 & \textbf{12.9} & \textbf{6.1} & \textbf{6.1} & 5.8 \\
+Skew $+1.32$ & 4.9 & 5.4 & 4.0 & \textbf{7.7} & 5.0 & \textit{3.2} & 4.7 & 4.7 & 4.3 \\
+GARCH(1,1) & 5.4 & 5.3 & \textbf{6.8} & \textbf{11.1} & 4.9 & \textbf{6.9} & 5.7 & 5.7 & 5.1 \\
+AR(1), $\phi=0.2$ & \textbf{6.1} & \textbf{6.3} & \textbf{9.8} & \textbf{14.1} & \textbf{6.4} & \textbf{8.9} & \textbf{6.3} & \textbf{6.3} & \textbf{6.0} \\
+Two vol.\ regimes & 4.3 & \textit{3.7} & 5.5 & \textbf{8.7} & 4.5 & 5.7 & 4.9 & 4.9 & 4.8 \\
+Correlated, $\rho=0.5$ & 5.0 & \textbf{6.1} & \textbf{6.7} & \textbf{10.3} & 5.5 & \textbf{6.9} & 5.7 & 5.7 & 5.7 \\
+Clusters, $\rho=0.8$ & 6.0 & \textbf{6.7} & \textbf{7.8} & \textbf{11.4} & 5.6 & \textbf{6.4} & 5.0 & 5.0 & 5.0 \\
+AR(1), $\phi=0.02$ & 5.9 & 5.9 & \textbf{7.7} & \textbf{13.1} & 5.8 & \textbf{8.0} & 5.8 & 5.8 & 5.6 \\
+AR(1), $\phi=0.05$ & 5.4 & 6.0 & \textbf{7.9} & \textbf{12.8} & 5.6 & \textbf{7.9} & 5.9 & 5.9 & 5.4 \\
+AR(1), $\phi=0.1$ & 4.8 & 5.4 & \textbf{8.3} & \textbf{12.3} & 5.5 & \textbf{8.1} & \textbf{6.3} & \textbf{6.3} & 5.8 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Bold: above the 99\% Monte Carlo band around 5\% (3.98--6.02 for 3{,}000 searches); italic: below it. 8, 22: mean block length (22 is arch's default for 504 periods); the author's implementation uses 8. arch: consistent $p$-value, every resample studentized by its own long-run variance. StepM: at least one strategy declared superior at 5\%. Pre-registration commit \texttt{c0996a70714f}; hypotheses H1--H7 and H11--H13 are scored on this table (Table~\ref{tab:predictions-confirm}).\end{minipage}
+\end{table}
+

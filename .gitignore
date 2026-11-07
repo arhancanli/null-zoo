@@ -9,3 +9,8 @@ node_modules/
 *.bbl
 *.blg
 .DS_Store
+__pycache__/
+*.pyc
+analysis/empirical/data/
+agentdb.rvf
+agentdb.rvf.lock

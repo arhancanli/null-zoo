@@ -1,0 +1,222 @@
+{
+ "schema": "canli.null-zoo.v1.ar1-levels",
+ "generator": "xoshiro128** seeded by splitmix32; one seed per autocorrelation level",
+ "design": {
+  "trials": 20,
+  "observations": 504,
+  "periodsPerYear": 252,
+  "levels": [
+   0.01,
+   0.05,
+   0.1
+  ],
+  "phis": [
+   0,
+   0.02,
+   0.05,
+   0.1,
+   0.2
+  ],
+  "baseSeed": 20261105
+ },
+ "reps_per_level": 10000,
+ "monte_carlo_se_at_5_percent": 0.002179,
+ "closed_form": "1 - (1 - P(T > c / sqrt((1 + phi) / (1 - phi))))^N, with c the test's own cutoff for one strategy and T Student t with observations - 1 degrees of freedom",
+ "levels": [
+  {
+   "phi": 0,
+   "searches": 10000,
+   "seed": 20261105,
+   "size": {
+    "luck_trials": {
+     "0.01": 0.0088,
+     "0.05": 0.0492,
+     "0.1": 0.0974
+    },
+    "luck_trials_lo": {
+     "0.01": 0.0096,
+     "0.05": 0.0509,
+     "0.1": 0.0996
+    },
+    "haircut_bonferroni_one_sided": {
+     "0.01": 0.0088,
+     "0.05": 0.0479,
+     "0.1": 0.0932
+    },
+    "haircut_bonferroni_lo_one_sided": {
+     "0.01": 0.0096,
+     "0.05": 0.0501,
+     "0.1": 0.095
+    }
+   },
+   "closed_form": {
+    "haircut_bonferroni_one_sided": {
+     "0.01": 0.009953,
+     "0.05": 0.04883,
+     "0.1": 0.09539
+    },
+    "luck_trials": {
+     "0.01": 0.01,
+     "0.05": 0.05,
+     "0.1": 0.1
+    }
+   }
+  },
+  {
+   "phi": 0.02,
+   "searches": 10000,
+   "seed": 21261108,
+   "size": {
+    "luck_trials": {
+     "0.01": 0.0133,
+     "0.05": 0.0599,
+     "0.1": 0.1132
+    },
+    "luck_trials_lo": {
+     "0.01": 0.0112,
+     "0.05": 0.0555,
+     "0.1": 0.1023
+    },
+    "haircut_bonferroni_one_sided": {
+     "0.01": 0.0132,
+     "0.05": 0.0589,
+     "0.1": 0.1075
+    },
+    "haircut_bonferroni_lo_one_sided": {
+     "0.01": 0.0112,
+     "0.05": 0.0537,
+     "0.1": 0.0979
+    }
+   },
+   "closed_form": {
+    "haircut_bonferroni_one_sided": {
+     "0.01": 0.012477,
+     "0.05": 0.057618,
+     "0.1": 0.109513
+    },
+    "luck_trials": {
+     "0.01": 0.012534,
+     "0.05": 0.058943,
+     "0.1": 0.114576
+    }
+   }
+  },
+  {
+   "phi": 0.05,
+   "searches": 10000,
+   "seed": 22261111,
+   "size": {
+    "luck_trials": {
+     "0.01": 0.0196,
+     "0.05": 0.0776,
+     "0.1": 0.1375
+    },
+    "luck_trials_lo": {
+     "0.01": 0.0116,
+     "0.05": 0.0553,
+     "0.1": 0.1045
+    },
+    "haircut_bonferroni_one_sided": {
+     "0.01": 0.0196,
+     "0.05": 0.0761,
+     "0.1": 0.1323
+    },
+    "haircut_bonferroni_lo_one_sided": {
+     "0.01": 0.0114,
+     "0.05": 0.0546,
+     "0.1": 0.1002
+    }
+   },
+   "closed_form": {
+    "haircut_bonferroni_one_sided": {
+     "0.01": 0.017248,
+     "0.05": 0.072967,
+     "0.1": 0.133265
+    },
+    "luck_trials": {
+     "0.01": 0.017323,
+     "0.05": 0.074543,
+     "0.1": 0.139018
+    }
+   }
+  },
+  {
+   "phi": 0.1,
+   "searches": 10000,
+   "seed": 23261114,
+   "size": {
+    "luck_trials": {
+     "0.01": 0.027,
+     "0.05": 0.1082,
+     "0.1": 0.1893
+    },
+    "luck_trials_lo": {
+     "0.01": 0.0119,
+     "0.05": 0.051,
+     "0.1": 0.1079
+    },
+    "haircut_bonferroni_one_sided": {
+     "0.01": 0.0269,
+     "0.05": 0.106,
+     "0.1": 0.1828
+    },
+    "haircut_bonferroni_lo_one_sided": {
+     "0.01": 0.0119,
+     "0.05": 0.0501,
+     "0.1": 0.1024
+    }
+   },
+   "closed_form": {
+    "haircut_bonferroni_one_sided": {
+     "0.01": 0.028498,
+     "0.05": 0.10496,
+     "0.1": 0.179914
+    },
+    "luck_trials": {
+     "0.01": 0.02861,
+     "0.05": 0.106994,
+     "0.1": 0.18681
+    }
+   }
+  },
+  {
+   "phi": 0.2,
+   "searches": 10000,
+   "seed": 24261117,
+   "size": {
+    "luck_trials": {
+     "0.01": 0.0657,
+     "0.05": 0.1932,
+     "0.1": 0.2998
+    },
+    "luck_trials_lo": {
+     "0.01": 0.0125,
+     "0.05": 0.054,
+     "0.1": 0.1054
+    },
+    "haircut_bonferroni_one_sided": {
+     "0.01": 0.0655,
+     "0.05": 0.1899,
+     "0.1": 0.2908
+    },
+    "haircut_bonferroni_lo_one_sided": {
+     "0.01": 0.0125,
+     "0.05": 0.0524,
+     "0.1": 0.0998
+    }
+   },
+   "closed_form": {
+    "haircut_bonferroni_one_sided": {
+     "0.01": 0.068776,
+     "0.05": 0.19633,
+     "0.1": 0.299284
+    },
+    "luck_trials": {
+     "0.01": 0.068996,
+     "0.05": 0.199333,
+     "0.1": 0.308097
+    }
+   }
+  }
+ ]
+}

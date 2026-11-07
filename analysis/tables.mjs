@@ -1,21 +1,49 @@
 // Builds every table and every number quoted in the paper from the result files, so no figure in
-// the text is typed by hand.
-//   node analysis/tables.mjs   ->  paper/generated/{tables.tex,appendix-tables.tex,numbers.tex}
+// the text is typed by hand. The paper reads a number with \nz{key}; LaTeX stops with an error if
+// a key is missing, so a number cannot silently go stale or be invented.
+//   node analysis/tables.mjs  ->  paper/generated/{values,tables-single,tables-snooping,tables-empirical,appendix-tables}.tex
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 import { expectedMaxStandardNormal, normalCdf, normalPpf } from "../src/js/dsr-core.js";
+import { studentTQuantileUpper, studentTUpper } from "../src/js/student-t.js";
 
 const here = new URL("..", import.meta.url).pathname;
-const v0Path = `${here}src/config/research/null-zoo-v0.json`;
-const v0 = JSON.parse(readFileSync(v0Path, "utf8"));
-const ext = JSON.parse(readFileSync(`${here}analysis/null-zoo-extended.json`, "utf8"));
-const ext1 = JSON.parse(readFileSync(`${here}analysis/null-zoo-extended-v1.json`, "utf8"));
-const LEVEL = v0.design.level;
-const N_TRIALS = v0.design.trials;
-const nV0 = v0.reps;
-const nExt = ext.reps;
+const read = (p) => JSON.parse(readFileSync(`${here}${p}`, "utf8"));
 
+const V1 = read("src/config/research/null-zoo-v1-evaluation.json");
+const V1B = read("src/config/research/null-zoo-v1b-evaluation.json");
+const V1RAW = read("src/config/research/null-zoo-v1.json");
+const V1BRAW = read("src/config/research/null-zoo-v1b.json");
+const V1PRE = read("src/config/research/null-zoo-v1-prereg.json");
+const V2 = read("analysis/v2/evaluation-v2.json");
+const V2RUN = read("analysis/v2/results-v2.json");
+const V2ARCH = read("analysis/v2/arch-check-v2.json");
+const ARCHMERGED = read("analysis/v2/arch-merged-check.json");
+const ARCH882 = read("analysis/v2/arch-882-check.json");
+const RESTUD = read("analysis/v2/restudent-check.json");
+const SFIX = read("analysis/snooping-fix/snooping-fix.json");
+const AR1L = read("src/config/research/null-zoo-v1-ar1-levels.json");
+const EMPAC = read("analysis/empirical/autocorr.json");
+const ANOM = read("analysis/anomalies/anomalies-results.json");
+const EXT = read("analysis/null-zoo-extended.json");
+const BR = read("analysis/bootstrap-resolution.json");
+const EXPLORE = read("analysis/v2/explore-floor-v2.json");
+const V2B = read("analysis/v2b/evaluation-v2b.json");
+const V2BRUN = read("analysis/v2b/results-v2b.json");
+const V2BPRE = read("analysis/v2b/prereg-v2b.json");
+const EMP = read("analysis/empirical/empirical-results.json");
+const PROV = read("analysis/provenance.json");
+const V0PATH = `${here}src/config/research/null-zoo-v0.json`;
+const V0 = JSON.parse(readFileSync(V0PATH, "utf8"));
+
+const LEVEL = 0.05;
+const N_TRIALS = V1RAW.design.trials;
+const T_OBS = V1RAW.design.observations;
+const nV1 = V1.run.reps_per_cell;
+
+export const FAMILIES = ["iid_normal", "student_t4", "skew_negative", "skew_positive", "garch", "ar1", "regimes", "correlated_trials", "block_cluster"];
 export const FAMILY_LABEL = {
   iid_normal: "IID normal",
   student_t4: "Student $t_4$",
@@ -25,230 +53,970 @@ export const FAMILY_LABEL = {
   ar1: "AR(1), $\\phi=0.2$",
   regimes: "Two vol.\\ regimes",
   correlated_trials: "Correlated, $\\rho=0.5$",
+  block_cluster: "Clusters, $\\rho=0.8$",
 };
-// Main-table columns. In the robustness run the haircut columns are read one-sided.
-const COLS = [
-  ["luck_trials", "LET"],
-  ["luck_trials_lo", "LET-Lo"],
-  ["luck_trials_nonnormal_se", "LET-NN"],
-  ["haircut_bonferroni", "HC"],
-  ["haircut_bonferroni_lo", "HC-Lo"],
-  ["deflated_sharpe", "DSR"],
-  ["bootstrap_best", "Boot"],
-];
-const extKey = (v) => (v.startsWith("haircut_") ? `${v}_one_sided` : v);
-const FAMILIES = v0.rows.map((r) => r.family);
-const extRow = Object.fromEntries(ext.rows.map((r) => [r.family, r]));
-const ext1Row = Object.fromEntries(ext1.rows.map((r) => [r.family, r]));
+const NON_AR = FAMILIES.filter((f) => f !== "ar1");
+// Family names for running text: "the correlated family", joined with "and".
+const FAMILY_NAME = {
+  iid_normal: "i.i.d.\\ normal", student_t4: "Student-$t_4$", skew_negative: "negative-skew", skew_positive: "positive-skew",
+  garch: "GARCH", ar1: "AR(1)", regimes: "regime-switching", correlated_trials: "correlated", block_cluster: "cluster",
+};
+const familyText = (fs) => (fs.length ? `the ${fs.map((f) => FAMILY_NAME[f]).join(" and ")} ${fs.length > 1 ? "families" : "family"}` : "no family");
+// One display name per test (v1 validator keys, then the v2/v2b variants).
+const V1_LABEL = {
+  luck_trials: "LET", luck_trials_lo: "LET-Lo", luck_trials_nonnormal_se: "LET-NN", haircut_bonferroni_one_sided: "HL",
+  haircut_bonferroni_lo_one_sided: "HL-Lo", haircut_holm_one_sided: "Holm", deflated_sharpe: "DSR", bootstrap_best: "Boot",
+  hac_t_sidak: "HAC-$t$", bootstrap_t_sidak: "SB-$t$", oracle_hac_t: "Oracle", reality_check: "RC", spa_consistent: "SPA$_c$",
+  spa_upper: "SPA$_u$", stepm_any: "Step-SPA",
+};
+const V2_LABEL = {
+  rc: "RC", spa_c_unstud: "SPA$_c$-U", spa_c: "SPA$_c$", spa_u: "SPA$_u$", spa_c_sd: "SPA$_c$-SD", spa_c_boot_t: "SPA$_c$-BT",
+  spa_c_strict: "SPA$_c$ ($>$)", spa_c_ge: "SPA$_c$", spa_c_boot_t_ge: "SPA$_c$-BT", spa_c_nb_ge: "SPA$_c$-NB", sidak_t: "LET",
+  spa_c_b22: "SPA$_c$ (22)", spa_c_unstud_b22: "SPA$_c$-U (22)", spa_c_ge_b22: "SPA$_c$ (22)", rc_b22: "RC (22)",
+};
 
 const se = (p, n) => Math.sqrt((p * (1 - p)) / n);
 const z99 = normalPpf(0.995);
-const z95 = normalPpf(0.975);
-const band = (n, z = z99) => z * se(LEVEL, n);
+const band = (n) => z99 * se(LEVEL, n);
 const pct = (x, d = 1) => (100 * x).toFixed(d);
+// Thousands separators as {,} so that numbers set in math mode do not get a space after the comma.
+const nf = (x) => x.toLocaleString("en-US").replaceAll(",", "{,}");
+const WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+const range = (xs, d = 1) => `${pct(Math.min(...xs), d)}--${pct(Math.max(...xs), d)}`;
 
-function sizeCell(p, n) {
-  const s = pct(p, n >= 10000 ? 2 : 1);
-  if (p > LEVEL + band(n)) return `\\textbf{${s}}`;
-  if (p < LEVEL - band(n)) return `\\textit{${s}}`;
-  return s;
+// ---- values ------------------------------------------------------------------------------------
+const values = new Map();
+const def = (key, value, same = false) => {
+  if (values.has(key) && !(same && values.get(key) === String(value))) throw new Error(`duplicate value ${key}`);
+  if (value === undefined || value === null || (typeof value === "number" && !Number.isFinite(value))) throw new Error(`bad value ${key}: ${value}`);
+  values.set(key, String(value));
+};
+
+def("trials", N_TRIALS);
+def("obs", T_OBS);
+def("reps.v1", nf(nV1));
+def("reps.v0", nf(V0.reps));
+def("reps.ext", nf(EXT.reps));
+def("se5.10000", pct(se(LEVEL, 10000), 2));
+def("se5.5000", pct(se(LEVEL, 5000), 2));
+def("se5.2000", pct(se(LEVEL, 2000), 2));
+def("band99.10000", `${pct(LEVEL - band(10000), 2)}--${pct(LEVEL + band(10000), 2)}`);
+def("band99.5000", `${pct(LEVEL - band(5000), 2)}--${pct(LEVEL + band(5000), 2)}`);
+def("v1.spa_reps", nf(V1.run.settings.spaReps));
+def("v1.boot_t_reps", nf(V1.run.settings.bootstrapTReps));
+def("v1.boot_best_draws", nf(V1.run.settings.bootstrapBestDraws));
+def("v1.bar_size", pct(V1.bar.size, 0));
+def("v1.bar_power", pct(V1.bar.power, 0));
+def("v1.base_seed", V1RAW.design.baseSeed);
+def("v1b.base_seed", read("src/config/research/null-zoo-v1b-prereg.json").design.base_seed);
+def("v2.base_seed", V2RUN.base_seed);
+def("v2.reps", nf(V2RUN.bootstrap_reps));
+def("v2b.base_seed", V2BRUN.base_seed);
+def("v2b.reps", nf(V2BRUN.bootstrap_reps));
+def("v2b.numpy", V2BRUN.numpy);
+def("v2.numpy", V2RUN.numpy);
+if (V2BRUN.scale !== 1) throw new Error("results-v2b.json is not the full-size run");
+
+// Size-adjusted power is undefined when the smallest attainable p-value already occurs in more than
+// 5% of the null cell (v1's evaluate.mjs then stores 0). Detect that from the raw p-value histograms.
+function adjUndefined(raw, v, f) {
+  const cell = raw.cells.find((c) => c.family === f && c.skill === 0);
+  const hist = cell.p_histogram[v];
+  if (!hist || !hist.length) return false;
+  const [firstBin, count] = hist.reduce((a, b) => (b[0] < a[0] ? b : a));
+  return count / cell.searches > LEVEL && firstBin < raw.histogram.bins;
 }
-
-function table({ caption, label, cell, note, cols = COLS }) {
-  let t = `\\begin{table}[t]\n\\centering\n\\small\n\\caption{${caption}}\n\\label{${label}}\n`;
-  t += `\\begin{tabular}{l${"r".repeat(cols.length)}}\n\\toprule\n`;
-  t += `Family & ${cols.map(([, l]) => l).join(" & ")} \\\\\n\\midrule\n`;
-  for (const f of FAMILIES) t += `${FAMILY_LABEL[f]} & ${cols.map(([v]) => cell(f, v)).join(" & ")} \\\\\n`;
-  t += `\\bottomrule\n\\end{tabular}\n`;
-  if (note) t += `\\par\\smallskip\\begin{minipage}{0.97\\linewidth}\\footnotesize ${note}\\end{minipage}\n`;
-  return `${t}\\end{table}\n\n`;
-}
-
-const v0Row = Object.fromEntries(v0.rows.map((r) => [r.family, r]));
-const nf = (x) => x.toLocaleString("en-US");
-
-let main = "";
-main += table({
-  caption: `Size: percentage of skill-less searches (${N_TRIALS} strategies, 504 daily returns) whose best strategy is called skilled at the nominal 5\\% level. Published v0 run, ${nf(nV0)} searches per cell; HC two-sided as \\citet{harvey2015backtesting} define it; bootstrap with 400 resamples.`,
-  label: "tab:size-v0",
-  cell: (f, v) => sizeCell(v0Row[f].size[v], nV0),
-  note: `Bold: above the 99\\% Monte Carlo band around 5\\% (${pct(LEVEL - band(nV0))}--${pct(LEVEL + band(nV0))}); italic: below it. A two-sided $p\\le 0.05$ for a positive Sharpe ratio is a one-sided test at 2.5\\%, so the HC columns are not comparable with the others here; Table~\\ref{tab:size-ext} reads them one-sided.`,
-});
-main += table({
-  caption: `Size in the robustness run: xoshiro128** generator, ${nf(nExt)} searches per cell, HC read one-sided (two-sided $p$ halved), bootstrap with ${nf(ext.bootstrap_draws)} resamples.`,
-  label: "tab:size-ext",
-  cell: (f, v) => sizeCell(extRow[f].size[extKey(v)] / nExt, nExt),
-  note: `99\\% Monte Carlo band around 5\\%: ${pct(LEVEL - band(nExt), 2)}--${pct(LEVEL + band(nExt), 2)}. The standard error of any rate $\\hat p$ is $\\sqrt{\\hat p(1-\\hat p)/${nf(nExt)}}$, at most ${pct(se(0.5, nExt), 2)} percentage points.`,
-});
-main += table({
-  caption: `Power: percentage of searches in which one strategy has a true annualized Sharpe ratio of 2 and the validator rejects. Robustness run, as in Table~\\ref{tab:size-ext}.`,
-  label: "tab:power-ext",
-  cell: (f, v) => pct(extRow[f].power[extKey(v)] / nExt),
-  note: `Raw power rewards a liberal test; compare columns with Table~\\ref{tab:power-adj}. Monte Carlo standard errors are at most ${pct(se(0.5, nExt), 2)} percentage points.`,
-});
-main += table({
-  caption: `Size-adjusted power: power at the cutoff at which each validator rejects at most 5\\% of the skill-less searches in the same family (its own null arm). Robustness run.`,
-  label: "tab:power-adj",
-  cell: (f, v) => { const a = extRow[f].size_adjusted[extKey(v)]; return a.cutoff === null ? "n/a" : pct(a.power / nExt); },
-  note: `n/a: the validator's smallest attainable $p$-value already occurs in more than 5\\% of the null arm, so no cutoff attains the level. Size-adjusted power is not available to a user, who does not know the family; it isolates how well each statistic ranks skilled searches above skill-less ones. The bootstrap's $p$-value is discrete, so its attained null rate falls below 5\\% in some families (${FAMILIES.map((f) => { const a = extRow[f].size_adjusted.bootstrap_best; return a.cutoff === null ? null : `${FAMILY_LABEL[f]} ${pct(a.null_rate_count / nExt, 2)}\\%`; }).filter(Boolean).join("; ")}), and its size-adjusted power is then measured at that lower level.`,
-});
-
-// Appendix tables.
-let app = "";
-app += table({
-  caption: `Power in the published v0 run (${nf(nV0)} searches per cell; HC two-sided; bootstrap with 400 resamples).`,
-  label: "tab:power-v0",
-  cell: (f, v) => pct(v0Row[f].power[v]),
-});
-app += table({
-  caption: `Correct discoveries: percentage of searches in which the validator rejects \\emph{and} the selected best strategy is the skilled one. Robustness run.`,
-  label: "tab:correct-ext",
-  cell: (f, v) => pct(extRow[f].correct[extKey(v)] / nExt),
-  note: `The skilled strategy is the in-sample best in the following share of searches: ${FAMILIES.map((f) => `${FAMILY_LABEL[f]} ${pct(extRow[f].best_is_skilled_trial / nExt)}\\%`).join("; ")}.`,
-});
-{
-  const D = [
-    ["sdnull", "SD/SE, null"],
-    ["sdskill", "SD/SE, skill"],
-    ["skewbest", "Skew of best"],
-    ["skewothers", "Skew of others"],
-  ];
-  const val = (f, k) => {
-    const d = extRow[f].diagnostics;
-    return { sdnull: d.null.cross_trial_sd_over_iid_se, sdskill: d.skill.cross_trial_sd_over_iid_se, skewbest: d.null.mean_skew_best, skewothers: d.null.mean_skew_others }[k].toFixed(2);
-  };
-  app += table({
-    caption: `Diagnostics from the robustness run. SD/SE: mean cross-trial standard deviation of the ${N_TRIALS} annualized Sharpe ratios divided by the i.i.d.\\ standard error $\\sqrt{q/T}$, in the null and skill arms. Skew: mean sample skewness of the selected best series and of the other series, null arm.`,
-    label: "tab:diagnostics",
-    cols: D,
-    cell: val,
-  });
-}
-
-// ---- Numbers quoted in the text --------------------------------------------------------------
-const camel = (s) => s.replace(/(^|_)([a-z0-9])/g, (_, __, c) => c.toUpperCase()).replace(/[0-9]/g, (d) => ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"][d]);
-let nums = `% Generated by analysis/tables.mjs from the result files. Do not edit.\n`;
-const def = (name, value) => { nums += `\\newcommand{\\${name}}{${value}}\n`; };
-
-def("nzTrials", String(N_TRIALS));
-def("nzRepsVzero", nf(nV0));
-def("nzRepsExt", nf(nExt));
-def("nzBootDraws", nf(ext.bootstrap_draws));
-def("nzBandVzeroLo", pct(LEVEL - band(nV0)));
-def("nzBandVzeroHi", pct(LEVEL + band(nV0)));
-def("nzBandExtLo", pct(LEVEL - band(nExt), 2));
-def("nzBandExtHi", pct(LEVEL + band(nExt), 2));
-def("nzBandExtNinetyFiveHi", pct(LEVEL + band(nExt, z95), 2));
-def("nzSeFiveVzero", pct(se(LEVEL, nV0), 2));
-def("nzSeFiveExt", pct(se(LEVEL, nExt), 2));
-
-for (const f of FAMILIES) {
-  const e = extRow[f];
-  for (const [v] of [...COLS, ["haircut_holm"]]) {
-    const key = `${camel(v)}${camel(f)}`;
-    if (v0Row[f].size[v] !== undefined) {
-      def(`nz${key}SizeVzero`, pct(v0Row[f].size[v]));
-      def(`nz${key}PowerVzero`, pct(v0Row[f].power[v]));
+const adjText = (ev, raw, v, f) => {
+  const adj = ev.table[v].size_adjusted_power_skill_2?.[f];
+  if (adj === undefined) return undefined;
+  if (adj === null || (adj === 0 && adjUndefined(raw, v, f))) return "n/a";
+  return pct(adj);
+};
+// v1 and v1b: every validator in every family.
+for (const [run, ev, raw] of [["v1", V1, V1RAW], ["v1b", V1B, V1BRAW]]) {
+  for (const [v, row] of Object.entries(ev.table)) {
+    for (const f of FAMILIES) {
+      def(`${run}.size.${v}.${f}`, pct(row.size[f]));
+      for (const s of ["1", "2", "3"]) if (row.power?.[f]?.[s] !== undefined) def(`${run}.power${s}.${v}.${f}`, pct(row.power[f][s]));
+      const adj = adjText(ev, raw, v, f);
+      if (adj !== undefined) def(`${run}.adj2.${v}.${f}`, adj);
     }
-    const k = extKey(v);
-    def(`nz${key}SizeExt`, pct(e.size[k] / nExt, 2));
-    def(`nz${key}PowerExt`, pct(e.power[k] / nExt));
-    def(`nz${key}AdjPowerExt`, e.size_adjusted[k].cutoff === null ? "n/a" : pct(e.size_adjusted[k].power / nExt));
-    def(`nz${key}CorrectExt`, pct(e.correct[k] / nExt));
-    if (k !== v) def(`nz${key}SizeExtTwoSided`, pct(e.size[v] / nExt, 2));
+    const sizes = FAMILIES.map((f) => row.size[f]);
+    def(`${run}.size_range.${v}`, range(sizes));
+    def(`${run}.size_range_nonar.${v}`, range(NON_AR.map((f) => row.size[f])));
+    def(`${run}.fails6.${v}`, FAMILIES.filter((f) => row.size[f] > 0.06).length);
+    def(`${run}.above_band_nonar.${v}`, familyText(NON_AR.filter((f) => row.size[f] > LEVEL + band(nV1))));
   }
-  def(`nzBestSkilled${camel(f)}Ext`, pct(e.best_is_skilled_trial / nExt));
-  def(`nzSdRatioNull${camel(f)}`, e.diagnostics.null.cross_trial_sd_over_iid_se.toFixed(2));
-  def(`nzSdRatioSkill${camel(f)}`, e.diagnostics.skill.cross_trial_sd_over_iid_se.toFixed(2));
-  def(`nzSkewBest${camel(f)}`, e.diagnostics.null.mean_skew_best.toFixed(2));
-  def(`nzSkewOthers${camel(f)}`, e.diagnostics.null.mean_skew_others.toFixed(2));
+  for (const c of raw.cells) {
+    def(`${run}.best_skilled${c.skill}.${c.family}`, pct(c.best_is_skilled_trial / c.searches));
+    if (c.skill === 0) def(`${run}.skew_best.${c.family}`, c.mean_skew_of_best.toFixed(2));
+  }
+  def(`${run}.oracle_power2`, pct(ev.ceiling.power_iid_skill_2));
+}
+def("v1.validator_count", Object.keys(V1.table).filter((v) => !v.endsWith("_one_sided")).length);
+def("v1.validator_count_no_oracle", Object.keys(V1.table).filter((v) => !v.endsWith("_one_sided") && v !== "oracle_hac_t").length);
+if (V1B.headline.single_series.test !== V1.headline.single_series.test) throw new Error("v1 and v1b chose different single-series defaults");
+def("v1.headline.single", V1_LABEL[V1.headline.single_series.test]);
+def("v1.headline.single.fails", familyText(V1.headline.single_series.failures.map((x) => x.family)));
+def("v1b.headline.single.fails", familyText(V1B.headline.single_series.failures.map((x) => x.family)));
+// The text says the single-series default failed only under negative skew, in both runs.
+for (const ev of [V1, V1B]) if (ev.headline.single_series.failures.map((x) => x.family).join() !== "skew_negative") throw new Error("single-series default: failures changed");
+// The joint tests' p-value rule, p = #{T* > T} / B with rejection at p <= 0.05: for an exact bootstrap the
+// number of resamples above the observed statistic is uniform on 0..B, so the rule rejects with
+// probability (floor(0.05 B) + 1) / (B + 1).
+def("prule.exact", pct((Math.floor(LEVEL * V1.run.settings.spaReps + 1e-9) + 1) / (V1.run.settings.spaReps + 1), 2));
+// The DSR's shortfall against the Sidak test's size-adjusted power, split into threshold and statistic.
+{
+  const t = V1.table;
+  const letAdj = t.luck_trials.size_adjusted_power_skill_2.iid_normal;
+  const dsrAdj = t.deflated_sharpe.size_adjusted_power_skill_2.iid_normal;
+  const dsrRaw = t.deflated_sharpe.power.iid_normal["2"];
+  def("v1.dsr_gap.total", pct(letAdj - dsrRaw));
+  def("v1.dsr_gap.threshold", pct(dsrAdj - dsrRaw));
+  def("v1.dsr_gap.statistic", pct(letAdj - dsrAdj));
+}
+def("v1b.headline.joint.fails", familyText(V1B.headline.with_variants.failures.map((x) => x.family)));
+// Both runs, joint tests: the largest and smallest size over the two runs.
+for (const v of ["spa_consistent", "spa_upper", "stepm_any", "reality_check"]) {
+  const xs = FAMILIES.flatMap((f) => [V1.table[v].size[f], V1B.table[v].size[f]]);
+  def(`both.size_range.${v}`, range(xs));
+  def(`both.size_max.${v}`, pct(Math.max(...xs)));
+  def(`both.size_range_nonar.${v}`, range(NON_AR.flatMap((f) => [V1.table[v].size[f], V1B.table[v].size[f]])));
+}
+// StepM and SPA_c: largest difference in size across the two runs and nine families.
+def("both.fails6_min.spa_consistent", WORDS[Math.min(...[V1, V1B].map((ev) => FAMILIES.filter((f) => ev.table.spa_consistent.size[f] > 0.06).length))]);
+// "the Reality Check exceeded 6% only under autocorrelation", in both runs
+for (const ev of [V1, V1B]) if (FAMILIES.filter((f) => ev.table.reality_check.size[f] > 0.06).join() !== "ar1") throw new Error("RC above 6% outside AR(1)");
+def("both.stepm_spa_maxdiff", pct(Math.max(...FAMILIES.flatMap((f) => [V1, V1B].map((e) => Math.abs(e.table.stepm_any.size[f] - e.table.spa_consistent.size[f])))), 2));
+
+// v2 Python experiments.
+const A = V2.A;
+for (const f of FAMILIES) {
+  for (const [t, x] of Object.entries(A[f].size)) def(`v2.A.size.${t}.${f}`, pct(x));
+  for (const [t, x] of Object.entries(A[f].power)) def(`v2.A.power.${t}.${f}`, pct(x));
+  for (const [t, x] of Object.entries(A[f].size_adjusted_power)) def(`v2.A.adj.${t}.${f}`, pct(x));
+}
+for (const t of Object.keys(A.iid_normal.size)) {
+  def(`v2.A.size_range.${t}`, range(FAMILIES.map((f) => A[f].size[t])));
+  def(`v2.A.size_range_nonar.${t}`, range(NON_AR.map((f) => A[f].size[t])));
+  def(`v2.A.fails6.${t}`, FAMILIES.filter((f) => A[f].size[t] > 0.06).length);
+  def(`v2.A.fails65_nonar.${t}`, NON_AR.filter((f) => A[f].size[t] > 0.065).length);
+}
+for (const [fam, designs] of Object.entries(V2.B)) {
+  for (const [design, cell] of Object.entries(designs)) {
+    for (const [t, x] of Object.entries(cell.size)) def(`v2.B.size.${t}.${fam}.${design}`, pct(x));
+    if (!values.has(`v2.B.block.${design}`)) def(`v2.B.block.${design}`, cell.block);
+  }
+}
+for (const [design, cell] of Object.entries(V2.C)) {
+  for (const [t, x] of Object.entries(cell.size)) def(`v2.C.size.${t}.${design}`, pct(x));
+  for (const [t, x] of Object.entries(cell.power)) def(`v2.C.power.${t}.${design}`, pct(x));
+  for (const [t, x] of Object.entries(cell.size_adjusted_power)) def(`v2.C.adj.${t}.${design}`, pct(x));
+  def(`v2.C.best_t.${design}`, pct(cell.best_t_is_skilled));
+  def(`v2.C.best_mean.${design}`, pct(cell.best_mean_is_skilled));
+}
+for (const [fam, cell] of Object.entries(V2.D)) {
+  def(`v2.D.searches.${fam}`, nf(cell.searches));
+  for (const [k, x] of Object.entries(cell.size)) def(`v2.D.size.${k}.${fam}`, pct(x));
+  for (const [lab, x] of Object.entries(cell.flag_changes_p)) def(`v2.D.flagchanges.${lab}.${fam}`, x);
+  for (const [lab, kinds] of Object.entries(cell.mean_abs_p_difference_arch_vs_ours)) for (const [kind, x] of Object.entries(kinds)) def(`v2.D.meanabs.${lab}.${kind}.${fam}`, x.toFixed(3));
+}
+def("v2.D.arch", V2ARCH.arch);
+def("v2.D.default_block", V2ARCH.default_block);
+def("v2.D.total_searches", nf(Object.values(V2.D).reduce((a, c) => a + c.searches, 0)));
+def("v2.D.total_flag_changes", Object.values(V2.D).reduce((a, c) => a + Object.values(c.flag_changes_p).reduce((x, y) => x + y, 0), 0));
+// Unregistered check: arch's own code after pull request 871 was merged (studentize=True, the default).
+def("archm.version", ARCHMERGED.arch);
+def("archm.commit", ARCHMERGED.arch_merge_commit.slice(0, 7));
+def("archm.searches", nf(ARCHMERGED.searches_per_family));
+for (const [fam, cell] of Object.entries(ARCHMERGED.families)) for (const [k, x] of Object.entries(cell.rejections_at_5pct)) def(`archm.size.${k}.${fam}`, pct(x / cell.searches));
+// Unregistered check: arch's own code after pull request 882 was merged (each resample studentized by its own
+// bootstrap-implied long-run variance), on new searches in all nine families.
+def("a882.version", ARCH882.arch);
+def("a882.commit", ARCH882.arch_merge_commit.slice(0, 7));
+def("a882.searches", nf(ARCH882.searches_per_family));
+def("a882.default_block", ARCH882.default_block);
+if (ARCH882.searches_per_family !== 2000) throw new Error("arch-882-check.json is not the full-size run");
+const A882 = (k, f) => ARCH882.families[f].rejections_at_5pct[k] / ARCH882.families[f].searches;
+for (const f of FAMILIES) for (const k of Object.keys(ARCH882.families[f].rejections_at_5pct)) def(`a882.size.${k}.${f}`, pct(A882(k, f)));
+for (const k of Object.keys(ARCH882.families.iid_normal.rejections_at_5pct)) {
+  def(`a882.range_nonar.${k}`, range(NON_AR.map((f) => A882(k, f))));
+  def(`a882.range.${k}`, range(FAMILIES.map((f) => A882(k, f))));
+}
+def("a882.above_band.arch_default_consistent", FAMILIES.filter((f) => A882("arch_default_consistent", f) > LEVEL + band(ARCH882.searches_per_family)).length);
+{
+  // The text says arch's corrected test was above the band only in the cluster family at the default block, where the Reality Check was too.
+  const hi = (k) => FAMILIES.filter((f) => A882(k, f) > LEVEL + band(ARCH882.searches_per_family));
+  if (hi("arch_default_consistent").join() !== "block_cluster" || !hi("ours_default_rc").includes("block_cluster") || hi("arch_b8_consistent").length) throw new Error("arch 882: band statement no longer true");
+}
+def("a882.above_band.arch_b8_consistent", FAMILIES.filter((f) => A882("arch_b8_consistent", f) > LEVEL + band(ARCH882.searches_per_family)).length);
+// Unregistered check of 7 October 2026: per-resample studentizers against the fixed-variance test.
+def("rst.searches", nf(RESTUD.searches_per_family));
+for (const [f, cell] of Object.entries(RESTUD.families)) for (const [k, x] of Object.entries(cell)) def(`rst.${k}.${f}`, pct(x));
+for (const k of Object.keys(RESTUD.families.iid_normal)) def(`rst.range.${k}`, range(Object.values(RESTUD.families).map((c) => c[k])));
+// Unregistered check: the author's implementation before and after canlicapital PR 562, on the same searches.
+const SFIX_DESIGNS = SFIX.design.designs;
+def("sfix.searches", nf(SFIX.searches_per_design));
+def("sfix.reps", nf(SFIX.design.reps));
+def("sfix.block", SFIX.block);
+def("sfix.base_seed", SFIX.design.baseSeed);
+const sfix = (key, d) => SFIX.size[d][key]["0.05"];
+for (const d of SFIX_DESIGNS) for (const key of Object.keys(SFIX.size[d])) def(`sfix.size.${key}.${d}`, pct(sfix(key, d)));
+for (const key of ["old.spa_consistent", "new.spa_consistent", "old.stepm_any", "new.stepm_any", "new.reality_check"]) {
+  def(`sfix.range_nonar.${key}`, range(NON_AR.map((f) => sfix(key, f))));
+}
+def("sfix.stepm_spa_maxdiff_new", pct(Math.max(...SFIX_DESIGNS.map((d) => Math.abs(sfix("new.stepm_any", d) - sfix("new.spa_consistent", d)))), 2));
+def("sfix.new_rc_maxdiff", pct(Math.max(...FAMILIES.map((f) => Math.abs(sfix("new.spa_consistent", f) - sfix("new.reality_check", f)))), 1));
+{
+  const fs = FAMILIES.filter((f) => sfix("new.spa_consistent", f) > LEVEL + band(SFIX.searches_per_design)).map((f) => FAMILY_NAME[f]);
+  def("sfix.above_band.new.spa_consistent", fs.length ? `the ${fs.length > 1 ? `${fs.slice(0, -1).join(", ")} and ${fs.at(-1)} families` : `${fs[0]} family`}` : "no family");
+}
+def("sfix.above_band.old.spa_consistent.count", FAMILIES.filter((f) => sfix("old.spa_consistent", f) > LEVEL + band(SFIX.searches_per_design)).length);
+def("band99.4000", `${pct(LEVEL - band(4000), 2)}--${pct(LEVEL + band(4000), 2)}`);
+def("band99.2000", `${pct(LEVEL - band(2000), 2)}--${pct(LEVEL + band(2000), 2)}`);
+def("se5.4000", pct(se(LEVEL, 4000), 2));
+
+// Autocorrelation levels (canlicapital PR 592): simulated size of the best-of-N tests against the closed form.
+const AR1_PHIS = AR1L.design.phis;
+const ar1lev = (i) => AR1L.levels[i];
+if (AR1L.design.trials !== N_TRIALS || AR1L.design.observations !== T_OBS) throw new Error("ar1-levels design differs from v1");
+def("ar1lev.reps", nf(AR1L.reps_per_level));
+def("ar1lev.base_seed", AR1L.design.baseSeed);
+def("ar1lev.rho_se", (1 / Math.sqrt(T_OBS)).toFixed(3));
+def("ar1lev.phis", AR1_PHIS.slice(1, -1).join(", "));
+const inflation = (phi) => Math.sqrt((1 + phi) / (1 - phi));
+AR1_PHIS.forEach((phi, i) => {
+  const l = ar1lev(i);
+  def(`ar1lev.se_under.${phi}`, pct(inflation(phi) - 1, 1));
+  for (const t of Object.keys(l.size)) def(`ar1lev.size.${t}.${phi}`, pct(l.size[t]["0.05"]));
+  for (const t of Object.keys(l.closed_form)) def(`ar1lev.cf.${t}.${phi}`, pct(l.closed_form[t]["0.05"]));
+});
+for (const t of ["luck_trials", "haircut_bonferroni_one_sided"]) {
+  const diffs = AR1L.levels.map((l) => Math.abs(l.size[t]["0.05"] - l.closed_form[t]["0.05"]));
+  def(`ar1lev.maxdiff.${t}`, pct(Math.max(...diffs), 1));
+  const ses = AR1L.levels.map((l) => Math.abs(l.size[t]["0.05"] - l.closed_form[t]["0.05"]) / se(l.closed_form[t]["0.05"], l.searches));
+  def(`ar1lev.maxdiff_se.${t}`, Math.max(...ses).toFixed(1));
+  // Small autocorrelation only (phi <= 0.1), where the large-sample approximation is best.
+  const small = AR1L.levels.filter((l) => l.phi > 0 && l.phi <= 0.1).map((l) => Math.abs(l.size[t]["0.05"] - l.closed_form[t]["0.05"]) / se(l.closed_form[t]["0.05"], l.searches));
+  def(`ar1lev.maxdiff_se_small.${t}`, Math.max(...small).toFixed(1));
+}
+for (const t of ["luck_trials_lo", "haircut_bonferroni_lo_one_sided"]) def(`ar1lev.range.${t}`, range(AR1L.levels.map((l) => l.size[t]["0.05"])));
+// The text says Lo's correction never left the 99% band; stop if a re-run says otherwise.
+if (AR1L.levels.some((l) => ["luck_trials_lo", "haircut_bonferroni_lo_one_sided"].some((t) => Math.abs(l.size[t]["0.05"] - LEVEL) > band(AR1L.reps_per_level)))) throw new Error("Lo-corrected size outside the band");
+// The text says the closed form's largest gap is at the largest phi.
+for (const t of ["luck_trials", "haircut_bonferroni_one_sided"]) { const g = AR1L.levels.map((l) => Math.abs(l.size[t]["0.05"] - l.closed_form[t]["0.05"])); if (g.indexOf(Math.max(...g)) !== g.length - 1) throw new Error(`closed-form gap of ${t} is not largest at the largest phi`); }
+// Unregistered diagnostic: lag-one autocorrelation of the empirical illustration's rule returns.
+def("empac.rule_windows", nf(EMPAC.rule_windows));
+def("empac.median", EMPAC.rho1_rule_windows.median.toFixed(3));
+def("empac.q25", EMPAC.rho1_rule_windows.q25.toFixed(3));
+def("empac.q75", EMPAC.rho1_rule_windows.q75.toFixed(3));
+def("empac.share05", pct(EMPAC.rho1_rule_windows["share_ge_0.05"], 0));
+def("empac.best_median", EMPAC.rho1_best_rule_per_window.median.toFixed(3));
+def("empac.best_share05", pct(EMPAC.rho1_best_rule_per_window["share_ge_0.05"], 0));
+def("empac.full_range", `${Math.min(...Object.values(EMPAC.rho1_full_sample_by_rule)).toFixed(3)}--${Math.max(...Object.values(EMPAC.rho1_full_sample_by_rule)).toFixed(3)}`);
+def("empac.market", EMPAC.rho1_market_full_sample.toFixed(3));
+// Elasticity of the size with respect to the standard error, at phi = 0 (Proposition 2): a best-of-N cutoff
+// against a single test's at the same 5% level.
+{
+  const df = T_OBS - 1;
+  const sizeAt = (c, n, s) => -Math.expm1(n * Math.log1p(-studentTUpper(c / s, df)));
+  const elasticity = (n) => { const c = studentTQuantileUpper(-Math.expm1(Math.log1p(-LEVEL) / n), df), h = 1e-5; return (Math.log(sizeAt(c, n, 1 + h)) - Math.log(sizeAt(c, n, 1 - h))) / (Math.log(1 + h) - Math.log(1 - h)); };
+  const cut = (n) => studentTQuantileUpper(-Math.expm1(Math.log1p(-LEVEL) / n), df);
+  def("ar1lev.cut.k1", cut(1).toFixed(2));
+  def("ar1lev.cut.kN", cut(N_TRIALS).toFixed(2));
+  def("ar1lev.elast.k1", elasticity(1).toFixed(1));
+  def("ar1lev.elast.kN", elasticity(N_TRIALS).toFixed(1));
+  def("ar1lev.elast.k100", elasticity(100).toFixed(1));
+  // The same AR(1) at phi = 0.05 for a single strategy, from the closed form.
+  def("ar1lev.single.0.05", pct(sizeAt(cut(1), 1, inflation(0.05))));
+  def("ar1lev.single.0.1", pct(sizeAt(cut(1), 1, inflation(0.1))));
 }
 
-// Bootstrap resolution: smallest attainable Sidak-adjusted p-value with B resamples.
-const minBootP = (b) => -Math.expm1(N_TRIALS * Math.log1p(-1 / (b + 1)));
-def("nzBootMinPFourHundred", minBootP(400).toFixed(4));
-def("nzBootMinPExt", minBootP(ext.bootstrap_draws).toFixed(4));
-def("nzBootIidPowerFourHundred", pct(ext1Row.iid_normal.power.reject.bootstrap_best / ext1.reps));
-def("nzBootSkewNegPowerFourHundred", pct(ext1Row.skew_negative.power.reject.bootstrap_best / ext1.reps));
+// The text says arch's p-values were identical under both flag values on every pair.
+if (values.get("v2.D.total_flag_changes") !== "0") throw new Error("arch: the studentize flag changed some p-values");
+const PRED = Object.keys(V2.predictions).sort();
+for (const id of PRED) def(`v2.${id}.held`, V2.predictions[id].held ? "held" : "did not hold");
+def("v2.predictions.held_count", PRED.filter((id) => V2.predictions[id].held).length);
+def("v2.predictions.count", PRED.length);
+def("v2.total_searches", nf(V2RUN.cells.reduce((a, c) => a + c.searches, 0)));
+def("v2.D.total_pairs", nf(2 * Object.values(V2.D).reduce((a, c) => a + c.searches, 0)));
+{
+  const diffs = Object.values(V2.D).flatMap((c) => Object.values(c.mean_abs_p_difference_arch_vs_ours).flatMap((k) => Object.values(k)));
+  def("v2.D.meanabs_range", `${Math.min(...diffs).toFixed(3)}--${Math.max(...diffs).toFixed(3)}`);
+  // Expected mean absolute difference between two independent bootstrap p-values of B resamples each
+  // when p is uniform: E|p1 - p2| = sqrt(2/pi) sqrt(2 p (1 - p) / B), averaged over p (E sqrt(p(1-p)) = pi/8).
+  def("v2.D.meanabs_expected", (Math.sqrt(2 / Math.PI) * Math.sqrt(2 / V2RUN.bootstrap_reps) * Math.PI / 8).toFixed(3));
+}
+// Exploratory (not pre-registered) check of the tie convention, fresh seed.
+if (!EXPLORE.exploratory) throw new Error("explore-floor-v2.json must be marked exploratory");
+def("explore.seed", EXPLORE.seed);
+def("explore.searches", nf(EXPLORE.searches));
+def("explore.share_T_zero", pct(EXPLORE.share_T_zero));
+def("explore.share_all_below", pct(EXPLORE.share_T_zero_and_all_below_threshold));
+for (const [k, x] of Object.entries(EXPLORE.size)) def(`explore.size.${k}`, pct(x));
+for (const [k, x] of Object.entries(EXPLORE.size_from_searches_with_T_zero)) def(`explore.size_T_zero.${k}`, pct(x));
+// P1 detail: the largest absolute difference between the Python and JavaScript sizes.
+def("v2.P2.pass_count", Object.values(V2.predictions.P2.detail).filter((x) => x <= 0.06).length);
+def("v2.P2.family_count", Object.keys(V2.predictions.P2.detail).length);
+for (const t of ["spa_c_boot_t", "rc"]) {
+  const cellsB = Object.values(V2.B).flatMap((designs) => Object.values(designs));
+  def(`v2.B.range.${t}`, range(cellsB.map((c) => c.size[t])));
+  def(`v2.B.above_band.${t}`, cellsB.filter((c) => c.size[t] > LEVEL + band(c.searches)).length);
+  def(`v2.B.outside_band.${t}`, cellsB.filter((c) => Math.abs(c.size[t] - LEVEL) > band(c.searches)).length);
+  def(`v2.B.cells`, cellsB.length, true);
+}
+def("v2.P1.maxdiff", pct(Math.max(...V2.predictions.P1.detail.map((r) => Math.abs(r.difference))), 2));
 
-// LET vs one-sided Bonferroni haircut: they can disagree only when p1 lies in (a, b].
+// v2b: number of strategies and block length (E), block re-studentization in the nine families (F),
+// where the skilled strategy sits among unequal volatilities and poor alternatives with ties counted (C2).
+const E = V2B.E;
+const E_K = [1, 2, 5, 10, 20, 50, 100];
+const E_B = [1, 8, 22];
+for (const k of E_K) for (const b of E_B) for (const [t, x] of Object.entries(E[`k${k}`][`b${b}`].size)) def(`v2b.E.size.${t}.k${k}.b${b}`, pct(x));
+def("v2b.E.searches", nf(E.k1.b1.searches));
+{
+  const cellsE = E_K.flatMap((k) => E_B.map((b) => E[`k${k}`][`b${b}`]));
+  def("v2b.E.rc_unstud_maxdiff", pct(Math.max(...cellsE.map((c) => Math.abs(c.size.rc - c.size.spa_c_unstud))), 1));
+  for (const t of ["rc", "spa_c_boot_t_ge", "spa_c_nb_ge", "spa_c_ge"]) {
+    for (const b of E_B) def(`v2b.E.range.${t}.b${b}`, range(E_K.map((k) => E[`k${k}`][`b${b}`].size[t])));
+    def(`v2b.E.range_k20plus.${t}.b8`, range([20, 50, 100].map((k) => E[`k${k}`].b8.size[t])));
+  }
+}
+const F = V2B.F;
+for (const f of FAMILIES) {
+  for (const [t, x] of Object.entries(F[f].size)) def(`v2b.F.size.${t}.${f}`, pct(x));
+  for (const [t, x] of Object.entries(F[f].power)) def(`v2b.F.power.${t}.${f}`, pct(x));
+  for (const [t, x] of Object.entries(F[f].size_adjusted_power)) def(`v2b.F.adj.${t}.${f}`, pct(x));
+}
+for (const t of Object.keys(F.iid_normal.size)) {
+  def(`v2b.F.size_range.${t}`, range(FAMILIES.map((f) => F[f].size[t])));
+  def(`v2b.F.size_range_nonar.${t}`, range(NON_AR.map((f) => F[f].size[t])));
+  def(`v2b.F.fails65_nonar.${t}`, NON_AR.filter((f) => F[f].size[t] > 0.065).length);
+  def(`v2b.F.outside_band.${t}`, FAMILIES.filter((f) => Math.abs(F[f].size[t] - LEVEL) > band(F[f].searches_null)).length);
+}
+def("v2b.F.searches_null", nf(F.iid_normal.searches_null));
+for (const t of Object.keys(F.iid_normal.size)) {
+  const n = NON_AR.filter((f) => F[f].size[t] < LEVEL - band(F[f].searches_null)).length;
+  def(`v2b.F.below_band_nonar.${t}`, n);
+  def(`v2b.F.below_band_nonar_text.${t}`, n === NON_AR.length ? `all ${WORDS[n]}` : `${WORDS[n]} of the ${WORDS[NON_AR.length]}`);
+}
+// Experiment E: ranges used in the text, and checks behind its typed wording.
+for (const t of ["rc", "spa_c_boot_t_ge"]) {
+  def(`v2b.E.range_k20minus.${t}.b22`, range([1, 2, 5, 10, 20].map((k) => E[`k${k}`].b22.size[t])));
+  // "within the band at block length 8 for every number of strategies"
+  if (E_K.some((k) => Math.abs(E[`k${k}`].b8.size[t] - LEVEL) > band(E[`k${k}`].b8.searches))) throw new Error(`E: ${t} left the band at block 8`);
+  // "liberal at block length 22 with up to 20 strategies"
+  if ([1, 2, 5, 10, 20].some((k) => E[`k${k}`].b22.size[t] <= LEVEL + band(E[`k${k}`].b22.searches))) throw new Error(`E: ${t} not above the band at block 22`);
+}
+// The Reality Check and the bootstrap-t in the correlated and cluster families, across v1, v1b, v2 and v2b.
+{
+  const xs = [];
+  for (const f of ["correlated_trials", "block_cluster"]) {
+    xs.push(V1.table.reality_check.size[f], V1B.table.reality_check.size[f], V2.A[f].size.rc, V2.A[f].size.spa_c_boot_t, F[f].size.rc, F[f].size.spa_c_boot_t_ge);
+  }
+  def("corrclus.range", range(xs));
+}
+def("v2b.P12.diff", pct(V2B.predictions.P12.detail.rc_k1_b8 - V2B.predictions.P12.detail.rc_k100_b8, 2));
+def("v2b.P12.shortfall", pct(0.005 - (V2B.predictions.P12.detail.rc_k1_b8 - V2B.predictions.P12.detail.rc_k100_b8), 2));
+def("v2b.F.searches_skill", nf(F.iid_normal.searches_skill));
+const C2 = V2B.C2;
+for (const [t, x] of Object.entries(C2.het_null.size)) def(`v2b.C2.size.${t}.het_null`, pct(x));
+for (const where of ["low", "median", "high"]) {
+  const c = C2[`het_skill_${where}`];
+  for (const [t, x] of Object.entries(c.power)) def(`v2b.C2.power.${t}.${where}`, pct(x));
+  for (const [t, x] of Object.entries(c.size_adjusted_power)) def(`v2b.C2.adj.${t}.${where}`, pct(x));
+  def(`v2b.C2.best_mean.${where}`, pct(c.best_mean_is_skilled));
+  def(`v2b.C2.best_t.${where}`, pct(c.best_t_is_skilled));
+}
+for (const [t, x] of Object.entries(C2.poor.size)) def(`v2b.C2.size.${t}.poor`, pct(x));
+for (const [t, x] of Object.entries(C2.poor.power)) def(`v2b.C2.power.${t}.poor`, pct(x));
+for (const [t, x] of Object.entries(C2.poor.size_adjusted_power)) def(`v2b.C2.adj.${t}.poor`, pct(x));
+def("v2b.C2.searches", nf(C2.het_null.searches));
+const PRED_B = Object.keys(V2B.predictions).sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)));
+for (const id of PRED_B) def(`v2b.${id}.held`, V2B.predictions[id].held ? "held" : "did not hold");
+def("v2b.predictions.held_count", PRED_B.filter((id) => V2B.predictions[id].held).length);
+def("v2b.predictions.count", PRED_B.length);
+if (PRED_B.length !== V2BPRE.predictions.length) throw new Error("v2b evaluation does not score every registered prediction");
+def("prereg.total", PRED.length + PRED_B.length);
+def("prereg.held", PRED.filter((id) => V2.predictions[id].held).length + PRED_B.filter((id) => V2B.predictions[id].held).length);
+def("v2b.total_searches", nf(V2BRUN.cells.reduce((a, c) => a + c.searches, 0)));
+def("v2b.cells", V2BRUN.cells.length);
+
+// The empirical illustration (v2b, part G).
+const EMP_TESTS = ["rc", "spa_c_unstud", "spa_c_ge", "spa_c_boot_t_ge", "spa_c_nb_ge", "spa_c_unstud_b22", "spa_c_ge_b22", "sidak_t"];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const ym = (d) => `${MONTHS[Number(d.slice(4, 6)) - 1]} ${d.slice(0, 4)}`;
+const ymd = (d) => `${Number(d.slice(6, 8))} ${["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][Number(d.slice(4, 6)) - 1]} ${d.slice(0, 4)}`;
+const span = (label) => { const [a, b] = label.split(" ")[0].split("-"); return `${ym(a)}--${ym(b)}`; };
+const EW = EMP.windows.filter((w) => w.p !== null);
+if (EW.length !== EMP.windows.length) throw new Error("an empirical window has no p-values");
+def("emp.windows", EW.length);
+def("emp.window_len", EMP.window);
+def("emp.rules", EMP.rules.lengths.length);
+def("emp.rule_min", EMP.rules.lengths[0]);
+def("emp.rule_max", EMP.rules.lengths.at(-1));
+def("emp.reps", nf(EMP.bootstrap_reps));
+def("emp.seed", EMP.seed);
+def("emp.first_day", ymd(EMP.full_sample.label.split("-")[0]));
+def("emp.last_day", ymd(EMP.full_sample.label.split(" ")[0].split("-")[1]));
+def("emp.first_window", span(EW[0].label));
+def("emp.last_window", span(EW.at(-1).label));
+def("emp.full.periods", nf(EMP.full_sample.periods));
+def("emp.full.block", EMP.full_sample.block);
+def("emp.reduced_windows", EW.filter((w) => w.strategies_used < EMP.rules.lengths.length).length);
+def("emp.min_strategies", Math.min(...EW.map((w) => w.strategies_used)));
+for (const t of [...EMP_TESTS, "spa_c_strict"]) {
+  def(`emp.reject.${t}`, EW.filter((w) => w.p[t] <= LEVEL).length);
+  def(`emp.full.p.${t}`, EMP.full_sample.p[t].toFixed(3));
+}
+def("emp.any_reject", EW.filter((w) => EMP_TESTS.some((t) => w.p[t] <= LEVEL)).length);
+def("emp.all_reject", EW.filter((w) => EMP_TESTS.every((t) => w.p[t] <= LEVEL)).length);
+def("emp.joint_any_reject", EW.filter((w) => EMP_TESTS.filter((t) => t !== "sidak_t").some((t) => w.p[t] <= LEVEL)).length);
+def("emp.split_windows", EW.filter((w) => { const r = EMP_TESTS.map((t) => w.p[t] <= LEVEL); return r.some(Boolean) && !r.every(Boolean); }).length);
+def("emp.strict_equals_ge", EW.every((w) => (w.p.spa_c_strict <= LEVEL) === (w.p.spa_c_ge <= LEVEL)) ? "yes" : "no");
+for (const [pair, d] of Object.entries(EMP.summary.disagreements)) def(`emp.disagree.${pair.replace("|", "-")}`, d.only_first + d.only_second);
+// Windows in which test a rejects and test b does not, with the two p-values, for the text.
+for (const a of [...EMP_TESTS, "spa_c_strict"]) {
+  for (const b of [...EMP_TESTS, "spa_c_strict"]) {
+    if (a === b) continue;
+    const ws = EW.filter((w) => w.p[a] <= LEVEL && w.p[b] > LEVEL);
+    def(`emp.only.${a}.not.${b}`, ws.length);
+    def(`emp.only.${a}.not.${b}.list`, ws.length ? ws.map((w) => `${span(w.label)} (${w.p[a].toFixed(3)} against ${w.p[b].toFixed(3)})`).join(" and ") : "none");
+  }
+}
+// Windows in which the joint tests at block length 8 all agree, and the range of their full-sample p-values.
+{
+  const joint = EMP_TESTS.filter((t) => t !== "sidak_t").map((t) => EMP.full_sample.p[t]);
+  def("emp.full.p.min_joint", Math.min(...joint).toFixed(3));
+  def("emp.full.p.max_joint", Math.max(...joint).toFixed(3));
+  def("emp.full.joint_count", WORDS[joint.length]);
+}
+def("emp.fixed_alone", WORDS[EW.filter((w) => w.p.spa_c_ge <= LEVEL && ["rc", "spa_c_boot_t_ge", "spa_c_nb_ge"].every((t) => w.p[t] > LEVEL)).length]);
+def("emp.none_reject", EW.filter((w) => EMP_TESTS.every((t) => w.p[t] > LEVEL)).length);
+
+// Bootstrap resolution (paired run, v0 design).
+def("br.reps", nf(BR.reps));
+for (const r of BR.rows) for (const arm of ["size", "power"]) for (const [k, kk] of [["luck_trials", "let"], ["bootstrap_400", "b400"], ["bootstrap_1999", "b1999"]]) def(`br.${arm}.${kk}.${r.family}`, pct(r[arm][k] / BR.reps, arm === "size" ? 2 : 1));
 const sidakP1 = -Math.expm1(Math.log1p(-LEVEL) / N_TRIALS);
-def("nzBonfPOne", (LEVEL / N_TRIALS).toFixed(6));
-def("nzSidakPOne", sidakP1.toFixed(6));
-def("nzLetHcMaxDiff", String(Math.max(...ext.rows.flatMap((r) => ["size", "power"].map((a) => Math.abs(r[a].luck_trials - r[a].haircut_bonferroni_one_sided))))));
-def("nzHolmBonfMaxDiff", String(Math.max(...ext.rows.flatMap((r) => ["size", "power"].map((a) => Math.abs(r[a].haircut_holm_one_sided - r[a].haircut_bonferroni_one_sided))))));
+const minBootP = (b) => -Math.expm1(N_TRIALS * Math.log1p(-1 / (b + 1)));
+def("boot.min_p.400", minBootP(400).toFixed(4));
+def("boot.min_p.1999", minBootP(1999).toFixed(4));
+def("boot.max_hits.1999", Math.floor((1999 + 1) * sidakP1) - 1);
+def("sidak.p1", sidakP1.toFixed(6));
+def("bonf.p1", (LEVEL / N_TRIALS).toFixed(6));
 
-// Lo correction: its size shift relative to LET in the seven families without autocorrelation.
-const loShift = FAMILIES.filter((f) => f !== "ar1").map((f) => (extRow[f].size.luck_trials_lo - extRow[f].size.luck_trials) / nExt);
-def("nzLoShiftMin", pct(Math.min(...loShift), 2));
-def("nzLoShiftMax", pct(Math.max(...loShift), 2));
-const loPowerShift = FAMILIES.filter((f) => f !== "ar1").map((f) => Math.abs(extRow[f].power.luck_trials_lo - extRow[f].power.luck_trials) / nExt);
-def("nzLoPowerShiftMax", pct(Math.max(...loPowerShift), 2));
-
-// DSR constants: exact expected maximum of N standard normals (numerical integration), the
-// Bailey-Lopez de Prado approximation, the Sidak critical value under independence and normality,
-// and the implied DSR hurdles in the null and skill arms (i.i.d. normal).
+// DSR analytics: Sidak critical value, the expected-maximum benchmark and the implied hurdles. The
+// cross-trial dispersion diagnostics come from the v0-design robustness run (analysis/null-zoo-extended.json).
 function exactExpectedMax(n) {
   let s = 0;
   const h = 1e-3;
-  for (let x = -10; x <= 10; x += h) {
-    const pdf = Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
-    s += x * n * normalCdf(x) ** (n - 1) * pdf * h;
-  }
+  for (let x = -10; x <= 10; x += h) s += x * n * normalCdf(x) ** (n - 1) * (Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI)) * h;
   return s;
 }
 const sidakZ = normalPpf(1 - sidakP1);
 const approxMax = expectedMaxStandardNormal(N_TRIALS);
 const oneZ = normalPpf(1 - LEVEL);
-def("nzSidakCrit", sidakZ.toFixed(2));
-def("nzExpMax", approxMax.toFixed(2));
-def("nzExpMaxExact", exactExpectedMax(N_TRIALS).toFixed(2));
-def("nzSingleCrit", oneZ.toFixed(3));
+const extRow = Object.fromEntries(EXT.rows.map((r) => [r.family, r]));
 const sdNull = extRow.iid_normal.diagnostics.null.cross_trial_sd_over_iid_se;
 const sdSkill = extRow.iid_normal.diagnostics.skill.cross_trial_sd_over_iid_se;
-def("nzDsrHurdleNull", (sdNull * approxMax + oneZ).toFixed(2));
-def("nzDsrHurdleSkill", (sdSkill * approxMax + oneZ).toFixed(2));
-def("nzDsrMaxSizeExceptCorr", pct(Math.max(...FAMILIES.filter((f) => f !== "correlated_trials").map((f) => extRow[f].size.deflated_sharpe / nExt)), 2));
-def("nzDsrFailToAccept", pct(1 - extRow.iid_normal.power.deflated_sharpe / nExt));
+def("dsr.sidak_crit", sidakZ.toFixed(2));
+def("dsr.exp_max", approxMax.toFixed(2));
+def("dsr.exp_max_exact", exactExpectedMax(N_TRIALS).toFixed(2));
+def("dsr.single_crit", oneZ.toFixed(3));
+def("dsr.sd_ratio_null", sdNull.toFixed(2));
+def("dsr.sd_ratio_skill", sdSkill.toFixed(2));
+def("dsr.hurdle_null", (sdNull * approxMax + oneZ).toFixed(2));
+def("dsr.hurdle_skill", (sdSkill * approxMax + oneZ).toFixed(2));
+def("dsr.sd_ratio_crossover", ((sidakZ - oneZ) / approxMax).toFixed(2));
+def("dsr.sd_ratio_null_corr", extRow.correlated_trials.diagnostics.null.cross_trial_sd_over_iid_se.toFixed(2));
+def("dsr.hurdle_null_corr", (extRow.correlated_trials.diagnostics.null.cross_trial_sd_over_iid_se * approxMax + oneZ).toFixed(2));
+def("v1.dsr_fail_to_accept.iid_normal", pct(1 - V1.table.deflated_sharpe.power.iid_normal["2"]));
+def("v1.dsr_fail_to_accept_range", range(FAMILIES.map((f) => 1 - V1.table.deflated_sharpe.power[f]["2"])));
+def("v1.dsr_adj_gap_range", range(FAMILIES.map((f) => V1.table.luck_trials.size_adjusted_power_skill_2[f] - V1.table.deflated_sharpe.size_adjusted_power_skill_2[f])));
+// Lo factor: size shift against LET in the eight families without autocorrelation (v1).
+const loShift = NON_AR.map((f) => V1.table.luck_trials_lo.size[f] - V1.table.luck_trials.size[f]);
+def("v1.lo_shift_range", `${pct(Math.min(...loShift), 2)}--${pct(Math.max(...loShift), 2)}`);
+// LET against the one-sided haircut: they can disagree only when p1 lies between the two cutoffs.
+def("v1.let_hc_maxdiff", pct(Math.max(...FAMILIES.map((f) => Math.abs(V1.table.luck_trials.size[f] - V1.table.haircut_bonferroni_one_sided.size[f]))), 2));
 
-// DSR size-adjusted gap to the Sidak test across families (N1).
-const dsrGap = FAMILIES.map((f) => (extRow[f].size_adjusted.luck_trials.power - extRow[f].size_adjusted.deflated_sharpe.power) / nExt);
-def("nzDsrAdjGapMin", pct(Math.min(...dsrGap)));
-def("nzDsrAdjGapMax", pct(Math.max(...dsrGap)));
-// DSR fails to accept, per family range (N10).
-const fta = FAMILIES.map((f) => 1 - extRow[f].power.deflated_sharpe / nExt);
-def("nzDsrFailToAcceptMin", pct(Math.min(...fta)));
-def("nzDsrFailToAcceptMax", pct(Math.max(...fta)));
-// SD/SE ratio below which the DSR hurdle falls under the Sidak critical value (N3).
-def("nzDsrHurdleNullCorr", (extRow.correlated_trials.diagnostics.null.cross_trial_sd_over_iid_se * approxMax + oneZ).toFixed(2));
-def("nzSdRatioCrossover", ((sidakZ - oneZ) / approxMax).toFixed(2));
-// First 10,000-replication run (400 resamples), for cells the text compares across runs.
-const ext1Rate = (f, v) => pct(ext1Row[f].size.reject[v] / ext1.reps, 2);
-def("nzNNSkewPosSizeExtOne", ext1Rate("skew_positive", "luck_trials_nonnormal_se"));
-def("nzBootTFourSizeExtOne", ext1Rate("student_t4", "bootstrap_best"));
-def("nzLetGarchSizeExtOne", ext1Rate("garch", "luck_trials"));
-// Paired bootstrap-resolution run (N2).
-{
-  const br = JSON.parse(readFileSync(`${here}analysis/bootstrap-resolution.json`, "utf8"));
-  const n = br.reps;
-  def("nzBrReps", nf(n));
-  for (const r of br.rows) {
-    const F = camel(r.family);
-    for (const arm of ["size", "power"]) {
-      const A = arm === "size" ? "Size" : "Power";
-      def(`nzBr${F}${A}Let`, pct(r[arm].luck_trials / n, arm === "size" ? 2 : 1));
-      def(`nzBr${F}${A}BootFourHundred`, pct(r[arm].bootstrap_400 / n, arm === "size" ? 2 : 1));
-      def(`nzBr${F}${A}BootMax`, pct(r[arm].bootstrap_1999 / n, arm === "size" ? 2 : 1));
-    }
+// A back-of-the-envelope account of the studentized SPA's excess size under i.i.d. normal returns.
+// The Politis-Romano estimate w^2 = g0 + 2 sum kappa_i g_i has, to first order, relative variance
+// v = (2 + 4 sum_i kappa_i^2 (T - i) / T) / T, so sqrt(T) m / w behaves like Student t with
+// nu = 2 / v degrees of freedom. Because the autocovariances are computed from demeaned data, w^2 is
+// also biased downward: E[w^2] / sigma^2 = (T - 1) / T - 2 sum_i kappa_i (T - i) / T^2. The bootstrap
+// holds w fixed, so its critical value is close to the normal Sidak value z*, and its conditional
+// variance of a mean is w^2 itself, so it cannot reproduce the bias either. The predicted size of the
+// maximum over N independent strategies is then 1 - (1 - P(t_nu > z* sqrt(E[w^2] / sigma^2)))^N. It
+// ignores the variability of the bootstrap's own critical value.
+const zStar = normalPpf(1 - sidakP1);
+def("approx.z_star", zStar.toFixed(2));
+for (const b of [1, 8, 22]) {
+  const p = 1 / b;
+  let s2 = 0;
+  let s1 = 0;
+  for (let i = 1; i < T_OBS; i++) {
+    const kappa = (1 - i / T_OBS) * (1 - p) ** i + (i / T_OBS) * (1 - p) ** (T_OBS - i);
+    s2 += kappa * kappa * (T_OBS - i) / T_OBS;
+    s1 += kappa * (T_OBS - i);
   }
-  // With B resamples the Sidak-adjusted p-value is at most 5% only when h+1 <= (B+1) * p1*.
-  def("nzBootMaxHitsExt", String(Math.floor((ext.bootstrap_draws + 1) * sidakP1) - 1));
+  const v = (2 + 4 * s2) / T_OBS;
+  const nu = 2 / v;
+  const ratio = (T_OBS - 1) / T_OBS - 2 * s1 / T_OBS ** 2;
+  def(`approx.nu.b${b}`, Math.round(nu));
+  def(`approx.cv_w.b${b}`, pct(Math.sqrt(v) / 2, 1));
+  def(`approx.bias.b${b}`, pct(1 - ratio, 1));
+  const predicted = 1 - (1 - studentTUpper(zStar * Math.sqrt(ratio), nu)) ** N_TRIALS;
+  const noBias = 1 - (1 - studentTUpper(zStar, nu)) ** N_TRIALS;
+  def(`approx.size.b${b}`, pct(predicted));
+  def(`approx.size_nobias.b${b}`, pct(noBias));
+  // Share of the measured excess over 5% (experiment A, i.i.d. normal) that the approximation accounts for.
+  const measured = { 1: V2.A.iid_normal.size.spa_c_sd, 8: V2.A.iid_normal.size.spa_c, 22: V2.A.iid_normal.size.spa_c_b22 }[b];
+  def(`approx.share.b${b}`, pct((predicted - LEVEL) / (measured - LEVEL), 0));
+  def(`approx.share_nobias.b${b}`, pct((noBias - LEVEL) / (measured - LEVEL), 0));
 }
-def("nzVzeroSha", createHash("sha256").update(readFileSync(v0Path)).digest("hex"));
-def("nzSourceCommit", readFileSync(`${here}src/SOURCE_COMMIT`, "utf8").trim().slice(0, 12));
 
+// How often, under v1's null (every mean zero), every strategy falls below the consistent threshold, so
+// that a floored statistic with a strict inequality could reject: a normal approximation to the
+// t-statistics, equicorrelated within a block. Worst case over the v1 families.
+{
+  const c = -Math.sqrt(2 * Math.log(Math.log(T_OBS)));
+  const allBelow = (rho, k) => {
+    let s = 0;
+    const h = 1e-3;
+    for (let z = -12; z <= 12; z += h) s += normalCdf((c - Math.sqrt(rho) * z) / Math.sqrt(1 - rho)) ** k * Math.exp(-0.5 * z * z) / Math.sqrt(2 * Math.PI) * h;
+    return s;
+  };
+  const worst = Math.max(normalCdf(c) ** N_TRIALS, allBelow(0.5, N_TRIALS), allBelow(0.8, 5) ** 4);
+  def("ties.p_all_below.max_per_100000", (worst * 1e5).toFixed(1));
+  def("ties.p_below.k1", pct(normalCdf(c), 1));
+}
+
+// Provenance.
+def("v0.sha", createHash("sha256").update(readFileSync(V0PATH)).digest("hex"));
+def("src.commit.v0", readFileSync(`${here}src/SOURCE_COMMIT`, "utf8").trim().slice(0, 12));
+def("src.commit.v1", readFileSync(`${here}src/SOURCE_COMMIT_V1`, "utf8").trim().slice(0, 12));
+def("src.commit.ar1", readFileSync(`${here}src/SOURCE_COMMIT_AR1`, "utf8").trim().slice(0, 12));
+def("src.commit.fix", SFIX.cores.new.match(/[0-9a-f]{40}/)[0].slice(0, 12));
+const git = (...a) => execFileSync("git", ["-C", here, ...a], { encoding: "utf8" }).trim();
+def("v2.prereg.commit", git("log", "--diff-filter=A", "--format=%H", "--", "analysis/v2/prereg-v2.json").split("\n").pop().slice(0, 12));
+def("v2b.prereg.commit", git("log", "--diff-filter=A", "--format=%H", "--", "analysis/v2b/prereg-v2b.json").split("\n").pop().slice(0, 12));
+for (const run of ["v2", "v2b"]) if (!PROV[run].prereg_commit.startsWith(values.get(`${run}.prereg.commit`))) throw new Error(`provenance.json disagrees with git on the ${run} pre-registration`);
+for (const run of ["v1", "v1b", "v2", "v2b"]) for (const [k, x] of Object.entries(PROV[run])) if (k !== "repository") def(`prov.${run}.${k}`, x);
+for (const [run, text] of Object.entries(PROV.reruns)) {
+  def(`prov.rerun.${run}.sha`, text.match(/[0-9a-f]{64}/)[0]);
+  def(`prov.rerun.${run}.workers`, text.match(/with (\d+) worker/)[1]);
+  def(`prov.rerun.${run}.published_workers`, text.match(/run used (\d+)\)/)[1]);
+}
+def("emp.zip_sha", EMP.data.zip_sha256);
+def("emp.downloaded", EMP.data.downloaded_utc);
+def("v1.prereg.candidates", V1PRE.candidates.with_variants.join(", ").replaceAll("_", "\\_"));
+
+// ---- tables ------------------------------------------------------------------------------------
+function sizeCell(p, n, d = 1) {
+  const s = pct(p, d);
+  if (p > LEVEL + band(n)) return `\\textbf{${s}}`;
+  if (p < LEVEL - band(n)) return `\\textit{${s}}`;
+  return s;
+}
+const groupHeader = (groups, first = 2) => {
+  let c = first;
+  const rules = groups.map(([label, span]) => { const r = label ? `\\cmidrule(lr){${c}-${c + span - 1}}` : ""; c += span; return r; }).join("");
+  return ` & ${groups.map(([label, span]) => `\\multicolumn{${span}}{c}{${label}}`).join(" & ")} \\\\\n${rules}\n`;
+};
+function tabular({ rows, cols, cell, rowLabel = (r) => FAMILY_LABEL[r], head = "Family", colspec, groups }) {
+  let t = `\\begin{tabular}{${colspec ?? `l${"r".repeat(cols.length)}`}}\n\\toprule\n`;
+  if (groups) t += groupHeader(groups);
+  t += `${head} & ${cols.map(([, l]) => l).join(" & ")} \\\\\n\\midrule\n`;
+  for (const r of rows) t += `${rowLabel(r)} & ${cols.map(([k]) => cell(r, k)).join(" & ")} \\\\\n`;
+  return `${t}\\bottomrule\n\\end{tabular}\n`;
+}
+const tableNote = (note) => (note ? `\\par\\smallskip\\begin{minipage}{0.97\\linewidth}\\footnotesize ${note}\\end{minipage}\n` : "");
+function table({ caption, label, note, placement = "t", tight = false, ...spec }) {
+  let t = `\\begin{table}[${placement}]\n\\centering\n${tight ? "\\footnotesize\n\\setlength{\\tabcolsep}{3.5pt}" : "\\small"}\n\\caption{${caption}}\n\\label{${label}}\n`;
+  t += tabular(spec);
+  return `${t}${tableNote(note)}\\end{table}\n\n`;
+}
+// Two stacked panels sharing one caption.
+function panels({ caption, label, note, placement = "t", tight = false, parts }) {
+  let t = `\\begin{table}[${placement}]\n\\centering\n${tight ? "\\footnotesize\n\\setlength{\\tabcolsep}{3.5pt}" : "\\small"}\n\\caption{${caption}}\n\\label{${label}}\n`;
+  t += parts.map(({ title, ...spec }) => `\\par\\textit{${title}}\\par\\smallskip\n${tabular(spec)}\\par\n`).join("\\medskip\n");
+  return `${t}${tableNote(note)}\\end{table}\n\n`;
+}
+const BAND_NOTE = (n) => `Bold: above the 99\\% Monte Carlo band around 5\\% (${pct(LEVEL - band(n), 2)}--${pct(LEVEL + band(n), 2)} for ${nf(n)} searches); italic: below it.`;
+const lbl = (keys, labels) => keys.map((k) => [k, labels[k]]);
+
+const SINGLE = lbl(["luck_trials", "luck_trials_lo", "luck_trials_nonnormal_se", "haircut_bonferroni_one_sided", "deflated_sharpe", "bootstrap_best", "hac_t_sidak", "bootstrap_t_sidak"], V1_LABEL);
+const POWER = lbl(["oracle_hac_t", "luck_trials", "luck_trials_lo", "deflated_sharpe", "bootstrap_best", "hac_t_sidak", "reality_check", "spa_consistent"], V1_LABEL);
+const MECH = lbl(["spa_c", "spa_c_sd", "spa_c_boot_t", "rc", "spa_c_unstud", "spa_c_b22", "spa_c_unstud_b22"], V2_LABEL);
+
+// Section 3: single-series corrections.
+let single = "";
+single += table({
+  caption: `Size of the single-series corrections: percentage of skill-less searches (${N_TRIALS} strategies, ${T_OBS} daily returns) whose best strategy is called skilled at the nominal 5\\% level. Null Zoo v1, ${nf(nV1)} searches per cell.`,
+  label: "tab:size-single", rows: FAMILIES, cols: SINGLE,
+  cell: (f, v) => sizeCell(V1.table[v].size[f], nV1),
+  note: `${BAND_NOTE(nV1)} HL is the Harvey--Liu haircut read one-sided (two-sided $p$ halved); Boot uses ${nf(V1.run.settings.bootstrapBestDraws)} resamples and SB-$t$ ${nf(V1.run.settings.bootstrapTReps)}.`,
+});
+single += panels({
+  caption: `Power when one strategy has a true annualized Sharpe ratio of 2, Null Zoo v1 (percent). The oracle knows which strategy is skilled and tests it alone; its power is a natural benchmark, and no best-of-${N_TRIALS} test in the table exceeds it.`,
+  label: "tab:power",
+  parts: [
+    { title: "Raw power", rows: FAMILIES, cols: POWER, cell: (f, v) => pct(V1.table[v].power[f]["2"]) },
+    { title: "Size-adjusted power", rows: FAMILIES, cols: POWER, cell: (f, v) => adjText(V1, V1RAW, v, f) },
+  ],
+  note: `Size-adjusted power is power at the cutoff at which the same test rejects at most 5\\% of the matching null cell; a user who does not know the return family cannot apply it, but it shows how well each statistic ranks skilled searches above skill-less ones. n/a: the test's smallest attainable $p$-value already occurs in more than 5\\% of the null cell, so no cutoff attains the level. The Monte Carlo standard error of raw power is at most ${pct(se(0.5, nV1), 1)} points. Size-adjusted power also carries the error of the estimated cutoff, and the joint tests' $p$-values lie on a grid of $1/${nf(V1.run.settings.spaReps)}$, so their achieved null rejection rate at the cutoff can be below 5\\%.`,
+});
+
+single += table({
+  caption: `How little autocorrelation it takes: size of the best-of-${N_TRIALS} corrections that ignore autocorrelation, simulated and in closed form (Proposition~2), and with Lo's correction, when every strategy's daily returns follow a Gaussian AR(1) with lag-one autocorrelation $\\phi$ (${nf(AR1L.reps_per_level)} skill-less searches per level, ${N_TRIALS} strategies, ${T_OBS} days; percent at a nominal 5\\%).`,
+  label: "tab:ar1-levels", rows: AR1_PHIS.map((_, i) => i), tight: true, head: "$\\phi$", rowLabel: (i) => `${AR1_PHIS[i]}`, colspec: "lrrrrrrr",
+  groups: [["", 1], ["HL (one-sided)", 3], ["LET", 3]],
+  cols: [["se", "SE too small"], ["s:haircut_bonferroni_one_sided", "Sim."], ["c:haircut_bonferroni_one_sided", "Closed"], ["s:haircut_bonferroni_lo_one_sided", "Lo"], ["s:luck_trials", "Sim."], ["c:luck_trials", "Closed"], ["s:luck_trials_lo", "Lo"]],
+  cell: (i, key) => {
+    const l = ar1lev(i);
+    if (key === "se") return `${pct(inflation(l.phi) - 1, 1)}\\%`;
+    const [m, t] = key.split(":");
+    return m === "s" ? sizeCell(l.size[t]["0.05"], l.searches) : pct(l.closed_form[t]["0.05"]);
+  },
+  note: `${BAND_NOTE(AR1L.reps_per_level)} SE too small: the proportion by which the i.i.d.\\ standard error of the mean understates the large-sample one, $\\sqrt{(1+\\phi)/(1-\\phi)}-1$. Closed: equation~\\eqref{eq:ar1size}. Lo: the same test after Lo's (2002) factor at the best strategy's estimated lag-one autocorrelation. HL is the Harvey--Liu haircut read one-sided, whose Bonferroni cutoff is slightly higher than LET's \\v{S}id\\'ak cutoff. The rows $\\phi=0$ and $\\phi=0.2$ repeat v1's i.i.d.\\ normal and AR(1) cells on new seeds. Results at 1\\% and 10\\% are in the result file.`,
+});
+
+// Section 4: data-snooping tests.
+let snoop = "";
+snoop += table({
+  caption: `Size of the joint resampling tests in Null Zoo v1 and in its confirmation run v1b (fresh seeds), ${nf(nV1)} searches per cell each, ${nf(V1.run.settings.spaReps)} stationary-bootstrap resamples with mean block length 8.`,
+  label: "tab:size-joint", rows: FAMILIES,
+  cols: [["reality_check:v1", "RC v1"], ["reality_check:v1b", "RC v1b"], ["spa_consistent:v1", "SPA$_c$ v1"], ["spa_consistent:v1b", "SPA$_c$ v1b"], ["spa_upper:v1", "SPA$_u$ v1"], ["stepm_any:v1", "Step-SPA v1"]],
+  cell: (f, k) => { const [v, r] = k.split(":"); return sizeCell((r === "v1" ? V1 : V1B).table[v].size[f], nV1); },
+  note: `${BAND_NOTE(nV1)} Step-SPA is scored as a decision (at least one strategy declared superior at 5\\%).`,
+});
+snoop += table({
+  caption: `Why the studentized SPA test is oversized: size of variants of the consistent SPA test on the same searches (Null Zoo v2, experiment A; second implementation, ${nf(A.iid_normal.searches)} searches per cell, mean block length 8 unless marked 22).`,
+  label: "tab:mechanism", rows: FAMILIES, cols: MECH, tight: true,
+  cell: (f, t) => sizeCell(A[f].size[t], A[f].searches),
+  note: `${BAND_NOTE(A.iid_normal.searches)} SPA$_c$: Hansen's statistic studentized by a fixed Politis--Romano long-run variance. SPA$_c$-SD: studentized by the sample standard deviation instead. SPA$_c$-BT: every resample re-studentized by its own standard deviation (bootstrap-$t$). SPA$_c$-U: neither studentized nor floored at zero, the computation arch~${V2ARCH.arch} performs. (22): mean block length 22, arch's default for ${T_OBS} periods.`,
+});
+{
+  const designs = ["n252_k20", "n504_k20", "n1260_k20", "n2520_k20", "n504_k5", "n504_k100"];
+  const lab = (d) => { const c = V2.B.iid_normal[d]; return `$T=${nf(c.n)}$, $k=${c.k}$ ($b=${c.block}$)`; };
+  const T = lbl(["spa_c", "spa_c_sd", "spa_c_boot_t", "rc"], V2_LABEL);
+  snoop += table({
+    caption: `Size against the number of periods $T$ and strategies $k$ (Null Zoo v2, experiment B, ${nf(V2.B.iid_normal.n504_k20.searches)} null searches per cell; mean block length $b=\\mathrm{round}(T^{1/3})$).`,
+    label: "tab:grid", rows: designs, tight: true, groups: [["IID normal", 4], ["Skew $-1.32$", 4]], rowLabel: lab, head: "Design", colspec: `l${"r".repeat(8)}`,
+    cols: [...T.map(([t, l]) => [`iid_normal:${t}`, l]), ...T.map(([t, l]) => [`skew_negative:${t}`, l])],
+    cell: (d, k) => { const [fam, t] = k.split(":"); const c = V2.B[fam][d]; return sizeCell(c.size[t], c.searches); },
+    note: `${BAND_NOTE(V2.B.iid_normal.n504_k20.searches)}`,
+  });
+}
+snoop += table({
+  caption: `arch after its fix (pull request 882, merge commit \\texttt{${ARCH882.arch_merge_commit.slice(0, 7)}}): size of arch's studentized SPA test, which re-studentizes every resample by its own bootstrap-implied long-run variance, beside this paper's fixed-variance test and Reality Check on the same ${nf(ARCH882.searches_per_family)} new skill-less searches per family (unregistered check).`,
+  label: "tab:arch882", rows: FAMILIES, tight: true, colspec: "lrrrrrr",
+  groups: [["Mean block length 8", 3], [`arch's default, ${ARCH882.default_block}`, 3]],
+  cols: [["arch_b8_consistent", "arch$_c$"], ["ours_b8_spa_c", "SPA$_c$"], ["ours_b8_rc", "RC"], ["arch_default_consistent", "arch$_c$"], ["ours_default_spa_c", "SPA$_c$"], ["ours_default_rc", "RC"]],
+  cell: (f, k) => sizeCell(A882(k, f), ARCH882.families[f].searches),
+  note: `${BAND_NOTE(ARCH882.searches_per_family)} arch$_c$: arch ${ARCH882.arch.replaceAll("+", "{+}")} with its defaults (\\texttt{studentize=True}, \\texttt{nested=False}, stationary bootstrap, ${nf(ARCH882.bootstrap_reps)} resamples), consistent $p$-value. SPA$_c$: Hansen's statistic with the Politis--Romano variance held fixed, the computation arch adopted in pull request 871 and replaced in pull request 882. Both are unreleased; the latest release, 8.0.0, does not studentize (Table~\\ref{tab:arch}).`,
+});
+snoop += table({
+  caption: `The author's implementation before and after the fix: size of the consistent SPA test, the stepwise SPA test and the Reality Check on the same ${nf(SFIX.searches_per_design)} new skill-less searches per design and the same bootstrap draws (unregistered check; ${nf(SFIX.design.reps)} resamples, mean block length ${SFIX.block}).`,
+  label: "tab:fix", rows: SFIX_DESIGNS, tight: true, rowLabel: (d) => (d === "poor_alternatives" ? "Poor alternatives" : FAMILY_LABEL[d]),
+  groups: [["Before (v1 code)", 2], ["After (bootstrap-$t$, ties)", 2], ["", 1]], colspec: "lrrrrr",
+  cols: [["old.spa_consistent", "SPA$_c$"], ["old.stepm_any", "Step"], ["new.spa_consistent", "SPA$_c$"], ["new.stepm_any", "Step"], ["new.reality_check", "RC"]],
+  cell: (d, key) => sizeCell(sfix(key, d), SFIX.searches_per_design),
+  note: `${BAND_NOTE(SFIX.searches_per_design)} Before: the code that scored v1 and v1b (Politis--Romano standard deviation held fixed, $p=\\#\\{T^*>T\\}/B$). After: canlicapital pull request 562, each resample divided by its own standard deviation, ties counted and the stepwise critical value floored at zero. Step: at least one strategy declared superior at 5\\%. RC is unchanged by the fix. Poor alternatives: one strategy with mean zero and ${N_TRIALS - 1} with a true annualized Sharpe ratio of $${SFIX.design.poorSharpe}$, i.i.d.\\ normal returns.`,
+});
+let supp = "";
+supp += table({
+  caption: `Size against the number of strategies $k$ and the mean block length (1, 8 or 22), Null Zoo v2b, experiment E: i.i.d.\\ normal returns, $T=${T_OBS}$, ${nf(E.k1.b1.searches)} null searches per cell.`,
+  label: "tab:k-block", rows: E_K, tight: true, head: "", rowLabel: (k) => `$k=${k}$`,
+  groups: [["RC", 3], ["SPA$_c$", 3], ["SPA$_c$-BT", 3], ["SPA$_c$-NB", 3]],
+  cols: ["rc", "spa_c_ge", "spa_c_boot_t_ge", "spa_c_nb_ge"].flatMap((t) => E_B.map((b) => [`${t}:${b}`, `${b}`])),
+  cell: (k, key) => { const [t, b] = key.split(":"); const c = E[`k${k}`][`b${b}`]; return sizeCell(c.size[t], c.searches); },
+  note: `${BAND_NOTE(E.k1.b1.searches)} Floored tests count ties. At block length 1 the Politis--Romano variance is the sample variance, so SPA$_c$ is then SPA$_c$-SD. SPA$_c$-NB re-studentizes every resample by its natural block variance. The Reality Check and SPA$_c$-U differ by at most ${values.get("v2b.E.rc_unstud_maxdiff")} points in any cell; SPA$_c$-U and the strict-inequality SPA$_c$ are in Table~\\ref{tab:k-block-more}.`,
+});
+supp += table({
+  caption: `Re-studentizing every resample, by its own standard deviation (SPA$_c$-BT) or by its natural block variance (SPA$_c$-NB), in the nine families: Null Zoo v2b, experiment F (mean block length 8; ${nf(F.iid_normal.searches_null)} null and ${nf(F.iid_normal.searches_skill)} skill searches per family; size and size-adjusted power at a Sharpe ratio of 2, percent).`,
+  label: "tab:block-student", rows: FAMILIES, tight: true, groups: [["Size", 4], ["Size-adjusted power", 3]], colspec: `l${"r".repeat(7)}`,
+  cols: [["s:rc", "RC"], ["s:spa_c_ge", "SPA$_c$"], ["s:spa_c_boot_t_ge", "SPA$_c$-BT"], ["s:spa_c_nb_ge", "SPA$_c$-NB"], ["a:rc", "RC"], ["a:spa_c_boot_t_ge", "SPA$_c$-BT"], ["a:spa_c_nb_ge", "SPA$_c$-NB"]],
+  cell: (f, key) => { const [m, t] = key.split(":"); return m === "s" ? sizeCell(F[f].size[t], F[f].searches_null) : pct(F[f].size_adjusted_power[t]); },
+  note: `${BAND_NOTE(F.iid_normal.searches_null)} Floored tests count ties. Raw power and the other variants are in Table~\\ref{tab:block-student-power}.`,
+});
+{
+  const T = lbl(["rc", "spa_c_unstud", "spa_c_strict", "spa_c_ge", "spa_c_boot_t_ge", "spa_c_nb_ge", "sidak_t"], V2_LABEL);
+  const pw = (c, t) => `${pct(c.power[t])}\\,/\\,${pct(c.size_adjusted_power[t])}`;
+  supp += table({
+    caption: `Where studentizing and recentring matter, with ties counted (Null Zoo v2b, experiment C2; i.i.d.\\ normal returns, ${T_OBS} periods, ${N_TRIALS} strategies, ${nf(C2.het_null.searches)} searches per cell; percent).`,
+    label: "tab:fair2", rows: T.map(([t]) => t), rowLabel: (t) => T.find(([k]) => k === t)[1], head: "Test", tight: true,
+    groups: [["Unequal volatilities", 4], ["Poor alternatives", 2]], colspec: "lrrrrrr",
+    cols: [["het_null", "Null"], ["low", "Skill low"], ["median", "Skill median"], ["high", "Skill high"], ["poor_size", "Null"], ["poor_power", "Skill"]],
+    cell: (t, d) => {
+      if (d === "het_null") return sizeCell(C2.het_null.size[t], C2.het_null.searches);
+      if (d === "poor_size") return sizeCell(C2.poor.size[t], C2.poor.searches);
+      if (d === "poor_power") return pw(C2.poor, t);
+      return pw(C2[`het_skill_${d}`], t);
+    },
+    note: `${BAND_NOTE(C2.het_null.searches)} Null columns: size; skill columns: raw\\,/\\,size-adjusted power. Unequal volatilities: $0.5\\cdot4^{j/19}$ for strategy $j=0,\\dots,19$ (0.5 to 2), all Sharpe ratios 0 under the null; under the alternative strategy 0 (low, the least volatile), 10 (median) or 19 (high, the most volatile) has a Sharpe ratio of 2. Poor alternatives: unit volatility, ${N_TRIALS - 1} strategies with a Sharpe ratio of $-3$, strategy 0 at 0 (null) or 2. SPA$_c$ ($>$) uses Hansen's strict inequality; the other floored tests count ties. LET is the \\v{S}id\\'ak-adjusted $t$ test on the best Sharpe ratio.`,
+  });
+}
+
+// Section 5: the empirical illustration.
+const EMP_LABEL = { rc: "RC", spa_c_unstud: "SPA$_c$-U", spa_c_ge: "SPA$_c$", spa_c_boot_t_ge: "SPA$_c$-BT", spa_c_nb_ge: "SPA$_c$-NB", spa_c_unstud_b22: "SPA$_c$-U", spa_c_ge_b22: "SPA$_c$", sidak_t: "LET" };
+const pCell = (p) => (p <= LEVEL ? `\\textbf{${p.toFixed(3)}}` : p.toFixed(3));
+function empTable({ caption, label, windows, placement = "t", note, summary, font = "\\footnotesize" }) {
+  let t = `\\begin{table}[${placement}]\n\\centering\n${font}\n\\setlength{\\tabcolsep}{3.5pt}\n\\caption{${caption}}\n\\label{${label}}\n`;
+  t += `\\begin{tabular}{l${"r".repeat(EMP_TESTS.length)}}\n\\toprule\n`;
+  t += groupHeader([["Mean block length 8", 5], ["22", 2], ["", 1]]);
+  t += `Window & ${EMP_TESTS.map((k) => EMP_LABEL[k]).join(" & ")} \\\\\n\\midrule\n`;
+  for (const w of windows) t += `${span(w.label)}${w.strategies_used < EMP.rules.lengths.length ? `$^{${w.strategies_used}}$` : ""} & ${EMP_TESTS.map((k) => pCell(w.p[k])).join(" & ")} \\\\\n`;
+  if (summary) {
+    t += `\\midrule\nWindows rejected & ${EMP_TESTS.map((k) => EW.filter((w) => w.p[k] <= LEVEL).length).join(" & ")} \\\\\n`;
+    t += `Full sample$^{\\dagger}$ & ${EMP_TESTS.map((k) => pCell(EMP.full_sample.p[k])).join(" & ")} \\\\\n`;
+  }
+  t += `\\bottomrule\n\\end{tabular}\n`;
+  return `${t}${tableNote(note)}\\end{table}\n\n`;
+}
+const EMP_NOTE = `$p$-values with ${nf(EMP.bootstrap_reps)} stationary-bootstrap resamples; bold: at most 0.05. LET is the \\v{S}id\\'ak-adjusted $t$ test on the best rule's Sharpe ratio, with no resampling. Floored tests count ties. A superscript gives the number of rules used when some rules never left the market in a window and so had no excess return.`;
+let empirical = empTable({
+  caption: `Twenty moving-average timing rules against buy-and-hold on the US market, in the ${EW.filter((w) => EMP_TESTS.some((t) => w.p[t] <= LEVEL)).length} of ${EW.length} non-overlapping two-year windows in which at least one test rejects at 5\\% (Null Zoo v2b, part G; $p$-values).`,
+  label: "tab:empirical", windows: EW.filter((w) => EMP_TESTS.some((t) => w.p[t] <= LEVEL)), summary: true,
+  note: `${EMP_NOTE} Windows rejected: of all ${EW.length} windows. $^{\\dagger}$${values.get("emp.first_day")} to ${values.get("emp.last_day")}, ${nf(EMP.full_sample.periods)} days, mean block length ${EMP.full_sample.block} for the first five tests. Every window is in Table~\\ref{tab:empirical-all}.`,
+});
+
+// Anomalies illustration (analysis/anomalies, pre-registered): stepwise tests on published predictors.
+const ANOM_TESTS = [["fixed_q10", "Fixed, $q=10$"], ["fixed", "Fixed, $q=5$"], ["boot_t", "Bootstrap-$t$"], ["rc", "Reality Check"]];
+const ANOM_TOT = Object.fromEntries(ANOM_TESTS.map(([t]) => [t, ANOM.windows.reduce((a, w) => a + w.tests[t].superior, 0)]));
+def("anom.windows", ANOM.windows.length);
+def("anom.reps", nf(ANOM.reps));
+def("anom.k_min", Math.min(...ANOM.windows.map((w) => w.predictors)));
+def("anom.k_max", Math.max(...ANOM.windows.map((w) => w.predictors)));
+for (const [t] of ANOM_TESTS) def(`anom.total.${t}`, ANOM_TOT[t]);
+def("anom.excess_fixed_pct", pct(ANOM_TOT.fixed / ANOM_TOT.boot_t - 1, 0));
+def("anom.excess_q10_pct", pct(ANOM_TOT.fixed_q10 / ANOM_TOT.boot_t - 1, 0));
+def("anom.windows_fixed_ge_boot", ANOM.windows.filter((w) => w.tests.fixed.superior >= w.tests.boot_t.superior).length);
+for (const w of ANOM.windows) for (const [t] of ANOM_TESTS) def(`anom.${w.start.slice(0, 4)}.${t}`, w.tests[t].superior);
+const ANOM_PRED = { A1: ANOM_TOT.fixed > ANOM_TOT.boot_t, A2: ANOM_TOT.fixed_q10 >= ANOM_TOT.fixed, A3: values.get("anom.windows_fixed_ge_boot") >= 5 };
+def("anom.pred_held", Object.values(ANOM_PRED).filter(Boolean).length);
+def("prereg.total_all", Number(values.get("prereg.total")) + Object.keys(ANOM_PRED).length);
+def("prereg.held_all", Number(values.get("prereg.held")) + Object.values(ANOM_PRED).filter(Boolean).length);
+{
+  const cev = read("analysis/confirm/evaluation-confirm.json");
+  def("prereg.total_all_v2c", Number(values.get("prereg.total_all")) + Object.keys(cev.hypotheses).length);
+  def("prereg.held_all_v2c", Number(values.get("prereg.held_all")) + cev.held.length);
+}
+empirical += table({
+  caption: `Published cross-sectional predictors declared superior to zero by Romano--Wolf stepwise tests at 5\\%, in ten-year windows of monthly long-short returns (pre-registered illustration; counts of predictors).`,
+  label: "tab:anomalies", rows: ANOM.windows, head: "Window",
+  rowLabel: (w) => `${w.start.slice(0, 4)}--${w.end.slice(0, 4)} ($k=${w.predictors}$)`,
+  cols: ANOM_TESTS, cell: (w, t) => String(w.tests[t].superior),
+  note: `Data: Open Source Asset Pricing release 2.0.0 \\citep{chen2022open}, every predictor with a return in all 120 months of the window. Stationary bootstrap with ${nf(ANOM.reps)} resamples shared by all tests; mean block length $q=5$ except where stated. Fixed: Hansen's studentization, the Politis--Romano standard deviation held fixed in every resample (at $q=10$, arch's default, this is the computation arch merged in October 2026). Bootstrap-$t$: each resample studentized by its own standard deviation. Totals over the windows: ${ANOM_TESTS.map(([t, l]) => `${l} ${ANOM_TOT[t]}`).join(", ")}.`,
+});
+
+// Appendix tables.
+let app = supp; // tables moved from the main text to the online appendix come first
+app += table({
+  caption: `Size of the remaining v1 validators, and of the other joint tests in the confirmation run v1b (percent, ${nf(nV1)} searches per cell).`,
+  label: "tab:size-more", rows: FAMILIES,
+  cols: [["haircut_bonferroni:v1", "HL 2s"], ["haircut_bonferroni_lo_one_sided:v1", "HL-Lo"], ["haircut_holm_one_sided:v1", "Holm"], ["oracle_hac_t:v1", "Oracle"], ["spa_upper:v1b", "SPA$_u$ v1b"], ["stepm_any:v1b", "Step-SPA v1b"]],
+  cell: (f, k) => { const [v, r] = k.split(":"); const x = (r === "v1" ? V1 : V1B).table[v].size[f]; return v === "haircut_bonferroni" ? pct(x) : sizeCell(x, nV1); },
+  note: `${BAND_NOTE(nV1)} HL 2s: the haircut with the two-sided $p$-values its authors define; its nominal one-sided level is 2.5\\%, so it is not flagged.`,
+});
+for (const sr of ["1", "3"]) {
+  app += table({
+    caption: `Raw power at a true annualized Sharpe ratio of ${sr} (percent), Null Zoo v1.`,
+    label: `tab:power-${sr}`, rows: FAMILIES, cols: POWER,
+    cell: (f, v) => pct(V1.table[v].power[f][sr]),
+  });
+}
+app += table({
+  caption: `Power (raw\\,/\\,size-adjusted) of the SPA variants at a true annualized Sharpe ratio of 2, Null Zoo v2 experiment A.`,
+  label: "tab:mechanism-power", rows: FAMILIES, tight: true, cols: MECH.slice(0, 5),
+  cell: (f, t) => `${pct(A[f].power[t])}\\,/\\,${pct(A[f].size_adjusted_power[t])}`,
+});
+{
+  const T = lbl(["rc", "spa_c_unstud", "spa_c", "spa_u", "spa_c_sd", "spa_c_boot_t", "sidak_t"], V2_LABEL);
+  const C = V2.C;
+  app += table({
+    caption: `Unequal volatilities with the skill on the least volatile strategy, and poor alternatives, with the strict inequality (Null Zoo v2, experiment C; i.i.d.\\ normal returns, ${T_OBS} periods, ${N_TRIALS} strategies, ${nf(C.poor_alternatives.searches)} searches per cell). Size\\,/\\,power\\,/\\,size-adjusted power, in percent.`,
+    label: "tab:fair", rows: T.map(([t]) => t), rowLabel: (t) => T.find(([k]) => k === t)[1], head: "Test",
+    cols: [["heterogeneous_volatility", "Unequal volatilities"], ["poor_alternatives", "Poor alternatives"]],
+    cell: (t, d) => `${sizeCell(C[d].size[t], C[d].searches)}\\,/\\,${pct(C[d].power[t])}\\,/\\,${pct(C[d].size_adjusted_power[t])}`,
+    note: `The designs of Table~\\ref{tab:fair2}, before ties were counted: every floored test here uses the strict inequality $p=\\#\\{T^*>T\\}/B$.`,
+  });
+}
+app += table({
+  caption: `arch ${V2ARCH.arch} on Null Zoo searches (experiment D, ${nf(V2ARCH.searches_per_family)} null searches per family): size of arch's consistent and upper $p$-values and of this paper's implementation on the same searches, at mean block length 8 and at arch's default (${V2ARCH.default_block}).`,
+  label: "tab:arch", rows: Object.keys(V2.D), tight: true,
+  cols: [["arch_b8_consistent", "arch$_c$ (8)"], ["ours_b8_spa_c_unstud", "SPA$_c$-U (8)"], ["arch_b8_upper", "arch$_u$ (8)"], ["ours_b8_rc", "RC (8)"], ["arch_default_consistent", `arch$_c$ (${V2ARCH.default_block})`], ["ours_default_spa_c_unstud", `SPA$_c$-U (${V2ARCH.default_block})`], ["ours_default_spa_c", `SPA$_c$ (${V2ARCH.default_block})`]],
+  cell: (f, k) => sizeCell(V2.D[f].size[k], V2.D[f].searches),
+  note: `${BAND_NOTE(V2ARCH.searches_per_family)} Searches on which arch's $p$-values differed between \\texttt{studentize=True} and \\texttt{studentize=False}: ${Object.values(V2.D).reduce((a, c) => a + Object.values(c.flag_changes_p).reduce((x, y) => x + y, 0), 0)} of ${nf(Object.values(V2.D).reduce((a, c) => a + c.searches, 0) * 2)} search-and-block pairs.`,
+});
+app += table({
+  caption: `Bootstrap resolution: the same ${nf(BR.reps)} searches per cell scored by the single-series bootstrap with 400 and with 1,999 resamples (v0 design, robustness generator; not pre-registered). Size and power in percent.`,
+  label: "tab:bootres", rows: BR.rows.map((r) => r.family), tight: true, rowLabel: (f) => FAMILY_LABEL[f],
+  cols: [["size:luck_trials", "LET size"], ["size:bootstrap_400", "Boot$_{400}$ size"], ["size:bootstrap_1999", "Boot$_{1999}$ size"], ["power:luck_trials", "LET power"], ["power:bootstrap_400", "Boot$_{400}$ power"], ["power:bootstrap_1999", "Boot$_{1999}$ power"]],
+  cell: (f, k) => { const [arm, v] = k.split(":"); const r = BR.rows.find((x) => x.family === f); return pct(r[arm][v] / BR.reps, arm === "size" ? 2 : 1); },
+});
+app += table({
+  caption: `The two variants of experiment E not shown in Table~\\ref{tab:k-block}: arch's computation (SPA$_c$-U) and Hansen's fixed-variance test with the strict inequality (SPA$_c$ ($>$)); size in percent.`,
+  label: "tab:k-block-more", rows: E_K, tight: true, head: "", rowLabel: (k) => `$k=${k}$`,
+  groups: [["SPA$_c$-U", 3], ["SPA$_c$ ($>$)", 3]],
+  cols: ["spa_c_unstud", "spa_c_strict"].flatMap((t) => E_B.map((b) => [`${t}:${b}`, `${b}`])),
+  cell: (k, key) => { const [t, b] = key.split(":"); const c = E[`k${k}`][`b${b}`]; return sizeCell(c.size[t], c.searches); },
+  note: `${BAND_NOTE(E.k1.b1.searches)}`,
+});
+{
+  const T = lbl(["rc", "spa_c_unstud", "spa_c_strict", "spa_c_ge", "spa_c_boot_t_ge", "spa_c_nb_ge"], V2_LABEL);
+  app += table({
+    caption: `Experiment F (Null Zoo v2b): size and raw\\,/\\,size-adjusted power at a Sharpe ratio of 2 of every variant (percent).`,
+    label: "tab:block-student-power", rows: FAMILIES, tight: true, groups: [["Size", 6], ["Raw\\,/\\,size-adjusted power", 3]], colspec: `l${"r".repeat(9)}`,
+    cols: [...T.map(([t, l]) => [`s:${t}`, l]), ["p:rc", "RC"], ["p:spa_c_boot_t_ge", "SPA$_c$-BT"], ["p:spa_c_nb_ge", "SPA$_c$-NB"]],
+    cell: (f, key) => { const [m, t] = key.split(":"); return m === "s" ? sizeCell(F[f].size[t], F[f].searches_null) : `${pct(F[f].power[t])}\\,/\\,${pct(F[f].size_adjusted_power[t])}`; },
+    note: `${BAND_NOTE(F.iid_normal.searches_null)}`,
+  });
+}
+app += empTable({
+  caption: `Every window of the empirical illustration ($p$-values; Null Zoo v2b, part G).`,
+  label: "tab:empirical-all", windows: EW, placement: "p", font: "\\scriptsize", note: "As in Table~\\ref{tab:empirical}.",
+});
+const NAME_NOTE = (names) => `Code names: ${names.map((k) => `\\texttt{${k.replaceAll("_", "\\_")}} = ${V2_LABEL[k]}`).join("; ")}.`;
+function predictionTable({ caption, label, ids, preds, names }) {
+  let t = `\\begin{table}[t]\n\\centering\n\\small\n\\caption{${caption}}\n\\label{${label}}\n\\begin{tabular}{lp{0.72\\linewidth}l}\n\\toprule\nID & Prediction & Outcome \\\\\n\\midrule\n`;
+  for (const id of ids) t += `${id} & ${preds[id].statement.replaceAll("_", "\\_").replaceAll("%", "\\%")} & ${preds[id].held ? "held" : "\\textbf{did not hold}"} \\\\\n`;
+  t += `\\bottomrule\n\\end{tabular}\n`;
+  return `${t}${tableNote(NAME_NOTE(names))}\\end{table}\n\n`;
+}
+app += predictionTable({
+  caption: `The nine predictions registered before the v2 run (analysis/v2/prereg-v2.json, commit \\texttt{${values.get("v2.prereg.commit")}}) and whether each held, as scored by analysis/v2/evaluate\\_v2.py.`,
+  label: "tab:predictions", ids: PRED, preds: V2.predictions,
+  names: ["spa_c", "spa_c_sd", "spa_c_boot_t", "rc", "spa_c_unstud", "spa_c_b22", "spa_u"],
+});
+app += predictionTable({
+  caption: `The seven predictions registered before the v2b run (analysis/v2b/prereg-v2b.json, commit \\texttt{${values.get("v2b.prereg.commit")}}) and whether each held, as scored by analysis/v2b/evaluate\\_v2b.py.`,
+  label: "tab:predictions-v2b", ids: PRED_B, preds: V2B.predictions,
+  names: ["rc", "spa_c_ge", "spa_c_strict", "spa_c_boot_t_ge", "spa_c_nb_ge"],
+});
+
+// ---- Pre-registered confirmation run (analysis/confirm/prereg-confirm.json) ---------------------
+const CPY = read("analysis/confirm/results-py.json");
+const CJS = read("analysis/confirm/results-js.json");
+const CCF = read("analysis/confirm/closed-form.json");
+const CEV = read("analysis/confirm/evaluation-confirm.json");
+const CPRE = read("analysis/confirm/prereg-confirm.json");
+if (CPY.base_seed !== 20261108 || CJS.base_seed !== 20261108 || CJS.scale !== 1) throw new Error("confirmation results are not the registered run");
+if (Object.keys(CEV.hypotheses).length !== CPRE.hypotheses.length) throw new Error("confirmation evaluation does not score every hypothesis");
+const C_PHIS = ["0.02", "0.05", "0.1"];
+const C_ROWS = [...FAMILIES.map((f) => `S.${f}`), ...C_PHIS.map((p) => `L.phi${p}`)];
+const cpy = (cell, t) => CPY.cells[cell].rejections[t][1] / CPY.cells[cell].searches;
+const cjs = (exp, cell, t) => { const c = CJS.experiments[exp].cells[cell]; return c.rejections[t][1] / c.searches; };
+const nPy = CPY.searches_per_cell, nJs = CJS.experiments["1"].searches_per_cell, nS = CJS.experiments["2"].searches_per_cell, nC = CJS.experiments["3"].searches_per_cell;
+def("conf.prereg.commit", git("log", "--diff-filter=A", "--format=%H", "--", "analysis/confirm/prereg-confirm.json").split("\n").pop().slice(0, 12));
+def("conf.prereg.utc", new Date(git("log", "--diff-filter=A", "--format=%cI", "--", "analysis/confirm/prereg-confirm.json").split("\n").pop()).toISOString().replace(".000Z", "Z"));
+def("conf.run_start_utc", readFileSync(`${here}analysis/confirm/run-py.log`, "utf8").match(/START (\S+)/)[1]);
+if (!(values.get("conf.prereg.utc") < values.get("conf.run_start_utc"))) throw new Error("v2c: pre-registration not before the run");
+def("conf.base_seed", CPY.base_seed);
+{
+  // The JavaScript part was run a second time with another number of workers; apart from its run time the output must match.
+  const strip = (o) => JSON.stringify({ ...o, minutes: null });
+  if (strip(read("analysis/confirm/rerun-js.json")) !== strip(CJS)) throw new Error("v2c: the JavaScript re-run differs");
+  const w = (f) => readFileSync(`${here}analysis/confirm/${f}`, "utf8").match(/workers=(\d+)/)[1];
+  def("conf.rerun.workers", w("rerun-js.log"));
+  def("conf.workers", w("run-js.log"));
+}
+
+def("conf.searches.py", nf(nPy));
+def("conf.searches.js", nf(nJs));
+def("conf.searches.single", nf(nS));
+def("conf.searches.corr", nf(nC));
+def("conf.minutes.py", CPY.minutes);
+def("conf.minutes.js", CJS.minutes);
+def("conf.stopped", CPY.stopped_at_deadline || CJS.stopped_at_deadline ? "yes" : "no");
+def("conf.count", CPRE.hypotheses.length);
+def("conf.held_count", CEV.held.length);
+def("conf.failed", CEV.failed.length ? CEV.failed.join(", ") : "none");
+def("conf.failed_count", CEV.failed.length);
+for (const [id, h] of Object.entries(CEV.hypotheses)) { def(`conf.${id}.held`, h.holds ? "held" : "did not hold"); def(`conf.${id}.checks`, `${h.checks_held} of ${h.checks.length}`); }
+const PYT = ["arch882_b8_consistent", "arch882_b22_consistent", "fixed_spa_c_b8", "fixed_spa_c_b22", "rc_b8", "rc_b22"];
+const JST = ["v1.spa_consistent", "corrected.spa_consistent", "corrected.stepm_any", "corrected.reality_check", "v1.reality_check"];
+for (const r of C_ROWS) {
+  const key = r.replace("S.", "").replace("L.", "");
+  for (const t of PYT) def(`conf.size.${t}.${key}`, pct(cpy(r, t)));
+  for (const t of JST) def(`conf.size.${t}.${key}`, pct(cjs("1", r, t)));
+}
+const crange = (rows, f) => range(rows.map(f));
+const SR = FAMILIES.map((f) => `S.${f}`), LR = C_PHIS.map((p) => `L.phi${p}`);
+for (const t of PYT) { def(`conf.range.S.${t}`, crange(SR, (r) => cpy(r, t))); def(`conf.range.L.${t}`, crange(LR, (r) => cpy(r, t))); }
+for (const t of JST) { def(`conf.range.S.${t}`, crange(SR, (r) => cjs("1", r, t))); def(`conf.range.L.${t}`, crange(LR, (r) => cjs("1", r, t))); }
+def("conf.range.S.corrected_nonar", crange(SR.filter((r) => r !== "S.ar1"), (r) => cjs("1", r, "corrected.spa_consistent")));
+{
+  const names = (fs) => (fs.length ? (fs.length > 1 ? `the ${fs.slice(0, -1).join(", ")} and ${fs.at(-1)} families` : `the ${fs[0]} family`) : "no family");
+  for (const t of ["arch882_b8_consistent", "arch882_b22_consistent", "rc_b8", "rc_b22"]) def(`conf.above.${t}`, names(FAMILIES.filter((f) => cpy(`S.${f}`, t) > LEVEL + band(nPy)).map((f) => FAMILY_NAME[f])));
+  for (const t of ["corrected.spa_consistent", "corrected.reality_check"]) def(`conf.above.${t}`, names(FAMILIES.filter((f) => cjs("1", `S.${f}`, t) > LEVEL + band(nJs)).map((f) => FAMILY_NAME[f])));
+  def("band99.3000", `${pct(LEVEL - band(nPy), 2)}--${pct(LEVEL + band(nPy), 2)}`);
+}
+def("conf.maxdiff.corrected_rc", pct(Math.max(...SR.map((r) => Math.abs(cjs("1", r, "corrected.spa_consistent") - cjs("1", r, "corrected.reality_check")))), 1));
+def("conf.maxdiff.stepm_spa", pct(Math.max(...C_ROWS.map((r) => Math.abs(cjs("1", r, "corrected.stepm_any") - cjs("1", r, "corrected.spa_consistent")))), 2));
+def("conf.mingap.fixed_arch_b22", pct(Math.min(...SR.map((r) => cpy(r, "fixed_spa_c_b22") - cpy(r, "arch882_b22_consistent")))));
+const cfv = (rho, phi, t) => CCF.size[`rho${rho}_phi${phi}`][t]["0.05"];
+for (const phi of C_PHIS) for (const t of ["luck_trials", "haircut_bonferroni_one_sided", "luck_trials_lo", "haircut_bonferroni_lo_one_sided"]) def(`conf.L.${t}.${phi}`, pct(cjs("2", `L.phi${phi}`, t), 2));
+for (const phi of C_PHIS) for (const t of ["luck_trials", "haircut_bonferroni_one_sided"]) def(`conf.cf.${t}.0.${phi}`, pct(cfv(0, phi, t)));
+for (const t of ["luck_trials_lo", "haircut_bonferroni_lo_one_sided", "luck_trials", "haircut_bonferroni_one_sided"]) def(`conf.Lrange.${t}`, range(C_PHIS.map((phi) => cjs("2", `L.phi${phi}`, t)), 2));
+const C_CELLS = Object.values(CJS.experiments["3"].cells);
+for (const c of C_CELLS) for (const t of ["luck_trials", "haircut_bonferroni_one_sided", "luck_trials_lo", "haircut_bonferroni_lo_one_sided"]) def(`conf.C.${t}.${c.rho}.${c.phi}`, pct(c.rejections[t][1] / c.searches));
+for (const rho of [0.3, 0.6]) for (const phi of [0, 0.05, 0.1]) for (const t of ["luck_trials", "haircut_bonferroni_one_sided"]) def(`conf.cf.${t}.${rho}.${phi}`, pct(cfv(rho, phi, t)));
+for (const phi of [0, 0.05, 0.1]) for (const t of ["luck_trials", "haircut_bonferroni_one_sided"]) def(`conf.cf.${t}.0.${phi}`, pct(cfv(0, phi, t)), true);
+for (const [k, v] of Object.entries(CCF.elasticity_5pct_luck_trials)) def(`conf.elast.${k}`, v.toFixed(1));
+{
+  const zs = (h) => CEV.hypotheses[h].checks.map((c) => Math.abs(c.value));
+  def("conf.maxz.H9", Math.max(...zs("H9")).toFixed(1));
+  def("conf.maxz.H14", Math.max(...zs("H14")).toFixed(1));
+  const zc = (cell, t) => { const c = CJS.experiments["3"].cells[cell]; const pi = cfv(c.rho, c.phi, t); return (c.rejections[t][1] / c.searches - pi) / se(pi, c.searches); };
+  def("conf.z.rho06.phi0", `${Math.abs(zc("C.rho0.6.phi0", "haircut_bonferroni_one_sided")).toFixed(1)}--${Math.abs(zc("C.rho0.6.phi0", "luck_trials")).toFixed(1)}`.split("--").sort().join("--"));
+  def("conf.z.rho06.phi01", [zc("C.rho0.6.phi0.1", "haircut_bonferroni_one_sided"), zc("C.rho0.6.phi0.1", "luck_trials")].map((z) => z.toFixed(1)).sort().join("--"));
+  if (!(zc("C.rho0.6.phi0", "luck_trials") < 0 && zc("C.rho0.6.phi0.1", "luck_trials") > 0)) throw new Error("rho 0.6: the closed form no longer over- then under-states");
+  def("conf.minz.H15", Math.min(...CEV.hypotheses.H15.checks.map((c) => c.value)).toFixed(1));
+}
+const C_ROW_LABEL = (r) => (r.startsWith("S.") ? FAMILY_LABEL[r.slice(2)] : `AR(1), $\\phi=${r.slice(5)}$`);
+snoop += table({
+  caption: `Pre-registered confirmation (v2c): size of the joint tests on fresh seeds, nine families and three small autocorrelations (percent at a nominal 5\\%). Left: ${nf(nPy)} searches per row, arch at the merge commit of pull request 882 and this paper's fixed-variance SPA test and Reality Check on the same searches. Right: ${nf(nJs)} other searches per row, the author's implementation as v1 ran it and as corrected, with the same bootstrap draws.`,
+  label: "tab:confirm-joint", rows: C_ROWS, rowLabel: C_ROW_LABEL, tight: true, colspec: "lrrrrrrrrr",
+  groups: [["arch 882", 2], ["Fixed-variance SPA$_c$", 2], ["RC", 1], ["v1 code", 1], ["Corrected", 3]],
+  cols: [["p:arch882_b8_consistent", "8"], ["p:arch882_b22_consistent", "22"], ["p:fixed_spa_c_b8", "8"], ["p:fixed_spa_c_b22", "22"], ["p:rc_b8", "8"], ["j:v1.spa_consistent", "SPA$_c$"], ["j:corrected.spa_consistent", "SPA$_c$"], ["j:corrected.stepm_any", "StepM"], ["j:corrected.reality_check", "RC"]],
+  cell: (r, key) => { const [m, t] = key.split(":"); return m === "p" ? sizeCell(cpy(r, t), nPy) : sizeCell(cjs("1", r, t), nJs); },
+  note: `${BAND_NOTE(nPy)} 8, 22: mean block length (22 is arch's default for ${T_OBS} periods); the author's implementation uses 8. arch: consistent $p$-value, every resample studentized by its own long-run variance. StepM: at least one strategy declared superior at 5\\%. Pre-registration commit \\texttt{${values.get("conf.prereg.commit")}}; hypotheses H1--H7 and H11--H13 are scored on this table (Table~\\ref{tab:predictions-confirm}).`,
+});
+{
+  const rows = [...C_PHIS.map((p) => ["0", p]), ...[0.3, 0.6].flatMap((rho) => ["0", "0.05", "0.1"].map((p) => [String(rho), p]))];
+  const cellOf = (rho, phi) => (rho === "0" ? CJS.experiments["2"].cells[`L.phi${phi}`] : CJS.experiments["3"].cells[`C.rho${rho}.phi${phi}`]);
+  single += table({
+    caption: `Pre-registered confirmation (v2c): size of the best-of-${N_TRIALS} single-series tests under AR(1) returns with lag-one autocorrelation $\\phi$ and pairwise correlation $\\rho$ between strategies, simulated on fresh seeds (${nf(nS)} searches per row) and in closed form (percent at a nominal 5\\%).`,
+    label: "tab:confirm-single", rows, tight: true, head: "$\\rho$, $\\phi$", rowLabel: ([rho, phi]) => `${rho}, ${phi}`, colspec: "lrrrrrrrr",
+    groups: [["LET", 4], ["HL (one-sided)", 4]],
+    cols: [["s:luck_trials", "Sim."], ["b:luck_trials", "(b)"], ["a:luck_trials", "(a)"], ["s:luck_trials_lo", "Lo"], ["s:haircut_bonferroni_one_sided", "Sim."], ["b:haircut_bonferroni_one_sided", "(b)"], ["a:haircut_bonferroni_one_sided", "(a)"], ["s:haircut_bonferroni_lo_one_sided", "Lo"]],
+    cell: ([rho, phi], key) => {
+      const [m, t] = key.split(":");
+      const c = cellOf(rho, phi);
+      if (m === "s") return sizeCell(c.rejections[t][1] / c.searches, c.searches);
+      return pct(cfv(m === "a" ? 0 : rho, phi, t));
+    },
+    note: `${BAND_NOTE(nS)} (a): Proposition~2(a), equation~\\eqref{eq:ar1size}, which assumes independent strategies; (b): Proposition~2(b), equation~\\eqref{eq:ar1corr}; the two coincide at $\\rho=0$. Both were computed and committed before the run. Lo: the same test after Lo's factor at the best strategy's estimated autocorrelation. Hypotheses H8--H10, H14 and H15.`,
+  });
+}
+{
+  let t = `\\begin{table}[t]\n\\centering\n\\footnotesize\n\\caption{The ${CPRE.hypotheses.length} hypotheses registered before the confirmation run v2c (analysis/confirm/prereg-confirm.json, commit \\texttt{${values.get("conf.prereg.commit")}}) and their outcomes, as scored by analysis/confirm/evaluate\\_confirm.py. Each holds only if every one of its checks does.}\n\\label{tab:predictions-confirm}\n\\begin{tabular}{lp{0.64\\linewidth}rl}\n\\toprule\nID & Hypothesis & Checks & Outcome \\\\\n\\midrule\n`;
+  for (const h of CPRE.hypotheses) {
+    const e = CEV.hypotheses[h.id];
+    t += `${h.id} & ${h.statement.replaceAll("_", "\\_").replaceAll("%", "\\%").replaceAll("<=", "$\\le$").replaceAll(">=", "$\\ge$")} & ${e.checks_held}/${e.checks.length} & ${e.holds ? "held" : "\\textbf{did not hold}"} \\\\\n`;
+  }
+  t += `\\bottomrule\n\\end{tabular}\n`;
+  app += `${t}${tableNote("arch882: arch at the merge commit of pull request 882; spa\\_c: the fixed-variance SPA test; corrected: the author's implementation after canlicapital PR 562; v1: before it. Every check, with its value and bar, is in analysis/confirm/evaluation-confirm.json.")}\\end{table}\n\n`;
+}
+
+// ---- write -------------------------------------------------------------------------------------
+let out = `% Generated by analysis/tables.mjs from the result files. Do not edit.\n`;
+for (const [k, v] of values) out += `\\nzdef{${k}}{${v}}\n`;
 mkdirSync(`${here}paper/generated`, { recursive: true });
-writeFileSync(`${here}paper/generated/tables.tex`, main);
+writeFileSync(`${here}paper/generated/values.tex`, out);
+writeFileSync(`${here}paper/generated/tables-single.tex`, single);
+writeFileSync(`${here}paper/generated/tables-snooping.tex`, snoop);
+writeFileSync(`${here}paper/generated/tables-empirical.tex`, empirical);
 writeFileSync(`${here}paper/generated/appendix-tables.tex`, app);
-writeFileSync(`${here}paper/generated/numbers.tex`, nums);
-console.error(`wrote tables (${main.length + app.length} chars) and numbers.tex (${nums.split("\n").length} lines)`);
+console.error(`wrote ${values.size} values and ${single.length + snoop.length + empirical.length + app.length} characters of tables`);

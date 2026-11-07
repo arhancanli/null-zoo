@@ -1,0 +1,45 @@
+{
+  "schema": "canli.null-zoo.v2b.prereg",
+  "written": "2026-10-05. Committed, with analysis/v2b/run_v2b.py, analysis/v2b/evaluate_v2b.py and analysis/empirical/run_empirical.py, before either run script was run at full size and before the empirical data file was downloaded; the commit and its push time on GitHub are the evidence.",
+  "author": "Arhan Canli",
+  "why": "A referee review of the v2 draft asked how the joint tests' size depends on the number of strategies and the block length; whether re-studentizing each resample by a dependence-robust (block) variance works under autocorrelation; what happens to power when the skilled strategy is not the least volatile; what a studentized test that counts ties achieves with poor alternatives; and how the tests compare on real data.",
+  "pilot": {
+    "disclosure": "Before this file was written, the referee ran small checks with an earlier copy of analysis/v2/nzpy.py (i.i.d. normal returns, T = 504, block 8 unless stated). They shaped experiment E. The governed run uses base seed 20261011, which no earlier run used.",
+    "results": {
+      "k1_block8": { "rc": 0.059, "spa_c_unstud": 0.059, "spa_c_boot_t_strict": 0.089 },
+      "k5_block8": { "rc": 0.060, "spa_c_unstud": 0.061, "spa_c_boot_t_strict": 0.060 },
+      "one_mean_stationary_bootstrap_test": { "block1": 0.052, "block8": 0.0575, "block22": 0.0678 }
+    }
+  },
+  "implementation": {
+    "code": "analysis/v2/nzpy.py: stationary_draw, block_moments (resample means, mean squares and natural block variances from block sums of the original series, checked against a period-by-period computation), joint_tests_v2b. The v2 functions are unchanged.",
+    "bootstrap_reps": 1000,
+    "ties": "Every test whose statistic is floored at zero is scored with ties counted, p = #(T* >= T) / B, which gives p = 1 when the observed statistic is zero. Hansen's fixed-variance test is also scored with his strict inequality (spa_c_strict) for comparison. The Reality Check and arch's computation have no floor and keep the strict inequality.",
+    "zero_variance": "Strategies whose returns do not vary in a sample are dropped before testing (they cannot beat the benchmark); the number used is recorded."
+  },
+  "tests": {
+    "rc": "White (2000) Reality Check.",
+    "spa_c_unstud": "Consistent recentring, statistic not studentized and not floored: arch 8.0.0's SPA computation.",
+    "spa_c_strict": "Hansen (2005): statistic studentized by the fixed Politis-Romano long-run variance at the block length, floored at zero, strict inequality.",
+    "spa_c_ge": "As spa_c_strict with ties counted.",
+    "spa_c_boot_t_ge": "Observed statistic studentized by each strategy's sample standard deviation, every resample by its own standard deviation; ties counted.",
+    "spa_c_nb_ge": "Observed statistic studentized by the Politis-Romano variance, every resample by its natural block variance (squared within-block sums of deviations from the resample mean, averaged over the n periods); ties counted.",
+    "sidak_t": "The best Sharpe ratio's one-sided Student-t p-value, Sidak-adjusted for the number of strategies (experiment C2 and the empirical illustration)."
+  },
+  "experiments": {
+    "E": "Number of strategies and block length: i.i.d. normal returns, T = 504, null (every mean zero); k = 1, 2, 5, 10, 20, 50, 100 strategies; block length 1, 8, 22; 5,000 searches per cell; all tests except sidak_t.",
+    "F": "The nine v1 families (iid_normal, student_t4, skew_negative, skew_positive, garch, ar1, regimes, correlated_trials, block_cluster), T = 504, k = 20, block 8; null 10,000 searches and a true annualized Sharpe ratio of 2 on strategy 0 5,000 searches per family; all tests except sidak_t.",
+    "C2": "i.i.d. normal returns, T = 504, k = 20, block 8, 10,000 searches per cell. Unequal volatilities 0.5 * 4^(j/19), j = 0..19: null (all Sharpe 0), and a Sharpe ratio of 2 on strategy 0 (least volatile), 10 (median) or 19 (most volatile). Poor alternatives: unit volatility, strategies 1..19 at Sharpe -3, strategy 0 at 0 (null) or 2. All tests and sidak_t.",
+    "G": "Empirical illustration (analysis/empirical/run_empirical.py): Fama/French 3 Factors [Daily] from the Kenneth R. French Data Library; market return Mkt-RF + RF; a total-return index of the market; 20 moving-average timing rules (lengths 10, 20, ..., 200 trading days: long the market on day t+1 when the index closes above its moving average on day t, in the risk-free asset otherwise); excess returns over buy-and-hold; every non-overlapping 504-day window from the first day all rules are defined, plus the full sample (block round(T^(1/3))). Tests at block 8 (rc, spa_c_unstud, spa_c_strict, spa_c_ge, spa_c_boot_t_ge, spa_c_nb_ge), at block 22 (spa_c_ge, spa_c_unstud) and sidak_t; 1,000 resamples; seeds SeedSequence([20261012, window]). Reported: every window's p-values, the number of windows each test rejects at 5%, the number of windows in which each pair of tests disagrees, and the full-sample p-values. No prediction is made for G."
+  },
+  "predictions": [
+    { "id": "P10", "statement": "Replication on a new grid: in experiment E at k = 20 and block 8, spa_c_ge has size at least 0.065." },
+    { "id": "P11", "statement": "The bootstrap's own variance: in experiment E at k = 1, rc's size at block 22 exceeds its size at block 1 by at least one percentage point." },
+    { "id": "P12", "statement": "Many strategies dampen it: in experiment E at block 8, rc's size at k = 1 exceeds its size at k = 100 by at least half a percentage point." },
+    { "id": "P13", "statement": "Block re-studentization: in experiment F, spa_c_nb_ge has size at most 0.065 in all eight families other than ar1." },
+    { "id": "P14", "statement": "Under autocorrelation: in experiment F's ar1 family, spa_c_nb_ge's size is at least half a percentage point below spa_c_boot_t_ge's." },
+    { "id": "P15", "statement": "Ranking by mean helps when the skilled strategy is the most volatile: in experiment C2 with the skill on strategy 19, rc's raw power is at least spa_c_boot_t_ge's." },
+    { "id": "P16", "statement": "Counting ties: in experiment C2's poor alternatives, spa_c_boot_t_ge has size at most 0.065 and raw power at least 0.20 above rc's." }
+  ],
+  "reporting": "Every cell, test and window is reported whether or not a prediction holds. analysis/v2b/evaluate_v2b.py, committed with this file, scores each prediction without hand input. Nothing in this file is changed after the runs; any further analysis is labelled exploratory."
+}
