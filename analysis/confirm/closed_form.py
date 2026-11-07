@@ -1,4 +1,4 @@
-"""Closed-form sizes for the 2026-11-08 confirmation run (analysis/confirm/prereg-confirm.json).
+"""Closed-form sizes for the 2026-11-07 confirmation run (analysis/confirm/prereg-confirm.json).
 
 Proposition 2 (independent strategies) and its extension to equicorrelated strategies (Appendix A of the paper).
 A best-of-N test rejects when the largest t-statistic exceeds a cutoff c chosen for i.i.d. returns. Under a

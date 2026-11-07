@@ -1,4 +1,4 @@
-// Pre-registered confirmation run of 8 November 2026, JavaScript part (analysis/confirm/prereg-confirm.json).
+// Pre-registered confirmation run of 7 November 2026, JavaScript part (analysis/confirm/prereg-confirm.json).
 //
 // Experiment S/L, joint tests (exp 1): the author's data-snooping implementation as v1 scored it (src/js/snooping-core.js,
 //   canlicapital ea398598: fixed Politis-Romano studentizer, strict inequality) and as corrected (analysis/snooping-fix/js/,

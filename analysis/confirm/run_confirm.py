@@ -1,4 +1,4 @@
-"""Pre-registered confirmation run of 8 November 2026, Python part (analysis/confirm/prereg-confirm.json).
+"""Pre-registered confirmation run of 7 November 2026, Python part (analysis/confirm/prereg-confirm.json).
 
 Experiment S: skill-less searches from the nine families (analysis/v2/nzpy.py), T = 504, N = 20.
 Experiment L: skill-less searches of N independent, unit-variance Gaussian AR(1) strategies with phi = 0.02, 0.05, 0.1.
