@@ -68,3 +68,56 @@ $T=504$, $k=100$ ($b=8$) & \textbf{9.5} & 5.3 & 4.9 & 4.8 & \textbf{18.4} & \tex
 \par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Bold: above the 99\% Monte Carlo band around 5\% (4.21--5.79 for 5{,}000 searches); italic: below it.\end{minipage}
 \end{table}
 
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\caption{arch after its fix (pull request 882, merge commit \texttt{bbfa879}): size of arch's studentized SPA test, which re-studentizes every resample by its own bootstrap-implied long-run variance, beside this paper's fixed-variance test and Reality Check on the same 2{,}000 new skill-less searches per family (unregistered check).}
+\label{tab:arch882}
+\begin{tabular}{lrrrrrr}
+\toprule
+ & \multicolumn{3}{c}{Mean block length 8} & \multicolumn{3}{c}{arch's default, 22} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Family & arch$_c$ & SPA$_c$ & RC & arch$_c$ & SPA$_c$ & RC \\
+\midrule
+IID normal & 4.9 & 5.9 & \textit{3.5} & 5.3 & \textbf{10.4} & 4.0 \\
+Student $t_4$ & 5.3 & \textbf{7.1} & 5.3 & 5.7 & \textbf{11.9} & 6.0 \\
+Skew $-1.32$ & 5.2 & \textbf{12.3} & 5.1 & 5.2 & \textbf{17.8} & 5.3 \\
+Skew $+1.32$ & 5.8 & 4.5 & 4.9 & 5.4 & \textbf{8.5} & 5.7 \\
+GARCH(1,1) & 4.8 & \textbf{6.6} & 5.2 & 4.5 & \textbf{10.8} & 5.3 \\
+AR(1), $\phi=0.2$ & 5.3 & \textbf{9.2} & 5.8 & 6.0 & \textbf{13.1} & 5.7 \\
+Two vol.\ regimes & 4.0 & 4.9 & 4.0 & 3.8 & \textbf{8.6} & 4.7 \\
+Correlated, $\rho=0.5$ & 5.0 & \textbf{6.4} & 5.4 & 5.9 & \textbf{10.1} & 6.1 \\
+Clusters, $\rho=0.8$ & 5.9 & \textbf{7.2} & \textbf{6.5} & \textbf{6.4} & \textbf{10.5} & \textbf{7.3} \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Bold: above the 99\% Monte Carlo band around 5\% (3.74--6.26 for 2{,}000 searches); italic: below it. arch$_c$: arch 8.0.1.dev102{+}gbbfa879a9 with its defaults (\texttt{studentize=True}, \texttt{nested=False}, stationary bootstrap, 1{,}000 resamples), consistent $p$-value. SPA$_c$: Hansen's statistic with the Politis--Romano variance held fixed, the computation arch adopted in pull request 871 and replaced in pull request 882. Both are unreleased; the latest release, 8.0.0, does not studentize (Table~\ref{tab:arch}).\end{minipage}
+\end{table}
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\caption{The author's implementation before and after the fix: size of the consistent SPA test, the stepwise SPA test and the Reality Check on the same 4{,}000 new skill-less searches per design and the same bootstrap draws (unregistered check; 1{,}000 resamples, mean block length 8).}
+\label{tab:fix}
+\begin{tabular}{lrrrrr}
+\toprule
+ & \multicolumn{2}{c}{Before (v1 code)} & \multicolumn{2}{c}{After (bootstrap-$t$, ties)} & \multicolumn{1}{c}{} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Family & SPA$_c$ & Step & SPA$_c$ & Step & RC \\
+\midrule
+IID normal & \textbf{7.2} & \textbf{7.2} & 5.3 & 5.3 & 5.2 \\
+Student $t_4$ & \textbf{7.2} & \textbf{7.2} & 5.3 & 5.3 & 5.2 \\
+Skew $-1.32$ & \textbf{12.0} & \textbf{12.0} & 5.2 & 5.2 & 5.1 \\
+Skew $+1.32$ & 4.3 & 4.3 & 5.4 & 5.4 & 4.9 \\
+GARCH(1,1) & \textbf{6.6} & \textbf{6.6} & 5.4 & 5.4 & 4.8 \\
+AR(1), $\phi=0.2$ & \textbf{10.0} & \textbf{10.0} & \textbf{6.9} & \textbf{6.9} & \textbf{6.7} \\
+Two vol.\ regimes & 5.9 & 5.8 & 5.0 & 5.0 & 4.7 \\
+Correlated, $\rho=0.5$ & \textbf{7.7} & \textbf{7.6} & \textbf{6.0} & \textbf{6.0} & \textbf{6.0} \\
+Clusters, $\rho=0.8$ & \textbf{7.5} & \textbf{7.5} & \textbf{6.2} & \textbf{6.2} & \textbf{6.1} \\
+Poor alternatives & \textbf{7.3} & 5.1 & 5.0 & 5.0 & \textit{0.3} \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Bold: above the 99\% Monte Carlo band around 5\% (4.11--5.89 for 4{,}000 searches); italic: below it. Before: the code that scored v1 and v1b (Politis--Romano standard deviation held fixed, $p=\#\{T^*>T\}/B$). After: canlicapital pull request 562, each resample divided by its own standard deviation, ties counted and the stepwise critical value floored at zero. Step: at least one strategy declared superior at 5\%. RC is unchanged by the fix. Poor alternatives: one strategy with mean zero and 19 with a true annualized Sharpe ratio of $-3$, i.i.d.\ normal returns.\end{minipage}
+\end{table}
+

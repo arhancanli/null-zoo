@@ -7,7 +7,7 @@ import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 import { expectedMaxStandardNormal, normalCdf, normalPpf } from "../src/js/dsr-core.js";
-import { studentTUpper } from "../src/js/student-t.js";
+import { studentTQuantileUpper, studentTUpper } from "../src/js/student-t.js";
 
 const here = new URL("..", import.meta.url).pathname;
 const read = (p) => JSON.parse(readFileSync(`${here}${p}`, "utf8"));
@@ -21,6 +21,11 @@ const V2 = read("analysis/v2/evaluation-v2.json");
 const V2RUN = read("analysis/v2/results-v2.json");
 const V2ARCH = read("analysis/v2/arch-check-v2.json");
 const ARCHMERGED = read("analysis/v2/arch-merged-check.json");
+const ARCH882 = read("analysis/v2/arch-882-check.json");
+const RESTUD = read("analysis/v2/restudent-check.json");
+const SFIX = read("analysis/snooping-fix/snooping-fix.json");
+const AR1L = read("src/config/research/null-zoo-v1-ar1-levels.json");
+const EMPAC = read("analysis/empirical/autocorr.json");
 const ANOM = read("analysis/anomalies/anomalies-results.json");
 const EXT = read("analysis/null-zoo-extended.json");
 const BR = read("analysis/bootstrap-resolution.json");
@@ -225,6 +230,108 @@ def("archm.version", ARCHMERGED.arch);
 def("archm.commit", ARCHMERGED.arch_merge_commit.slice(0, 7));
 def("archm.searches", nf(ARCHMERGED.searches_per_family));
 for (const [fam, cell] of Object.entries(ARCHMERGED.families)) for (const [k, x] of Object.entries(cell.rejections_at_5pct)) def(`archm.size.${k}.${fam}`, pct(x / cell.searches));
+// Unregistered check: arch's own code after pull request 882 was merged (each resample studentized by its own
+// bootstrap-implied long-run variance), on new searches in all nine families.
+def("a882.version", ARCH882.arch);
+def("a882.commit", ARCH882.arch_merge_commit.slice(0, 7));
+def("a882.searches", nf(ARCH882.searches_per_family));
+def("a882.default_block", ARCH882.default_block);
+if (ARCH882.searches_per_family !== 2000) throw new Error("arch-882-check.json is not the full-size run");
+const A882 = (k, f) => ARCH882.families[f].rejections_at_5pct[k] / ARCH882.families[f].searches;
+for (const f of FAMILIES) for (const k of Object.keys(ARCH882.families[f].rejections_at_5pct)) def(`a882.size.${k}.${f}`, pct(A882(k, f)));
+for (const k of Object.keys(ARCH882.families.iid_normal.rejections_at_5pct)) {
+  def(`a882.range_nonar.${k}`, range(NON_AR.map((f) => A882(k, f))));
+  def(`a882.range.${k}`, range(FAMILIES.map((f) => A882(k, f))));
+}
+def("a882.above_band.arch_default_consistent", FAMILIES.filter((f) => A882("arch_default_consistent", f) > LEVEL + band(ARCH882.searches_per_family)).length);
+{
+  // The text says arch's corrected test was above the band only in the cluster family at the default block, where the Reality Check was too.
+  const hi = (k) => FAMILIES.filter((f) => A882(k, f) > LEVEL + band(ARCH882.searches_per_family));
+  if (hi("arch_default_consistent").join() !== "block_cluster" || !hi("ours_default_rc").includes("block_cluster") || hi("arch_b8_consistent").length) throw new Error("arch 882: band statement no longer true");
+}
+def("a882.above_band.arch_b8_consistent", FAMILIES.filter((f) => A882("arch_b8_consistent", f) > LEVEL + band(ARCH882.searches_per_family)).length);
+// Unregistered check of 7 October 2026: per-resample studentizers against the fixed-variance test.
+def("rst.searches", nf(RESTUD.searches_per_family));
+for (const [f, cell] of Object.entries(RESTUD.families)) for (const [k, x] of Object.entries(cell)) def(`rst.${k}.${f}`, pct(x));
+for (const k of Object.keys(RESTUD.families.iid_normal)) def(`rst.range.${k}`, range(Object.values(RESTUD.families).map((c) => c[k])));
+// Unregistered check: the author's implementation before and after canlicapital PR 562, on the same searches.
+const SFIX_DESIGNS = SFIX.design.designs;
+def("sfix.searches", nf(SFIX.searches_per_design));
+def("sfix.reps", nf(SFIX.design.reps));
+def("sfix.block", SFIX.block);
+def("sfix.base_seed", SFIX.design.baseSeed);
+const sfix = (key, d) => SFIX.size[d][key]["0.05"];
+for (const d of SFIX_DESIGNS) for (const key of Object.keys(SFIX.size[d])) def(`sfix.size.${key}.${d}`, pct(sfix(key, d)));
+for (const key of ["old.spa_consistent", "new.spa_consistent", "old.stepm_any", "new.stepm_any", "new.reality_check"]) {
+  def(`sfix.range_nonar.${key}`, range(NON_AR.map((f) => sfix(key, f))));
+}
+def("sfix.stepm_spa_maxdiff_new", pct(Math.max(...SFIX_DESIGNS.map((d) => Math.abs(sfix("new.stepm_any", d) - sfix("new.spa_consistent", d)))), 2));
+def("sfix.new_rc_maxdiff", pct(Math.max(...FAMILIES.map((f) => Math.abs(sfix("new.spa_consistent", f) - sfix("new.reality_check", f)))), 1));
+{
+  const fs = FAMILIES.filter((f) => sfix("new.spa_consistent", f) > LEVEL + band(SFIX.searches_per_design)).map((f) => FAMILY_NAME[f]);
+  def("sfix.above_band.new.spa_consistent", fs.length ? `the ${fs.length > 1 ? `${fs.slice(0, -1).join(", ")} and ${fs.at(-1)} families` : `${fs[0]} family`}` : "no family");
+}
+def("sfix.above_band.old.spa_consistent.count", FAMILIES.filter((f) => sfix("old.spa_consistent", f) > LEVEL + band(SFIX.searches_per_design)).length);
+def("band99.4000", `${pct(LEVEL - band(4000), 2)}--${pct(LEVEL + band(4000), 2)}`);
+def("band99.2000", `${pct(LEVEL - band(2000), 2)}--${pct(LEVEL + band(2000), 2)}`);
+def("se5.4000", pct(se(LEVEL, 4000), 2));
+
+// Autocorrelation levels (canlicapital PR 592): simulated size of the best-of-N tests against the closed form.
+const AR1_PHIS = AR1L.design.phis;
+const ar1lev = (i) => AR1L.levels[i];
+if (AR1L.design.trials !== N_TRIALS || AR1L.design.observations !== T_OBS) throw new Error("ar1-levels design differs from v1");
+def("ar1lev.reps", nf(AR1L.reps_per_level));
+def("ar1lev.base_seed", AR1L.design.baseSeed);
+def("ar1lev.rho_se", (1 / Math.sqrt(T_OBS)).toFixed(3));
+def("ar1lev.phis", AR1_PHIS.slice(1, -1).join(", "));
+const inflation = (phi) => Math.sqrt((1 + phi) / (1 - phi));
+AR1_PHIS.forEach((phi, i) => {
+  const l = ar1lev(i);
+  def(`ar1lev.se_under.${phi}`, pct(inflation(phi) - 1, 1));
+  for (const t of Object.keys(l.size)) def(`ar1lev.size.${t}.${phi}`, pct(l.size[t]["0.05"]));
+  for (const t of Object.keys(l.closed_form)) def(`ar1lev.cf.${t}.${phi}`, pct(l.closed_form[t]["0.05"]));
+});
+for (const t of ["luck_trials", "haircut_bonferroni_one_sided"]) {
+  const diffs = AR1L.levels.map((l) => Math.abs(l.size[t]["0.05"] - l.closed_form[t]["0.05"]));
+  def(`ar1lev.maxdiff.${t}`, pct(Math.max(...diffs), 1));
+  const ses = AR1L.levels.map((l) => Math.abs(l.size[t]["0.05"] - l.closed_form[t]["0.05"]) / se(l.closed_form[t]["0.05"], l.searches));
+  def(`ar1lev.maxdiff_se.${t}`, Math.max(...ses).toFixed(1));
+  // Small autocorrelation only (phi <= 0.1), where the large-sample approximation is best.
+  const small = AR1L.levels.filter((l) => l.phi > 0 && l.phi <= 0.1).map((l) => Math.abs(l.size[t]["0.05"] - l.closed_form[t]["0.05"]) / se(l.closed_form[t]["0.05"], l.searches));
+  def(`ar1lev.maxdiff_se_small.${t}`, Math.max(...small).toFixed(1));
+}
+for (const t of ["luck_trials_lo", "haircut_bonferroni_lo_one_sided"]) def(`ar1lev.range.${t}`, range(AR1L.levels.map((l) => l.size[t]["0.05"])));
+// The text says Lo's correction never left the 99% band; stop if a re-run says otherwise.
+if (AR1L.levels.some((l) => ["luck_trials_lo", "haircut_bonferroni_lo_one_sided"].some((t) => Math.abs(l.size[t]["0.05"] - LEVEL) > band(AR1L.reps_per_level)))) throw new Error("Lo-corrected size outside the band");
+// The text says the closed form's largest gap is at the largest phi.
+for (const t of ["luck_trials", "haircut_bonferroni_one_sided"]) { const g = AR1L.levels.map((l) => Math.abs(l.size[t]["0.05"] - l.closed_form[t]["0.05"])); if (g.indexOf(Math.max(...g)) !== g.length - 1) throw new Error(`closed-form gap of ${t} is not largest at the largest phi`); }
+// Unregistered diagnostic: lag-one autocorrelation of the empirical illustration's rule returns.
+def("empac.rule_windows", nf(EMPAC.rule_windows));
+def("empac.median", EMPAC.rho1_rule_windows.median.toFixed(3));
+def("empac.q25", EMPAC.rho1_rule_windows.q25.toFixed(3));
+def("empac.q75", EMPAC.rho1_rule_windows.q75.toFixed(3));
+def("empac.share05", pct(EMPAC.rho1_rule_windows["share_ge_0.05"], 0));
+def("empac.best_median", EMPAC.rho1_best_rule_per_window.median.toFixed(3));
+def("empac.best_share05", pct(EMPAC.rho1_best_rule_per_window["share_ge_0.05"], 0));
+def("empac.full_range", `${Math.min(...Object.values(EMPAC.rho1_full_sample_by_rule)).toFixed(3)}--${Math.max(...Object.values(EMPAC.rho1_full_sample_by_rule)).toFixed(3)}`);
+def("empac.market", EMPAC.rho1_market_full_sample.toFixed(3));
+// Elasticity of the size with respect to the standard error, at phi = 0 (Proposition 2): a best-of-N cutoff
+// against a single test's at the same 5% level.
+{
+  const df = T_OBS - 1;
+  const sizeAt = (c, n, s) => -Math.expm1(n * Math.log1p(-studentTUpper(c / s, df)));
+  const elasticity = (n) => { const c = studentTQuantileUpper(-Math.expm1(Math.log1p(-LEVEL) / n), df), h = 1e-5; return (Math.log(sizeAt(c, n, 1 + h)) - Math.log(sizeAt(c, n, 1 - h))) / (Math.log(1 + h) - Math.log(1 - h)); };
+  const cut = (n) => studentTQuantileUpper(-Math.expm1(Math.log1p(-LEVEL) / n), df);
+  def("ar1lev.cut.k1", cut(1).toFixed(2));
+  def("ar1lev.cut.kN", cut(N_TRIALS).toFixed(2));
+  def("ar1lev.elast.k1", elasticity(1).toFixed(1));
+  def("ar1lev.elast.kN", elasticity(N_TRIALS).toFixed(1));
+  def("ar1lev.elast.k100", elasticity(100).toFixed(1));
+  // The same AR(1) at phi = 0.05 for a single strategy, from the closed form.
+  def("ar1lev.single.0.05", pct(sizeAt(cut(1), 1, inflation(0.05))));
+  def("ar1lev.single.0.1", pct(sizeAt(cut(1), 1, inflation(0.1))));
+}
+
 // The text says arch's p-values were identical under both flag values on every pair.
 if (values.get("v2.D.total_flag_changes") !== "0") throw new Error("arch: the studentize flag changed some p-values");
 const PRED = Object.keys(V2.predictions).sort();
@@ -488,6 +595,8 @@ for (const b of [1, 8, 22]) {
 def("v0.sha", createHash("sha256").update(readFileSync(V0PATH)).digest("hex"));
 def("src.commit.v0", readFileSync(`${here}src/SOURCE_COMMIT`, "utf8").trim().slice(0, 12));
 def("src.commit.v1", readFileSync(`${here}src/SOURCE_COMMIT_V1`, "utf8").trim().slice(0, 12));
+def("src.commit.ar1", readFileSync(`${here}src/SOURCE_COMMIT_AR1`, "utf8").trim().slice(0, 12));
+def("src.commit.fix", SFIX.cores.new.match(/[0-9a-f]{40}/)[0].slice(0, 12));
 const git = (...a) => execFileSync("git", ["-C", here, ...a], { encoding: "utf8" }).trim();
 def("v2.prereg.commit", git("log", "--diff-filter=A", "--format=%H", "--", "analysis/v2/prereg-v2.json").split("\n").pop().slice(0, 12));
 def("v2b.prereg.commit", git("log", "--diff-filter=A", "--format=%H", "--", "analysis/v2b/prereg-v2b.json").split("\n").pop().slice(0, 12));
@@ -558,6 +667,20 @@ single += panels({
   note: `Size-adjusted power is power at the cutoff at which the same test rejects at most 5\\% of the matching null cell; a user who does not know the return family cannot apply it, but it shows how well each statistic ranks skilled searches above skill-less ones. n/a: the test's smallest attainable $p$-value already occurs in more than 5\\% of the null cell, so no cutoff attains the level. The Monte Carlo standard error of raw power is at most ${pct(se(0.5, nV1), 1)} points. Size-adjusted power also carries the error of the estimated cutoff, and the joint tests' $p$-values lie on a grid of $1/${nf(V1.run.settings.spaReps)}$, so their achieved null rejection rate at the cutoff can be below 5\\%.`,
 });
 
+single += table({
+  caption: `How little autocorrelation it takes: size of the best-of-${N_TRIALS} corrections that ignore autocorrelation, simulated and in closed form (Proposition~2), and with Lo's correction, when every strategy's daily returns follow a Gaussian AR(1) with lag-one autocorrelation $\\phi$ (${nf(AR1L.reps_per_level)} skill-less searches per level, ${N_TRIALS} strategies, ${T_OBS} days; percent at a nominal 5\\%).`,
+  label: "tab:ar1-levels", rows: AR1_PHIS.map((_, i) => i), tight: true, head: "$\\phi$", rowLabel: (i) => `${AR1_PHIS[i]}`, colspec: "lrrrrrrr",
+  groups: [["", 1], ["HL (one-sided)", 3], ["LET", 3]],
+  cols: [["se", "SE too small"], ["s:haircut_bonferroni_one_sided", "Sim."], ["c:haircut_bonferroni_one_sided", "Closed"], ["s:haircut_bonferroni_lo_one_sided", "Lo"], ["s:luck_trials", "Sim."], ["c:luck_trials", "Closed"], ["s:luck_trials_lo", "Lo"]],
+  cell: (i, key) => {
+    const l = ar1lev(i);
+    if (key === "se") return `${pct(inflation(l.phi) - 1, 1)}\\%`;
+    const [m, t] = key.split(":");
+    return m === "s" ? sizeCell(l.size[t]["0.05"], l.searches) : pct(l.closed_form[t]["0.05"]);
+  },
+  note: `${BAND_NOTE(AR1L.reps_per_level)} SE too small: the proportion by which the i.i.d.\\ standard error of the mean understates the large-sample one, $\\sqrt{(1+\\phi)/(1-\\phi)}-1$. Closed: equation~\\eqref{eq:ar1size}. Lo: the same test after Lo's (2002) factor at the best strategy's estimated lag-one autocorrelation. HL is the Harvey--Liu haircut read one-sided, whose Bonferroni cutoff is slightly higher than LET's \\v{S}id\\'ak cutoff. The rows $\\phi=0$ and $\\phi=0.2$ repeat v1's i.i.d.\\ normal and AR(1) cells on new seeds. Results at 1\\% and 10\\% are in the result file.`,
+});
+
 // Section 4: data-snooping tests.
 let snoop = "";
 snoop += table({
@@ -585,6 +708,22 @@ snoop += table({
     note: `${BAND_NOTE(V2.B.iid_normal.n504_k20.searches)}`,
   });
 }
+snoop += table({
+  caption: `arch after its fix (pull request 882, merge commit \\texttt{${ARCH882.arch_merge_commit.slice(0, 7)}}): size of arch's studentized SPA test, which re-studentizes every resample by its own bootstrap-implied long-run variance, beside this paper's fixed-variance test and Reality Check on the same ${nf(ARCH882.searches_per_family)} new skill-less searches per family (unregistered check).`,
+  label: "tab:arch882", rows: FAMILIES, tight: true, colspec: "lrrrrrr",
+  groups: [["Mean block length 8", 3], [`arch's default, ${ARCH882.default_block}`, 3]],
+  cols: [["arch_b8_consistent", "arch$_c$"], ["ours_b8_spa_c", "SPA$_c$"], ["ours_b8_rc", "RC"], ["arch_default_consistent", "arch$_c$"], ["ours_default_spa_c", "SPA$_c$"], ["ours_default_rc", "RC"]],
+  cell: (f, k) => sizeCell(A882(k, f), ARCH882.families[f].searches),
+  note: `${BAND_NOTE(ARCH882.searches_per_family)} arch$_c$: arch ${ARCH882.arch.replaceAll("+", "{+}")} with its defaults (\\texttt{studentize=True}, \\texttt{nested=False}, stationary bootstrap, ${nf(ARCH882.bootstrap_reps)} resamples), consistent $p$-value. SPA$_c$: Hansen's statistic with the Politis--Romano variance held fixed, the computation arch adopted in pull request 871 and replaced in pull request 882. Both are unreleased; the latest release, 8.0.0, does not studentize (Table~\\ref{tab:arch}).`,
+});
+snoop += table({
+  caption: `The author's implementation before and after the fix: size of the consistent SPA test, the stepwise SPA test and the Reality Check on the same ${nf(SFIX.searches_per_design)} new skill-less searches per design and the same bootstrap draws (unregistered check; ${nf(SFIX.design.reps)} resamples, mean block length ${SFIX.block}).`,
+  label: "tab:fix", rows: SFIX_DESIGNS, tight: true, rowLabel: (d) => (d === "poor_alternatives" ? "Poor alternatives" : FAMILY_LABEL[d]),
+  groups: [["Before (v1 code)", 2], ["After (bootstrap-$t$, ties)", 2], ["", 1]], colspec: "lrrrrr",
+  cols: [["old.spa_consistent", "SPA$_c$"], ["old.stepm_any", "Step"], ["new.spa_consistent", "SPA$_c$"], ["new.stepm_any", "Step"], ["new.reality_check", "RC"]],
+  cell: (d, key) => sizeCell(sfix(key, d), SFIX.searches_per_design),
+  note: `${BAND_NOTE(SFIX.searches_per_design)} Before: the code that scored v1 and v1b (Politis--Romano standard deviation held fixed, $p=\\#\\{T^*>T\\}/B$). After: canlicapital pull request 562, each resample divided by its own standard deviation, ties counted and the stepwise critical value floored at zero. Step: at least one strategy declared superior at 5\\%. RC is unchanged by the fix. Poor alternatives: one strategy with mean zero and ${N_TRIALS - 1} with a true annualized Sharpe ratio of $${SFIX.design.poorSharpe}$, i.i.d.\\ normal returns.`,
+});
 let supp = "";
 supp += table({
   caption: `Size against the number of strategies $k$ and the mean block length (1, 8 or 22), Null Zoo v2b, experiment E: i.i.d.\\ normal returns, $T=${T_OBS}$, ${nf(E.k1.b1.searches)} null searches per cell.`,

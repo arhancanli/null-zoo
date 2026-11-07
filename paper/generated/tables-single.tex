@@ -64,3 +64,25 @@ Clusters, $\rho=0.8$ & 88.1 & 58.9 & 58.1 & 51.3 & 57.0 & 58.1 & 58.7 & 55.8 \\
 \par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Size-adjusted power is power at the cutoff at which the same test rejects at most 5\% of the matching null cell; a user who does not know the return family cannot apply it, but it shows how well each statistic ranks skilled searches above skill-less ones. n/a: the test's smallest attainable $p$-value already occurs in more than 5\% of the null cell, so no cutoff attains the level. The Monte Carlo standard error of raw power is at most 0.5 points. Size-adjusted power also carries the error of the estimated cutoff, and the joint tests' $p$-values lie on a grid of $1/1{,}000$, so their achieved null rejection rate at the cutoff can be below 5\%.\end{minipage}
 \end{table}
 
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\caption{How little autocorrelation it takes: size of the best-of-20 corrections that ignore autocorrelation, simulated and in closed form (Proposition~2), and with Lo's correction, when every strategy's daily returns follow a Gaussian AR(1) with lag-one autocorrelation $\phi$ (10{,}000 skill-less searches per level, 20 strategies, 504 days; percent at a nominal 5\%).}
+\label{tab:ar1-levels}
+\begin{tabular}{lrrrrrrr}
+\toprule
+ & \multicolumn{1}{c}{} & \multicolumn{3}{c}{HL (one-sided)} & \multicolumn{3}{c}{LET} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}
+$\phi$ & SE too small & Sim. & Closed & Lo & Sim. & Closed & Lo \\
+\midrule
+0 & 0.0\% & 4.8 & 4.9 & 5.0 & 4.9 & 5.0 & 5.1 \\
+0.02 & 2.0\% & \textbf{5.9} & 5.8 & 5.4 & \textbf{6.0} & 5.9 & 5.5 \\
+0.05 & 5.1\% & \textbf{7.6} & 7.3 & 5.5 & \textbf{7.8} & 7.5 & 5.5 \\
+0.1 & 10.6\% & \textbf{10.6} & 10.5 & 5.0 & \textbf{10.8} & 10.7 & 5.1 \\
+0.2 & 22.5\% & \textbf{19.0} & 19.6 & 5.2 & \textbf{19.3} & 19.9 & 5.4 \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Bold: above the 99\% Monte Carlo band around 5\% (4.44--5.56 for 10{,}000 searches); italic: below it. SE too small: the proportion by which the i.i.d.\ standard error of the mean understates the large-sample one, $\sqrt{(1+\phi)/(1-\phi)}-1$. Closed: equation~\eqref{eq:ar1size}. Lo: the same test after Lo's (2002) factor at the best strategy's estimated lag-one autocorrelation. HL is the Harvey--Liu haircut read one-sided, whose Bonferroni cutoff is slightly higher than LET's \v{S}id\'ak cutoff. The rows $\phi=0$ and $\phi=0.2$ repeat v1's i.i.d.\ normal and AR(1) cells on new seeds. Results at 1\% and 10\% are in the result file.\end{minipage}
+\end{table}
+
