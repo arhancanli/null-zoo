@@ -1,0 +1,567 @@
+{
+ "arch": "8.0.1.dev102+gbbfa879a9",
+ "arch_merge_commit": "bbfa879a9575ce126178264ac385417f4647fcc1",
+ "base_seed": 20261108,
+ "bootstrap_reps": 1000,
+ "cells": {
+  "L.phi0.02": {
+   "rejections": {
+    "arch882_b22_consistent": [
+     44,
+     176,
+     375
+    ],
+    "arch882_b22_upper": [
+     43,
+     171,
+     357
+    ],
+    "arch882_b8_consistent": [
+     40,
+     176,
+     335
+    ],
+    "arch882_b8_upper": [
+     40,
+     172,
+     332
+    ],
+    "fixed_spa_c_b22": [
+     127,
+     394,
+     650
+    ],
+    "fixed_spa_c_b8": [
+     65,
+     230,
+     421
+    ],
+    "rc_b22": [
+     42,
+     191,
+     382
+    ],
+    "rc_b8": [
+     41,
+     173,
+     338
+    ]
+   },
+   "searches": 3000
+  },
+  "L.phi0.05": {
+   "rejections": {
+    "arch882_b22_consistent": [
+     47,
+     180,
+     366
+    ],
+    "arch882_b22_upper": [
+     42,
+     176,
+     349
+    ],
+    "arch882_b8_consistent": [
+     43,
+     161,
+     334
+    ],
+    "arch882_b8_upper": [
+     41,
+     158,
+     321
+    ],
+    "fixed_spa_c_b22": [
+     132,
+     383,
+     629
+    ],
+    "fixed_spa_c_b8": [
+     70,
+     236,
+     437
+    ],
+    "rc_b22": [
+     32,
+     178,
+     380
+    ],
+    "rc_b8": [
+     34,
+     169,
+     336
+    ]
+   },
+   "searches": 3000
+  },
+  "L.phi0.1": {
+   "rejections": {
+    "arch882_b22_consistent": [
+     28,
+     161,
+     329
+    ],
+    "arch882_b22_upper": [
+     26,
+     157,
+     320
+    ],
+    "arch882_b8_consistent": [
+     27,
+     145,
+     321
+    ],
+    "arch882_b8_upper": [
+     26,
+     140,
+     314
+    ],
+    "fixed_spa_c_b22": [
+     117,
+     369,
+     608
+    ],
+    "fixed_spa_c_b8": [
+     59,
+     248,
+     432
+    ],
+    "rc_b22": [
+     30,
+     178,
+     360
+    ],
+    "rc_b8": [
+     34,
+     165,
+     324
+    ]
+   },
+   "searches": 3000
+  },
+  "S.ar1": {
+   "rejections": {
+    "arch882_b22_consistent": [
+     31,
+     188,
+     393
+    ],
+    "arch882_b22_upper": [
+     30,
+     183,
+     378
+    ],
+    "arch882_b8_consistent": [
+     33,
+     183,
+     356
+    ],
+    "arch882_b8_upper": [
+     32,
+     171,
+     335
+    ],
+    "fixed_spa_c_b22": [
+     150,
+     422,
+     665
+    ],
+    "fixed_spa_c_b8": [
+     77,
+     293,
+     514
+    ],
+    "rc_b22": [
+     29,
+     192,
+     400
+    ],
+    "rc_b8": [
+     36,
+     192,
+     382
+    ]
+   },
+   "searches": 3000
+  },
+  "S.block_cluster": {
+   "rejections": {
+    "arch882_b22_consistent": [
+     53,
+     202,
+     374
+    ],
+    "arch882_b22_upper": [
+     52,
+     195,
+     370
+    ],
+    "arch882_b8_consistent": [
+     54,
+     180,
+     357
+    ],
+    "arch882_b8_upper": [
+     52,
+     177,
+     353
+    ],
+    "fixed_spa_c_b22": [
+     124,
+     341,
+     545
+    ],
+    "fixed_spa_c_b8": [
+     71,
+     234,
+     409
+    ],
+    "rc_b22": [
+     48,
+     195,
+     394
+    ],
+    "rc_b8": [
+     50,
+     167,
+     345
+    ]
+   },
+   "searches": 3000
+  },
+  "S.correlated_trials": {
+   "rejections": {
+    "arch882_b22_consistent": [
+     45,
+     182,
+     360
+    ],
+    "arch882_b22_upper": [
+     45,
+     182,
+     359
+    ],
+    "arch882_b8_consistent": [
+     35,
+     150,
+     321
+    ],
+    "arch882_b8_upper": [
+     35,
+     150,
+     321
+    ],
+    "fixed_spa_c_b22": [
+     94,
+     308,
+     509
+    ],
+    "fixed_spa_c_b8": [
+     45,
+     200,
+     386
+    ],
+    "rc_b22": [
+     35,
+     198,
+     381
+    ],
+    "rc_b8": [
+     31,
+     164,
+     332
+    ]
+   },
+   "searches": 3000
+  },
+  "S.garch": {
+   "rejections": {
+    "arch882_b22_consistent": [
+     35,
+     158,
+     332
+    ],
+    "arch882_b22_upper": [
+     33,
+     151,
+     317
+    ],
+    "arch882_b8_consistent": [
+     22,
+     163,
+     319
+    ],
+    "arch882_b8_upper": [
+     21,
+     159,
+     309
+    ],
+    "fixed_spa_c_b22": [
+     111,
+     333,
+     570
+    ],
+    "fixed_spa_c_b8": [
+     55,
+     204,
+     372
+    ],
+    "rc_b22": [
+     28,
+     161,
+     337
+    ],
+    "rc_b8": [
+     23,
+     146,
+     295
+    ]
+   },
+   "searches": 3000
+  },
+  "S.iid_normal": {
+   "rejections": {
+    "arch882_b22_consistent": [
+     28,
+     198,
+     364
+    ],
+    "arch882_b22_upper": [
+     28,
+     195,
+     357
+    ],
+    "arch882_b8_consistent": [
+     29,
+     162,
+     336
+    ],
+    "arch882_b8_upper": [
+     26,
+     157,
+     332
+    ],
+    "fixed_spa_c_b22": [
+     132,
+     389,
+     626
+    ],
+    "fixed_spa_c_b8": [
+     58,
+     230,
+     409
+    ],
+    "rc_b22": [
+     33,
+     175,
+     362
+    ],
+    "rc_b8": [
+     31,
+     158,
+     320
+    ]
+   },
+   "searches": 3000
+  },
+  "S.regimes": {
+   "rejections": {
+    "arch882_b22_consistent": [
+     16,
+     111,
+     271
+    ],
+    "arch882_b22_upper": [
+     15,
+     104,
+     255
+    ],
+    "arch882_b8_consistent": [
+     25,
+     129,
+     292
+    ],
+    "arch882_b8_upper": [
+     25,
+     126,
+     285
+    ],
+    "fixed_spa_c_b22": [
+     71,
+     260,
+     483
+    ],
+    "fixed_spa_c_b8": [
+     38,
+     165,
+     338
+    ],
+    "rc_b22": [
+     24,
+     147,
+     334
+    ],
+    "rc_b8": [
+     27,
+     134,
+     293
+    ]
+   },
+   "searches": 3000
+  },
+  "S.skew_negative": {
+   "rejections": {
+    "arch882_b22_consistent": [
+     37,
+     173,
+     352
+    ],
+    "arch882_b22_upper": [
+     36,
+     167,
+     343
+    ],
+    "arch882_b8_consistent": [
+     41,
+     174,
+     337
+    ],
+    "arch882_b8_upper": [
+     41,
+     173,
+     329
+    ],
+    "fixed_spa_c_b22": [
+     211,
+     547,
+     819
+    ],
+    "fixed_spa_c_b8": [
+     131,
+     373,
+     618
+    ],
+    "rc_b22": [
+     29,
+     165,
+     353
+    ],
+    "rc_b8": [
+     28,
+     151,
+     299
+    ]
+   },
+   "searches": 3000
+  },
+  "S.skew_positive": {
+   "rejections": {
+    "arch882_b22_consistent": [
+     40,
+     163,
+     316
+    ],
+    "arch882_b22_upper": [
+     39,
+     159,
+     313
+    ],
+    "arch882_b8_consistent": [
+     43,
+     148,
+     314
+    ],
+    "arch882_b8_upper": [
+     43,
+     144,
+     299
+    ],
+    "fixed_spa_c_b22": [
+     66,
+     232,
+     424
+    ],
+    "fixed_spa_c_b8": [
+     34,
+     120,
+     250
+    ],
+    "rc_b22": [
+     27,
+     164,
+     363
+    ],
+    "rc_b8": [
+     31,
+     151,
+     310
+    ]
+   },
+   "searches": 3000
+  },
+  "S.student_t4": {
+   "rejections": {
+    "arch882_b22_consistent": [
+     19,
+     147,
+     322
+    ],
+    "arch882_b22_upper": [
+     19,
+     136,
+     300
+    ],
+    "arch882_b8_consistent": [
+     22,
+     134,
+     293
+    ],
+    "arch882_b8_upper": [
+     19,
+     130,
+     279
+    ],
+    "fixed_spa_c_b22": [
+     101,
+     336,
+     603
+    ],
+    "fixed_spa_c_b8": [
+     43,
+     175,
+     376
+    ],
+    "rc_b22": [
+     21,
+     151,
+     312
+    ],
+    "rc_b8": [
+     16,
+     120,
+     280
+    ]
+   },
+   "searches": 3000
+  }
+ },
+ "chunk": 100,
+ "deadline_minutes": 85,
+ "default_block": 22,
+ "k": 20,
+ "levels": [
+  0.01,
+  0.05,
+  0.1
+ ],
+ "minutes": 33.9,
+ "n": 504,
+ "numpy": "2.5.3",
+ "prereg": "analysis/confirm/prereg-confirm.json",
+ "registered": true,
+ "rounds_complete": 30,
+ "rounds_planned": 30,
+ "schema": "canli.null-zoo.confirm.results-py",
+ "searches_per_cell": 3000,
+ "stopped_at_deadline": false
+}

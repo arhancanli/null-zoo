@@ -1,0 +1,878 @@
+{
+ "schema": "canli.null-zoo.confirm.evaluation",
+ "prereg": "analysis/confirm/prereg-confirm.json",
+ "searches": {
+  "python_joint": 3000,
+  "js_joint": 3000,
+  "js_single_L": 10000,
+  "js_single_C": 10000
+ },
+ "stopped_at_deadline": {
+  "python": false,
+  "js": false
+ },
+ "hypotheses": {
+  "H1": {
+   "statement": "arch882 at block 8: size <= 0.065 in each of the nine families.",
+   "holds": true,
+   "checks_held": 9,
+   "checks": [
+    {
+     "check": "arch882 block 8, iid_normal",
+     "value": 0.054,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 8, student_t4",
+     "value": 0.044667,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 8, skew_negative",
+     "value": 0.058,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 8, skew_positive",
+     "value": 0.049333,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 8, garch",
+     "value": 0.054333,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 8, ar1",
+     "value": 0.061,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 8, regimes",
+     "value": 0.043,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 8, correlated_trials",
+     "value": 0.05,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 8, block_cluster",
+     "value": 0.06,
+     "bar": "<= 0.065",
+     "holds": true
+    }
+   ]
+  },
+  "H2": {
+   "statement": "arch882 at its default block 22: size <= 0.070 in each of the nine families.",
+   "holds": true,
+   "checks_held": 9,
+   "checks": [
+    {
+     "check": "arch882 block 22, iid_normal",
+     "value": 0.066,
+     "bar": "<= 0.070",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 22, student_t4",
+     "value": 0.049,
+     "bar": "<= 0.070",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 22, skew_negative",
+     "value": 0.057667,
+     "bar": "<= 0.070",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 22, skew_positive",
+     "value": 0.054333,
+     "bar": "<= 0.070",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 22, garch",
+     "value": 0.052667,
+     "bar": "<= 0.070",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 22, ar1",
+     "value": 0.062667,
+     "bar": "<= 0.070",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 22, regimes",
+     "value": 0.037,
+     "bar": "<= 0.070",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 22, correlated_trials",
+     "value": 0.060667,
+     "bar": "<= 0.070",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 22, block_cluster",
+     "value": 0.067333,
+     "bar": "<= 0.070",
+     "holds": true
+    }
+   ]
+  },
+  "H3": {
+   "statement": "On the same searches at block 22, the fixed-variance spa_c's size exceeds arch882's by at least 0.020 in each of the nine families.",
+   "holds": true,
+   "checks_held": 9,
+   "checks": [
+    {
+     "check": "fixed-variance minus arch882, block 22, iid_normal",
+     "value": 0.063667,
+     "bar": ">= 0.020",
+     "holds": true
+    },
+    {
+     "check": "fixed-variance minus arch882, block 22, student_t4",
+     "value": 0.063,
+     "bar": ">= 0.020",
+     "holds": true
+    },
+    {
+     "check": "fixed-variance minus arch882, block 22, skew_negative",
+     "value": 0.124667,
+     "bar": ">= 0.020",
+     "holds": true
+    },
+    {
+     "check": "fixed-variance minus arch882, block 22, skew_positive",
+     "value": 0.023,
+     "bar": ">= 0.020",
+     "holds": true
+    },
+    {
+     "check": "fixed-variance minus arch882, block 22, garch",
+     "value": 0.058333,
+     "bar": ">= 0.020",
+     "holds": true
+    },
+    {
+     "check": "fixed-variance minus arch882, block 22, ar1",
+     "value": 0.078,
+     "bar": ">= 0.020",
+     "holds": true
+    },
+    {
+     "check": "fixed-variance minus arch882, block 22, regimes",
+     "value": 0.049667,
+     "bar": ">= 0.020",
+     "holds": true
+    },
+    {
+     "check": "fixed-variance minus arch882, block 22, correlated_trials",
+     "value": 0.042,
+     "bar": ">= 0.020",
+     "holds": true
+    },
+    {
+     "check": "fixed-variance minus arch882, block 22, block_cluster",
+     "value": 0.046333,
+     "bar": ">= 0.020",
+     "holds": true
+    }
+   ]
+  },
+  "H4": {
+   "statement": "The author's corrected consistent SPA test: size <= 0.065 in each of the six families without cross-sectional or serial correlation (iid_normal, student_t4, skew_negative, skew_positive, garch, regimes).",
+   "holds": true,
+   "checks_held": 6,
+   "checks": [
+    {
+     "check": "corrected SPA, iid_normal",
+     "value": 0.049,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "corrected SPA, student_t4",
+     "value": 0.047667,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "corrected SPA, skew_negative",
+     "value": 0.061333,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "corrected SPA, skew_positive",
+     "value": 0.046667,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "corrected SPA, garch",
+     "value": 0.056667,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "corrected SPA, regimes",
+     "value": 0.049333,
+     "bar": "<= 0.065",
+     "holds": true
+    }
+   ]
+  },
+  "H5": {
+   "statement": "On the same searches, the author's corrected consistent SPA test and the Reality Check differ in size by at most 0.010 in each of the nine families.",
+   "holds": true,
+   "checks_held": 9,
+   "checks": [
+    {
+     "check": "|corrected SPA - Reality Check|, iid_normal",
+     "value": 0.001667,
+     "bar": "<= 0.010",
+     "holds": true
+    },
+    {
+     "check": "|corrected SPA - Reality Check|, student_t4",
+     "value": 0.005,
+     "bar": "<= 0.010",
+     "holds": true
+    },
+    {
+     "check": "|corrected SPA - Reality Check|, skew_negative",
+     "value": 0.003667,
+     "bar": "<= 0.010",
+     "holds": true
+    },
+    {
+     "check": "|corrected SPA - Reality Check|, skew_positive",
+     "value": 0.003333,
+     "bar": "<= 0.010",
+     "holds": true
+    },
+    {
+     "check": "|corrected SPA - Reality Check|, garch",
+     "value": 0.006,
+     "bar": "<= 0.010",
+     "holds": true
+    },
+    {
+     "check": "|corrected SPA - Reality Check|, ar1",
+     "value": 0.002667,
+     "bar": "<= 0.010",
+     "holds": true
+    },
+    {
+     "check": "|corrected SPA - Reality Check|, regimes",
+     "value": 0.001,
+     "bar": "<= 0.010",
+     "holds": true
+    },
+    {
+     "check": "|corrected SPA - Reality Check|, correlated_trials",
+     "value": 0.000333,
+     "bar": "<= 0.010",
+     "holds": true
+    },
+    {
+     "check": "|corrected SPA - Reality Check|, block_cluster",
+     "value": 0.000667,
+     "bar": "<= 0.010",
+     "holds": true
+    }
+   ]
+  },
+  "H6": {
+   "statement": "Negative skew: the v1 implementation's consistent SPA test and the fixed-variance spa_c at block 8 each have size >= 0.10, while the corrected implementation and arch882 at block 8 each have size <= 0.065.",
+   "holds": true,
+   "checks_held": 4,
+   "checks": [
+    {
+     "check": "v1 SPA, skew_negative",
+     "value": 0.129333,
+     "bar": ">= 0.10",
+     "holds": true
+    },
+    {
+     "check": "corrected SPA, skew_negative",
+     "value": 0.061333,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "fixed-variance spa_c block 8, skew_negative",
+     "value": 0.124333,
+     "bar": ">= 0.10",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 8, skew_negative",
+     "value": 0.058,
+     "bar": "<= 0.065",
+     "holds": true
+    }
+   ]
+  },
+  "H7": {
+   "statement": "The corrected StepM (any strategy declared superior at 5%) and the corrected consistent SPA test differ in size by at most 0.005 in each of the twelve joint-test designs (nine families, three autocorrelation levels).",
+   "holds": true,
+   "checks_held": 12,
+   "checks": [
+    {
+     "check": "|corrected StepM - corrected SPA|, S.iid_normal",
+     "value": 0.0,
+     "bar": "<= 0.005",
+     "holds": true
+    },
+    {
+     "check": "|corrected StepM - corrected SPA|, S.student_t4",
+     "value": 0.0,
+     "bar": "<= 0.005",
+     "holds": true
+    },
+    {
+     "check": "|corrected StepM - corrected SPA|, S.skew_negative",
+     "value": 0.0,
+     "bar": "<= 0.005",
+     "holds": true
+    },
+    {
+     "check": "|corrected StepM - corrected SPA|, S.skew_positive",
+     "value": 0.0,
+     "bar": "<= 0.005",
+     "holds": true
+    },
+    {
+     "check": "|corrected StepM - corrected SPA|, S.garch",
+     "value": 0.0,
+     "bar": "<= 0.005",
+     "holds": true
+    },
+    {
+     "check": "|corrected StepM - corrected SPA|, S.ar1",
+     "value": 0.0,
+     "bar": "<= 0.005",
+     "holds": true
+    },
+    {
+     "check": "|corrected StepM - corrected SPA|, S.regimes",
+     "value": 0.0,
+     "bar": "<= 0.005",
+     "holds": true
+    },
+    {
+     "check": "|corrected StepM - corrected SPA|, S.correlated_trials",
+     "value": 0.0,
+     "bar": "<= 0.005",
+     "holds": true
+    },
+    {
+     "check": "|corrected StepM - corrected SPA|, S.block_cluster",
+     "value": 0.0,
+     "bar": "<= 0.005",
+     "holds": true
+    },
+    {
+     "check": "|corrected StepM - corrected SPA|, L.phi0.02",
+     "value": 0.0,
+     "bar": "<= 0.005",
+     "holds": true
+    },
+    {
+     "check": "|corrected StepM - corrected SPA|, L.phi0.05",
+     "value": 0.0,
+     "bar": "<= 0.005",
+     "holds": true
+    },
+    {
+     "check": "|corrected StepM - corrected SPA|, L.phi0.1",
+     "value": 0.0,
+     "bar": "<= 0.005",
+     "holds": true
+    }
+   ]
+  },
+  "H8": {
+   "statement": "LET and the one-sided haircut, which ignore autocorrelation, have size above the upper edge of the 99% band around 0.05 (0.0556 for 10,000 searches) at each of phi = 0.02, 0.05, 0.1.",
+   "holds": true,
+   "checks_held": 6,
+   "checks": [
+    {
+     "check": "luck_trials, phi 0.02",
+     "value": 0.0609,
+     "bar": "> 0.05561",
+     "holds": true
+    },
+    {
+     "check": "haircut_bonferroni_one_sided, phi 0.02",
+     "value": 0.0597,
+     "bar": "> 0.05561",
+     "holds": true
+    },
+    {
+     "check": "luck_trials, phi 0.05",
+     "value": 0.077,
+     "bar": "> 0.05561",
+     "holds": true
+    },
+    {
+     "check": "haircut_bonferroni_one_sided, phi 0.05",
+     "value": 0.0755,
+     "bar": "> 0.05561",
+     "holds": true
+    },
+    {
+     "check": "luck_trials, phi 0.1",
+     "value": 0.1061,
+     "bar": "> 0.05561",
+     "holds": true
+    },
+    {
+     "check": "haircut_bonferroni_one_sided, phi 0.1",
+     "value": 0.1042,
+     "bar": "> 0.05561",
+     "holds": true
+    }
+   ]
+  },
+  "H9": {
+   "statement": "Proposition 2: for LET and the one-sided haircut at each of phi = 0.02, 0.05, 0.1, the simulated size is within three Monte Carlo standard errors (computed at the closed-form size) of closed-form.json's value.",
+   "holds": true,
+   "checks_held": 6,
+   "checks": [
+    {
+     "check": "luck_trials minus Proposition 2 (0.05894) in standard errors, phi 0.02",
+     "value": 0.830775,
+     "bar": "|z| <= 3",
+     "holds": true
+    },
+    {
+     "check": "haircut_bonferroni_one_sided minus Proposition 2 (0.05762) in standard errors, phi 0.02",
+     "value": 0.893295,
+     "bar": "|z| <= 3",
+     "holds": true
+    },
+    {
+     "check": "luck_trials minus Proposition 2 (0.07454) in standard errors, phi 0.05",
+     "value": 0.935584,
+     "bar": "|z| <= 3",
+     "holds": true
+    },
+    {
+     "check": "haircut_bonferroni_one_sided minus Proposition 2 (0.07297) in standard errors, phi 0.05",
+     "value": 0.974028,
+     "bar": "|z| <= 3",
+     "holds": true
+    },
+    {
+     "check": "luck_trials minus Proposition 2 (0.10699) in standard errors, phi 0.1",
+     "value": -0.289334,
+     "bar": "|z| <= 3",
+     "holds": true
+    },
+    {
+     "check": "haircut_bonferroni_one_sided minus Proposition 2 (0.10496) in standard errors, phi 0.1",
+     "value": -0.247972,
+     "bar": "|z| <= 3",
+     "holds": true
+    }
+   ]
+  },
+  "H10": {
+   "statement": "LET-Lo and the one-sided haircut-Lo have size within the 99% band around 0.05 at each of phi = 0.02, 0.05, 0.1.",
+   "holds": false,
+   "checks_held": 5,
+   "checks": [
+    {
+     "check": "luck_trials_lo, phi 0.02",
+     "value": 0.0556,
+     "bar": "in [0.04439, 0.05561]",
+     "holds": true
+    },
+    {
+     "check": "haircut_bonferroni_lo_one_sided, phi 0.02",
+     "value": 0.0545,
+     "bar": "in [0.04439, 0.05561]",
+     "holds": true
+    },
+    {
+     "check": "luck_trials_lo, phi 0.05",
+     "value": 0.0561,
+     "bar": "in [0.04439, 0.05561]",
+     "holds": false
+    },
+    {
+     "check": "haircut_bonferroni_lo_one_sided, phi 0.05",
+     "value": 0.0551,
+     "bar": "in [0.04439, 0.05561]",
+     "holds": true
+    },
+    {
+     "check": "luck_trials_lo, phi 0.1",
+     "value": 0.0524,
+     "bar": "in [0.04439, 0.05561]",
+     "holds": true
+    },
+    {
+     "check": "haircut_bonferroni_lo_one_sided, phi 0.1",
+     "value": 0.051,
+     "bar": "in [0.04439, 0.05561]",
+     "holds": true
+    }
+   ]
+  },
+  "H11": {
+   "statement": "At each of phi = 0.02, 0.05, 0.1: arch882 at block 8, the Reality Check at block 8, the corrected SPA test and the corrected StepM each have size <= 0.065, and arch882 at block 22 has size <= 0.070.",
+   "holds": true,
+   "checks_held": 15,
+   "checks": [
+    {
+     "check": "arch882 block 8, phi 0.02",
+     "value": 0.058667,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "Reality Check block 8, phi 0.02",
+     "value": 0.057667,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "corrected SPA, phi 0.02",
+     "value": 0.057667,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "corrected StepM, phi 0.02",
+     "value": 0.057667,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 22, phi 0.02",
+     "value": 0.058667,
+     "bar": "<= 0.070",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 8, phi 0.05",
+     "value": 0.053667,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "Reality Check block 8, phi 0.05",
+     "value": 0.056333,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "corrected SPA, phi 0.05",
+     "value": 0.058667,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "corrected StepM, phi 0.05",
+     "value": 0.058667,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 22, phi 0.05",
+     "value": 0.06,
+     "bar": "<= 0.070",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 8, phi 0.1",
+     "value": 0.048333,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "Reality Check block 8, phi 0.1",
+     "value": 0.055,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "corrected SPA, phi 0.1",
+     "value": 0.062667,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "corrected StepM, phi 0.1",
+     "value": 0.062667,
+     "bar": "<= 0.065",
+     "holds": true
+    },
+    {
+     "check": "arch882 block 22, phi 0.1",
+     "value": 0.053667,
+     "bar": "<= 0.070",
+     "holds": true
+    }
+   ]
+  },
+  "H12": {
+   "statement": "At each of phi = 0.02, 0.05, 0.1: the fixed-variance spa_c at block 22 has size >= 0.09 and the v1 implementation's consistent SPA test (block 8) has size >= 0.065.",
+   "holds": true,
+   "checks_held": 6,
+   "checks": [
+    {
+     "check": "fixed-variance spa_c block 22, phi 0.02",
+     "value": 0.131333,
+     "bar": ">= 0.09",
+     "holds": true
+    },
+    {
+     "check": "v1 SPA (block 8), phi 0.02",
+     "value": 0.08,
+     "bar": ">= 0.065",
+     "holds": true
+    },
+    {
+     "check": "fixed-variance spa_c block 22, phi 0.05",
+     "value": 0.127667,
+     "bar": ">= 0.09",
+     "holds": true
+    },
+    {
+     "check": "v1 SPA (block 8), phi 0.05",
+     "value": 0.079333,
+     "bar": ">= 0.065",
+     "holds": true
+    },
+    {
+     "check": "fixed-variance spa_c block 22, phi 0.1",
+     "value": 0.123,
+     "bar": ">= 0.09",
+     "holds": true
+    },
+    {
+     "check": "v1 SPA (block 8), phi 0.1",
+     "value": 0.081,
+     "bar": ">= 0.065",
+     "holds": true
+    }
+   ]
+  },
+  "H13": {
+   "statement": "At phi = 0.05 and 0.1, each of the four block-8 tests of H11 (arch882, Reality Check, corrected SPA, corrected StepM) has size at least 0.010 below the one-sided haircut's simulated size at the same phi.",
+   "holds": true,
+   "checks_held": 8,
+   "checks": [
+    {
+     "check": "haircut (0.0755) minus arch882 block 8, phi 0.05",
+     "value": 0.021833,
+     "bar": ">= 0.010",
+     "holds": true
+    },
+    {
+     "check": "haircut (0.0755) minus Reality Check block 8, phi 0.05",
+     "value": 0.019167,
+     "bar": ">= 0.010",
+     "holds": true
+    },
+    {
+     "check": "haircut (0.0755) minus corrected SPA, phi 0.05",
+     "value": 0.016833,
+     "bar": ">= 0.010",
+     "holds": true
+    },
+    {
+     "check": "haircut (0.0755) minus corrected StepM, phi 0.05",
+     "value": 0.016833,
+     "bar": ">= 0.010",
+     "holds": true
+    },
+    {
+     "check": "haircut (0.1042) minus arch882 block 8, phi 0.1",
+     "value": 0.055867,
+     "bar": ">= 0.010",
+     "holds": true
+    },
+    {
+     "check": "haircut (0.1042) minus Reality Check block 8, phi 0.1",
+     "value": 0.0492,
+     "bar": ">= 0.010",
+     "holds": true
+    },
+    {
+     "check": "haircut (0.1042) minus corrected SPA, phi 0.1",
+     "value": 0.041533,
+     "bar": ">= 0.010",
+     "holds": true
+    },
+    {
+     "check": "haircut (0.1042) minus corrected StepM, phi 0.1",
+     "value": 0.041533,
+     "bar": ">= 0.010",
+     "holds": true
+    }
+   ]
+  },
+  "H14": {
+   "statement": "Equicorrelated extension of Proposition 2: for LET and the one-sided haircut in each of the six (rho, phi) cells, the simulated size is within three Monte Carlo standard errors (computed at the closed-form size) of closed-form.json's equicorrelated value.",
+   "holds": true,
+   "checks_held": 12,
+   "checks": [
+    {
+     "check": "luck_trials minus the equicorrelated closed form (0.04244) in standard errors, C.rho0.3.phi0",
+     "value": -1.26032,
+     "bar": "|z| <= 3",
+     "holds": true
+    },
+    {
+     "check": "haircut_bonferroni_one_sided minus the equicorrelated closed form (0.04152) in standard errors, C.rho0.3.phi0",
+     "value": -0.911685,
+     "bar": "|z| <= 3",
+     "holds": true
+    },
+    {
+     "check": "luck_trials minus the equicorrelated closed form (0.06134) in standard errors, C.rho0.3.phi0.05",
+     "value": -0.142684,
+     "bar": "|z| <= 3",
+     "holds": true
+    },
+    {
+     "check": "haircut_bonferroni_one_sided minus the equicorrelated closed form (0.06015) in standard errors, C.rho0.3.phi0.05",
+     "value": -0.105658,
+     "bar": "|z| <= 3",
+     "holds": true
+    },
+    {
+     "check": "luck_trials minus the equicorrelated closed form (0.08533) in standard errors, C.rho0.3.phi0.1",
+     "value": -1.01153,
+     "bar": "|z| <= 3",
+     "holds": true
+    },
+    {
+     "check": "haircut_bonferroni_one_sided minus the equicorrelated closed form (0.08385) in standard errors, C.rho0.3.phi0.1",
+     "value": -0.84771,
+     "bar": "|z| <= 3",
+     "holds": true
+    },
+    {
+     "check": "luck_trials minus the equicorrelated closed form (0.02831) in standard errors, C.rho0.6.phi0",
+     "value": -2.477147,
+     "bar": "|z| <= 3",
+     "holds": true
+    },
+    {
+     "check": "haircut_bonferroni_one_sided minus the equicorrelated closed form (0.02773) in standard errors, C.rho0.6.phi0",
+     "value": -2.695223,
+     "bar": "|z| <= 3",
+     "holds": true
+    },
+    {
+     "check": "luck_trials minus the equicorrelated closed form (0.04017) in standard errors, C.rho0.6.phi0.05",
+     "value": -1.767593,
+     "bar": "|z| <= 3",
+     "holds": true
+    },
+    {
+     "check": "haircut_bonferroni_one_sided minus the equicorrelated closed form (0.03943) in standard errors, C.rho0.6.phi0.05",
+     "value": -1.812616,
+     "bar": "|z| <= 3",
+     "holds": true
+    },
+    {
+     "check": "luck_trials minus the equicorrelated closed form (0.05507) in standard errors, C.rho0.6.phi0.1",
+     "value": 1.461794,
+     "bar": "|z| <= 3",
+     "holds": true
+    },
+    {
+     "check": "haircut_bonferroni_one_sided minus the equicorrelated closed form (0.05415) in standard errors, C.rho0.6.phi0.1",
+     "value": 1.346999,
+     "bar": "|z| <= 3",
+     "holds": true
+    }
+   ]
+  },
+  "H15": {
+   "statement": "At rho = 0.6, for LET and the one-sided haircut at each phi = 0, 0.05, 0.1, the simulated size is more than three Monte Carlo standard errors (computed at the simulated size) below Proposition 2's independent-strategy value: the independence formula overstates the size of correlated searches.",
+   "holds": true,
+   "checks_held": 6,
+   "checks": [
+    {
+     "check": "independent closed form (0.05000) minus simulated luck_trials, in standard errors, C.rho0.6.phi0",
+     "value": 16.789262,
+     "bar": "> 3",
+     "holds": true
+    },
+    {
+     "check": "independent closed form (0.04883) minus simulated haircut_bonferroni_one_sided, in standard errors, C.rho0.6.phi0",
+     "value": 16.92366,
+     "bar": "> 3",
+     "holds": true
+    },
+    {
+     "check": "independent closed form (0.07454) minus simulated luck_trials, in standard errors, C.rho0.6.phi0.05",
+     "value": 20.126486,
+     "bar": "> 3",
+     "holds": true
+    },
+    {
+     "check": "independent closed form (0.07297) minus simulated haircut_bonferroni_one_sided, in standard errors, C.rho0.6.phi0.05",
+     "value": 19.923976,
+     "bar": "> 3",
+     "holds": true
+    },
+    {
+     "check": "independent closed form (0.10699) minus simulated luck_trials, in standard errors, C.rho0.6.phi0.1",
+     "value": 20.72269,
+     "bar": "> 3",
+     "holds": true
+    },
+    {
+     "check": "independent closed form (0.10496) minus simulated haircut_bonferroni_one_sided, in standard errors, C.rho0.6.phi0.1",
+     "value": 20.566334,
+     "bar": "> 3",
+     "holds": true
+    }
+   ]
+  }
+ },
+ "held": [
+  "H1",
+  "H2",
+  "H3",
+  "H4",
+  "H5",
+  "H6",
+  "H7",
+  "H8",
+  "H9",
+  "H11",
+  "H12",
+  "H13",
+  "H14",
+  "H15"
+ ],
+ "failed": [
+  "H10"
+ ]
+}
