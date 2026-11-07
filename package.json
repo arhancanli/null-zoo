@@ -10,7 +10,7 @@
     "node": ">=24"
   },
   "scripts": {
-    "test": "node --test src/scripts/research/null-zoo/null-zoo.test.mjs src/scripts/research/null-zoo/v1/v1.test.mjs src/scripts/research/null-zoo/v1/evaluate.test.mjs",
+    "test": "node --test src/scripts/research/null-zoo/null-zoo.test.mjs src/scripts/research/null-zoo/v1/v1.test.mjs src/scripts/research/null-zoo/v1/evaluate.test.mjs src/scripts/research/null-zoo/v1/ar1-levels.test.mjs",
     "reproduce:v0": "node src/scripts/research/null-zoo/run.mjs 2000 > /tmp/null-zoo-v0.json && cmp /tmp/null-zoo-v0.json src/config/research/null-zoo-v0.json && echo 'v0 reproduces byte for byte'",
     "tables": "node analysis/tables.mjs",
     "robustness": "node analysis/extend.mjs 10000 1999 > analysis/null-zoo-extended.json",
@@ -18,6 +18,8 @@
     "v2": "python analysis/v2/run_v2.py > analysis/v2/results-v2.json 2> analysis/v2/run-v2.log && python analysis/v2/arch_check.py > analysis/v2/arch-check-v2.json 2> analysis/v2/arch-check-v2.log && python analysis/v2/evaluate_v2.py",
     "v2b": "python analysis/v2b/run_v2b.py > analysis/v2b/results-v2b.json 2> analysis/v2b/run-v2b.log && python analysis/empirical/run_empirical.py run > analysis/empirical/empirical-results.json && python analysis/v2b/evaluate_v2b.py",
     "reproduce:v1": "node src/scripts/research/null-zoo/v1/run.mjs 10000 > /tmp/null-zoo-v1.json && cmp /tmp/null-zoo-v1.json src/config/research/null-zoo-v1.json && echo 'v1 reproduces byte for byte'",
-    "reproduce:v1b": "node src/scripts/research/null-zoo/v1/run.mjs 10000 $(nproc 2>/dev/null || sysctl -n hw.ncpu) 20261005 > /tmp/null-zoo-v1b.json && cmp /tmp/null-zoo-v1b.json src/config/research/null-zoo-v1b.json && echo 'v1b reproduces byte for byte'"
+    "reproduce:v1b": "node src/scripts/research/null-zoo/v1/run.mjs 10000 $(nproc 2>/dev/null || sysctl -n hw.ncpu) 20261005 > /tmp/null-zoo-v1b.json && cmp /tmp/null-zoo-v1b.json src/config/research/null-zoo-v1b.json && echo 'v1b reproduces byte for byte'",
+    "reproduce:ar1-levels": "node src/scripts/research/null-zoo/v1/ar1-levels.mjs 10000 > /tmp/null-zoo-v1-ar1-levels.json && cmp /tmp/null-zoo-v1-ar1-levels.json src/config/research/null-zoo-v1-ar1-levels.json && echo 'ar1-levels reproduces byte for byte'",
+    "snooping-fix": "node analysis/snooping-fix/run.mjs 4000 > analysis/snooping-fix/snooping-fix.json"
   }
 }
