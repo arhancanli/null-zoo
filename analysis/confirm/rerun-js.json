@@ -1,0 +1,888 @@
+{
+ "schema": "canli.null-zoo.confirm.results-js",
+ "registered": true,
+ "prereg": "analysis/confirm/prereg-confirm.json",
+ "generator": "xoshiro128** seeded by splitmix32",
+ "design": {
+  "trials": 20,
+  "observations": 504,
+  "periodsPerYear": 252,
+  "reps": 1000,
+  "baseSeed": 20261108,
+  "deadlineMinutes": 85,
+  "levels": [
+   0.01,
+   0.05,
+   0.1
+  ],
+  "phis": [
+   0.02,
+   0.05,
+   0.1
+  ],
+  "rhos": [
+   0.3,
+   0.6
+  ],
+  "corrPhis": [
+   0,
+   0.05,
+   0.1
+  ],
+  "joint": {
+   "chunk": 100,
+   "rounds": 30
+  },
+  "single": {
+   "chunk": 1000,
+   "rounds": 10
+  }
+ },
+ "base_seed": 20261108,
+ "scale": 1,
+ "stopped_at_deadline": false,
+ "minutes": 9.4,
+ "cores": {
+  "v1": "src/js/snooping-core.js (canlicapital ea398598)",
+  "corrected": "analysis/snooping-fix/js/snooping-core.js (canlicapital 4c7e429e, PR 562)"
+ },
+ "experiments": {
+  "1": {
+   "rounds_planned": 30,
+   "rounds_complete": 30,
+   "searches_per_cell": 3000,
+   "cells": {
+    "S.iid_normal": {
+     "label": "S.iid_normal",
+     "family": "iid_normal",
+     "searches": 3000,
+     "rejections": {
+      "v1.spa_consistent": [
+       60,
+       214,
+       381
+      ],
+      "v1.spa_upper": [
+       57,
+       206,
+       375
+      ],
+      "v1.reality_check": [
+       24,
+       142,
+       320
+      ],
+      "v1.stepm_any": [
+       0,
+       214,
+       214
+      ],
+      "corrected.spa_consistent": [
+       27,
+       147,
+       315
+      ],
+      "corrected.spa_upper": [
+       25,
+       144,
+       306
+      ],
+      "corrected.reality_check": [
+       24,
+       142,
+       320
+      ],
+      "corrected.stepm_any": [
+       0,
+       147,
+       147
+      ]
+     }
+    },
+    "S.student_t4": {
+     "label": "S.student_t4",
+     "family": "student_t4",
+     "searches": 3000,
+     "rejections": {
+      "v1.spa_consistent": [
+       49,
+       186,
+       372
+      ],
+      "v1.spa_upper": [
+       45,
+       181,
+       362
+      ],
+      "v1.reality_check": [
+       22,
+       128,
+       269
+      ],
+      "v1.stepm_any": [
+       0,
+       186,
+       186
+      ],
+      "corrected.spa_consistent": [
+       31,
+       143,
+       284
+      ],
+      "corrected.spa_upper": [
+       30,
+       135,
+       271
+      ],
+      "corrected.reality_check": [
+       22,
+       128,
+       269
+      ],
+      "corrected.stepm_any": [
+       0,
+       143,
+       143
+      ]
+     }
+    },
+    "S.skew_negative": {
+     "label": "S.skew_negative",
+     "family": "skew_negative",
+     "searches": 3000,
+     "rejections": {
+      "v1.spa_consistent": [
+       147,
+       388,
+       635
+      ],
+      "v1.spa_upper": [
+       144,
+       380,
+       620
+      ],
+      "v1.reality_check": [
+       42,
+       173,
+       347
+      ],
+      "v1.stepm_any": [
+       0,
+       388,
+       388
+      ],
+      "corrected.spa_consistent": [
+       38,
+       184,
+       339
+      ],
+      "corrected.spa_upper": [
+       36,
+       180,
+       332
+      ],
+      "corrected.reality_check": [
+       42,
+       173,
+       347
+      ],
+      "corrected.stepm_any": [
+       0,
+       184,
+       184
+      ]
+     }
+    },
+    "S.skew_positive": {
+     "label": "S.skew_positive",
+     "family": "skew_positive",
+     "searches": 3000,
+     "rejections": {
+      "v1.spa_consistent": [
+       23,
+       97,
+       257
+      ],
+      "v1.spa_upper": [
+       23,
+       95,
+       245
+      ],
+      "v1.reality_check": [
+       24,
+       130,
+       298
+      ],
+      "v1.stepm_any": [
+       0,
+       97,
+       97
+      ],
+      "corrected.spa_consistent": [
+       28,
+       140,
+       318
+      ],
+      "corrected.spa_upper": [
+       27,
+       136,
+       307
+      ],
+      "corrected.reality_check": [
+       24,
+       130,
+       298
+      ],
+      "corrected.stepm_any": [
+       0,
+       140,
+       140
+      ]
+     }
+    },
+    "S.garch": {
+     "label": "S.garch",
+     "family": "garch",
+     "searches": 3000,
+     "rejections": {
+      "v1.spa_consistent": [
+       48,
+       208,
+       399
+      ],
+      "v1.spa_upper": [
+       47,
+       202,
+       388
+      ],
+      "v1.reality_check": [
+       25,
+       152,
+       302
+      ],
+      "v1.stepm_any": [
+       0,
+       208,
+       208
+      ],
+      "corrected.spa_consistent": [
+       37,
+       170,
+       323
+      ],
+      "corrected.spa_upper": [
+       36,
+       166,
+       313
+      ],
+      "corrected.reality_check": [
+       25,
+       152,
+       302
+      ],
+      "corrected.stepm_any": [
+       0,
+       170,
+       170
+      ]
+     }
+    },
+    "S.ar1": {
+     "label": "S.ar1",
+     "family": "ar1",
+     "searches": 3000,
+     "rejections": {
+      "v1.spa_consistent": [
+       83,
+       267,
+       487
+      ],
+      "v1.spa_upper": [
+       82,
+       256,
+       473
+      ],
+      "v1.reality_check": [
+       47,
+       181,
+       379
+      ],
+      "v1.stepm_any": [
+       0,
+       266,
+       266
+      ],
+      "corrected.spa_consistent": [
+       57,
+       189,
+       392
+      ],
+      "corrected.spa_upper": [
+       55,
+       183,
+       380
+      ],
+      "corrected.reality_check": [
+       47,
+       181,
+       379
+      ],
+      "corrected.stepm_any": [
+       0,
+       189,
+       189
+      ]
+     }
+    },
+    "S.regimes": {
+     "label": "S.regimes",
+     "family": "regimes",
+     "searches": 3000,
+     "rejections": {
+      "v1.spa_consistent": [
+       42,
+       170,
+       362
+      ],
+      "v1.spa_upper": [
+       41,
+       163,
+       350
+      ],
+      "v1.reality_check": [
+       23,
+       145,
+       306
+      ],
+      "v1.stepm_any": [
+       0,
+       169,
+       169
+      ],
+      "corrected.spa_consistent": [
+       31,
+       148,
+       314
+      ],
+      "corrected.spa_upper": [
+       30,
+       144,
+       305
+      ],
+      "corrected.reality_check": [
+       23,
+       145,
+       306
+      ],
+      "corrected.stepm_any": [
+       0,
+       148,
+       148
+      ]
+     }
+    },
+    "S.correlated_trials": {
+     "label": "S.correlated_trials",
+     "family": "correlated_trials",
+     "searches": 3000,
+     "rejections": {
+      "v1.spa_consistent": [
+       56,
+       207,
+       372
+      ],
+      "v1.spa_upper": [
+       56,
+       207,
+       371
+      ],
+      "v1.reality_check": [
+       35,
+       172,
+       324
+      ],
+      "v1.stepm_any": [
+       0,
+       207,
+       207
+      ],
+      "corrected.spa_consistent": [
+       34,
+       171,
+       323
+      ],
+      "corrected.spa_upper": [
+       34,
+       171,
+       323
+      ],
+      "corrected.reality_check": [
+       35,
+       172,
+       324
+      ],
+      "corrected.stepm_any": [
+       0,
+       171,
+       171
+      ]
+     }
+    },
+    "S.block_cluster": {
+     "label": "S.block_cluster",
+     "family": "block_cluster",
+     "searches": 3000,
+     "rejections": {
+      "v1.spa_consistent": [
+       57,
+       192,
+       362
+      ],
+      "v1.spa_upper": [
+       56,
+       190,
+       361
+      ],
+      "v1.reality_check": [
+       27,
+       151,
+       314
+      ],
+      "v1.stepm_any": [
+       0,
+       192,
+       192
+      ],
+      "corrected.spa_consistent": [
+       27,
+       149,
+       313
+      ],
+      "corrected.spa_upper": [
+       27,
+       148,
+       309
+      ],
+      "corrected.reality_check": [
+       27,
+       151,
+       314
+      ],
+      "corrected.stepm_any": [
+       0,
+       149,
+       149
+      ]
+     }
+    },
+    "L.phi0.02": {
+     "label": "L.phi0.02",
+     "phi": 0.02,
+     "searches": 3000,
+     "rejections": {
+      "v1.spa_consistent": [
+       64,
+       240,
+       432
+      ],
+      "v1.spa_upper": [
+       63,
+       232,
+       426
+      ],
+      "v1.reality_check": [
+       32,
+       169,
+       353
+      ],
+      "v1.stepm_any": [
+       0,
+       240,
+       240
+      ],
+      "corrected.spa_consistent": [
+       36,
+       173,
+       338
+      ],
+      "corrected.spa_upper": [
+       36,
+       167,
+       333
+      ],
+      "corrected.reality_check": [
+       32,
+       169,
+       353
+      ],
+      "corrected.stepm_any": [
+       0,
+       173,
+       173
+      ]
+     }
+    },
+    "L.phi0.05": {
+     "label": "L.phi0.05",
+     "phi": 0.05,
+     "searches": 3000,
+     "rejections": {
+      "v1.spa_consistent": [
+       80,
+       238,
+       412
+      ],
+      "v1.spa_upper": [
+       80,
+       232,
+       406
+      ],
+      "v1.reality_check": [
+       43,
+       162,
+       328
+      ],
+      "v1.stepm_any": [
+       0,
+       238,
+       238
+      ],
+      "corrected.spa_consistent": [
+       44,
+       176,
+       331
+      ],
+      "corrected.spa_upper": [
+       44,
+       171,
+       324
+      ],
+      "corrected.reality_check": [
+       43,
+       162,
+       328
+      ],
+      "corrected.stepm_any": [
+       0,
+       176,
+       176
+      ]
+     }
+    },
+    "L.phi0.1": {
+     "label": "L.phi0.1",
+     "phi": 0.1,
+     "searches": 3000,
+     "rejections": {
+      "v1.spa_consistent": [
+       74,
+       243,
+       434
+      ],
+      "v1.spa_upper": [
+       72,
+       238,
+       425
+      ],
+      "v1.reality_check": [
+       32,
+       174,
+       311
+      ],
+      "v1.stepm_any": [
+       0,
+       243,
+       243
+      ],
+      "corrected.spa_consistent": [
+       41,
+       188,
+       331
+      ],
+      "corrected.spa_upper": [
+       41,
+       183,
+       320
+      ],
+      "corrected.reality_check": [
+       32,
+       174,
+       311
+      ],
+      "corrected.stepm_any": [
+       0,
+       188,
+       188
+      ]
+     }
+    }
+   }
+  },
+  "2": {
+   "rounds_planned": 10,
+   "rounds_complete": 10,
+   "searches_per_cell": 10000,
+   "cells": {
+    "L.phi0.02": {
+     "label": "L.phi0.02",
+     "phi": 0.02,
+     "rho": 0,
+     "searches": 10000,
+     "rejections": {
+      "luck_trials": [
+       131,
+       609,
+       1160
+      ],
+      "luck_trials_lo": [
+       104,
+       556,
+       1078
+      ],
+      "haircut_bonferroni_one_sided": [
+       131,
+       597,
+       1101
+      ],
+      "haircut_bonferroni_lo_one_sided": [
+       104,
+       545,
+       1039
+      ]
+     }
+    },
+    "L.phi0.05": {
+     "label": "L.phi0.05",
+     "phi": 0.05,
+     "rho": 0,
+     "searches": 10000,
+     "rejections": {
+      "luck_trials": [
+       189,
+       770,
+       1426
+      ],
+      "luck_trials_lo": [
+       111,
+       561,
+       1043
+      ],
+      "haircut_bonferroni_one_sided": [
+       189,
+       755,
+       1378
+      ],
+      "haircut_bonferroni_lo_one_sided": [
+       111,
+       551,
+       988
+      ]
+     }
+    },
+    "L.phi0.1": {
+     "label": "L.phi0.1",
+     "phi": 0.1,
+     "rho": 0,
+     "searches": 10000,
+     "rejections": {
+      "luck_trials": [
+       268,
+       1061,
+       1898
+      ],
+      "luck_trials_lo": [
+       102,
+       524,
+       1050
+      ],
+      "haircut_bonferroni_one_sided": [
+       265,
+       1042,
+       1838
+      ],
+      "haircut_bonferroni_lo_one_sided": [
+       102,
+       510,
+       1007
+      ]
+     }
+    }
+   }
+  },
+  "3": {
+   "rounds_planned": 10,
+   "rounds_complete": 10,
+   "searches_per_cell": 10000,
+   "cells": {
+    "C.rho0.3.phi0": {
+     "label": "C.rho0.3.phi0",
+     "phi": 0,
+     "rho": 0.3,
+     "searches": 10000,
+     "rejections": {
+      "luck_trials": [
+       85,
+       399,
+       792
+      ],
+      "luck_trials_lo": [
+       105,
+       421,
+       833
+      ],
+      "haircut_bonferroni_one_sided": [
+       84,
+       397,
+       755
+      ],
+      "haircut_bonferroni_lo_one_sided": [
+       105,
+       412,
+       799
+      ]
+     }
+    },
+    "C.rho0.3.phi0.05": {
+     "label": "C.rho0.3.phi0.05",
+     "phi": 0.05,
+     "rho": 0.3,
+     "searches": 10000,
+     "rejections": {
+      "luck_trials": [
+       163,
+       610,
+       1080
+      ],
+      "luck_trials_lo": [
+       115,
+       467,
+       828
+      ],
+      "haircut_bonferroni_one_sided": [
+       161,
+       599,
+       1048
+      ],
+      "haircut_bonferroni_lo_one_sided": [
+       114,
+       459,
+       791
+      ]
+     }
+    },
+    "C.rho0.3.phi0.1": {
+     "label": "C.rho0.3.phi0.1",
+     "phi": 0.1,
+     "rho": 0.3,
+     "searches": 10000,
+     "rejections": {
+      "luck_trials": [
+       235,
+       825,
+       1379
+      ],
+      "luck_trials_lo": [
+       95,
+       461,
+       815
+      ],
+      "haircut_bonferroni_one_sided": [
+       235,
+       815,
+       1335
+      ],
+      "haircut_bonferroni_lo_one_sided": [
+       94,
+       452,
+       789
+      ]
+     }
+    },
+    "C.rho0.6.phi0": {
+     "label": "C.rho0.6.phi0",
+     "phi": 0,
+     "rho": 0.6,
+     "searches": 10000,
+     "rejections": {
+      "luck_trials": [
+       49,
+       242,
+       453
+      ],
+      "luck_trials_lo": [
+       52,
+       254,
+       476
+      ],
+      "haircut_bonferroni_one_sided": [
+       49,
+       233,
+       432
+      ],
+      "haircut_bonferroni_lo_one_sided": [
+       52,
+       250,
+       460
+      ]
+     }
+    },
+    "C.rho0.6.phi0.05": {
+     "label": "C.rho0.6.phi0.05",
+     "phi": 0.05,
+     "rho": 0.6,
+     "searches": 10000,
+     "rejections": {
+      "luck_trials": [
+       99,
+       367,
+       656
+      ],
+      "luck_trials_lo": [
+       72,
+       279,
+       515
+      ],
+      "haircut_bonferroni_one_sided": [
+       99,
+       359,
+       633
+      ],
+      "haircut_bonferroni_lo_one_sided": [
+       72,
+       270,
+       487
+      ]
+     }
+    },
+    "C.rho0.6.phi0.1": {
+     "label": "C.rho0.6.phi0.1",
+     "phi": 0.1,
+     "rho": 0.6,
+     "searches": 10000,
+     "rejections": {
+      "luck_trials": [
+       196,
+       584,
+       919
+      ],
+      "luck_trials_lo": [
+       99,
+       337,
+       577
+      ],
+      "haircut_bonferroni_one_sided": [
+       193,
+       572,
+       901
+      ],
+      "haircut_bonferroni_lo_one_sided": [
+       98,
+       329,
+       553
+      ]
+     }
+    }
+   }
+  }
+ }
+}

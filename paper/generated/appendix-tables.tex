@@ -380,3 +380,32 @@ P16 & Counting ties: in experiment C2's poor alternatives, spa\_c\_boot\_t\_ge h
 \par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize Code names: \texttt{rc} = RC; \texttt{spa\_c\_ge} = SPA$_c$; \texttt{spa\_c\_strict} = SPA$_c$ ($>$); \texttt{spa\_c\_boot\_t\_ge} = SPA$_c$-BT; \texttt{spa\_c\_nb\_ge} = SPA$_c$-NB.\end{minipage}
 \end{table}
 
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{The 15 hypotheses registered before the confirmation run v2c (analysis/confirm/prereg-confirm.json, commit \texttt{c0996a70714f}) and their outcomes, as scored by analysis/confirm/evaluate\_confirm.py. Each holds only if every one of its checks does.}
+\label{tab:predictions-confirm}
+\begin{tabular}{lp{0.64\linewidth}rl}
+\toprule
+ID & Hypothesis & Checks & Outcome \\
+\midrule
+H1 & arch882 at block 8: size $\le$ 0.065 in each of the nine families. & 9/9 & held \\
+H2 & arch882 at its default block 22: size $\le$ 0.070 in each of the nine families. & 9/9 & held \\
+H3 & On the same searches at block 22, the fixed-variance spa\_c's size exceeds arch882's by at least 0.020 in each of the nine families. & 9/9 & held \\
+H4 & The author's corrected consistent SPA test: size $\le$ 0.065 in each of the six families without cross-sectional or serial correlation (iid\_normal, student\_t4, skew\_negative, skew\_positive, garch, regimes). & 6/6 & held \\
+H5 & On the same searches, the author's corrected consistent SPA test and the Reality Check differ in size by at most 0.010 in each of the nine families. & 9/9 & held \\
+H6 & Negative skew: the v1 implementation's consistent SPA test and the fixed-variance spa\_c at block 8 each have size $\ge$ 0.10, while the corrected implementation and arch882 at block 8 each have size $\le$ 0.065. & 4/4 & held \\
+H7 & The corrected StepM (any strategy declared superior at 5\%) and the corrected consistent SPA test differ in size by at most 0.005 in each of the twelve joint-test designs (nine families, three autocorrelation levels). & 12/12 & held \\
+H8 & LET and the one-sided haircut, which ignore autocorrelation, have size above the upper edge of the 99\% band around 0.05 (0.0556 for 10,000 searches) at each of phi = 0.02, 0.05, 0.1. & 6/6 & held \\
+H9 & Proposition 2: for LET and the one-sided haircut at each of phi = 0.02, 0.05, 0.1, the simulated size is within three Monte Carlo standard errors (computed at the closed-form size) of closed-form.json's value. & 6/6 & held \\
+H10 & LET-Lo and the one-sided haircut-Lo have size within the 99\% band around 0.05 at each of phi = 0.02, 0.05, 0.1. & 5/6 & \textbf{did not hold} \\
+H11 & At each of phi = 0.02, 0.05, 0.1: arch882 at block 8, the Reality Check at block 8, the corrected SPA test and the corrected StepM each have size $\le$ 0.065, and arch882 at block 22 has size $\le$ 0.070. & 15/15 & held \\
+H12 & At each of phi = 0.02, 0.05, 0.1: the fixed-variance spa\_c at block 22 has size $\ge$ 0.09 and the v1 implementation's consistent SPA test (block 8) has size $\ge$ 0.065. & 6/6 & held \\
+H13 & At phi = 0.05 and 0.1, each of the four block-8 tests of H11 (arch882, Reality Check, corrected SPA, corrected StepM) has size at least 0.010 below the one-sided haircut's simulated size at the same phi. & 8/8 & held \\
+H14 & Equicorrelated extension of Proposition 2: for LET and the one-sided haircut in each of the six (rho, phi) cells, the simulated size is within three Monte Carlo standard errors (computed at the closed-form size) of closed-form.json's equicorrelated value. & 12/12 & held \\
+H15 & At rho = 0.6, for LET and the one-sided haircut at each phi = 0, 0.05, 0.1, the simulated size is more than three Monte Carlo standard errors (computed at the simulated size) below Proposition 2's independent-strategy value: the independence formula overstates the size of correlated searches. & 6/6 & held \\
+\bottomrule
+\end{tabular}
+\par\smallskip\begin{minipage}{0.97\linewidth}\footnotesize arch882: arch at the merge commit of pull request 882; spa\_c: the fixed-variance SPA test; corrected: the author's implementation after canlicapital PR 562; v1: before it. Every check, with its value and bar, is in analysis/confirm/evaluation-confirm.json.\end{minipage}
+\end{table}
+

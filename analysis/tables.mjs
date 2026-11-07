@@ -797,6 +797,11 @@ const ANOM_PRED = { A1: ANOM_TOT.fixed > ANOM_TOT.boot_t, A2: ANOM_TOT.fixed_q10
 def("anom.pred_held", Object.values(ANOM_PRED).filter(Boolean).length);
 def("prereg.total_all", Number(values.get("prereg.total")) + Object.keys(ANOM_PRED).length);
 def("prereg.held_all", Number(values.get("prereg.held")) + Object.values(ANOM_PRED).filter(Boolean).length);
+{
+  const cev = read("analysis/confirm/evaluation-confirm.json");
+  def("prereg.total_all_v2c", Number(values.get("prereg.total_all")) + Object.keys(cev.hypotheses).length);
+  def("prereg.held_all_v2c", Number(values.get("prereg.held_all")) + cev.held.length);
+}
 empirical += table({
   caption: `Published cross-sectional predictors declared superior to zero by Romano--Wolf stepwise tests at 5\\%, in ten-year windows of monthly long-short returns (pre-registered illustration; counts of predictors).`,
   label: "tab:anomalies", rows: ANOM.windows, head: "Window",
@@ -889,6 +894,121 @@ app += predictionTable({
   label: "tab:predictions-v2b", ids: PRED_B, preds: V2B.predictions,
   names: ["rc", "spa_c_ge", "spa_c_strict", "spa_c_boot_t_ge", "spa_c_nb_ge"],
 });
+
+// ---- Pre-registered confirmation run (analysis/confirm/prereg-confirm.json) ---------------------
+const CPY = read("analysis/confirm/results-py.json");
+const CJS = read("analysis/confirm/results-js.json");
+const CCF = read("analysis/confirm/closed-form.json");
+const CEV = read("analysis/confirm/evaluation-confirm.json");
+const CPRE = read("analysis/confirm/prereg-confirm.json");
+if (CPY.base_seed !== 20261108 || CJS.base_seed !== 20261108 || CJS.scale !== 1) throw new Error("confirmation results are not the registered run");
+if (Object.keys(CEV.hypotheses).length !== CPRE.hypotheses.length) throw new Error("confirmation evaluation does not score every hypothesis");
+const C_PHIS = ["0.02", "0.05", "0.1"];
+const C_ROWS = [...FAMILIES.map((f) => `S.${f}`), ...C_PHIS.map((p) => `L.phi${p}`)];
+const cpy = (cell, t) => CPY.cells[cell].rejections[t][1] / CPY.cells[cell].searches;
+const cjs = (exp, cell, t) => { const c = CJS.experiments[exp].cells[cell]; return c.rejections[t][1] / c.searches; };
+const nPy = CPY.searches_per_cell, nJs = CJS.experiments["1"].searches_per_cell, nS = CJS.experiments["2"].searches_per_cell, nC = CJS.experiments["3"].searches_per_cell;
+def("conf.prereg.commit", git("log", "--diff-filter=A", "--format=%H", "--", "analysis/confirm/prereg-confirm.json").split("\n").pop().slice(0, 12));
+def("conf.prereg.utc", new Date(git("log", "--diff-filter=A", "--format=%cI", "--", "analysis/confirm/prereg-confirm.json").split("\n").pop()).toISOString().replace(".000Z", "Z"));
+def("conf.run_start_utc", readFileSync(`${here}analysis/confirm/run-py.log`, "utf8").match(/START (\S+)/)[1]);
+if (!(values.get("conf.prereg.utc") < values.get("conf.run_start_utc"))) throw new Error("v2c: pre-registration not before the run");
+def("conf.base_seed", CPY.base_seed);
+{
+  // The JavaScript part was run a second time with another number of workers; apart from its run time the output must match.
+  const strip = (o) => JSON.stringify({ ...o, minutes: null });
+  if (strip(read("analysis/confirm/rerun-js.json")) !== strip(CJS)) throw new Error("v2c: the JavaScript re-run differs");
+  const w = (f) => readFileSync(`${here}analysis/confirm/${f}`, "utf8").match(/workers=(\d+)/)[1];
+  def("conf.rerun.workers", w("rerun-js.log"));
+  def("conf.workers", w("run-js.log"));
+}
+
+def("conf.searches.py", nf(nPy));
+def("conf.searches.js", nf(nJs));
+def("conf.searches.single", nf(nS));
+def("conf.searches.corr", nf(nC));
+def("conf.minutes.py", CPY.minutes);
+def("conf.minutes.js", CJS.minutes);
+def("conf.stopped", CPY.stopped_at_deadline || CJS.stopped_at_deadline ? "yes" : "no");
+def("conf.count", CPRE.hypotheses.length);
+def("conf.held_count", CEV.held.length);
+def("conf.failed", CEV.failed.length ? CEV.failed.join(", ") : "none");
+def("conf.failed_count", CEV.failed.length);
+for (const [id, h] of Object.entries(CEV.hypotheses)) { def(`conf.${id}.held`, h.holds ? "held" : "did not hold"); def(`conf.${id}.checks`, `${h.checks_held} of ${h.checks.length}`); }
+const PYT = ["arch882_b8_consistent", "arch882_b22_consistent", "fixed_spa_c_b8", "fixed_spa_c_b22", "rc_b8", "rc_b22"];
+const JST = ["v1.spa_consistent", "corrected.spa_consistent", "corrected.stepm_any", "corrected.reality_check", "v1.reality_check"];
+for (const r of C_ROWS) {
+  const key = r.replace("S.", "").replace("L.", "");
+  for (const t of PYT) def(`conf.size.${t}.${key}`, pct(cpy(r, t)));
+  for (const t of JST) def(`conf.size.${t}.${key}`, pct(cjs("1", r, t)));
+}
+const crange = (rows, f) => range(rows.map(f));
+const SR = FAMILIES.map((f) => `S.${f}`), LR = C_PHIS.map((p) => `L.phi${p}`);
+for (const t of PYT) { def(`conf.range.S.${t}`, crange(SR, (r) => cpy(r, t))); def(`conf.range.L.${t}`, crange(LR, (r) => cpy(r, t))); }
+for (const t of JST) { def(`conf.range.S.${t}`, crange(SR, (r) => cjs("1", r, t))); def(`conf.range.L.${t}`, crange(LR, (r) => cjs("1", r, t))); }
+def("conf.range.S.corrected_nonar", crange(SR.filter((r) => r !== "S.ar1"), (r) => cjs("1", r, "corrected.spa_consistent")));
+{
+  const names = (fs) => (fs.length ? (fs.length > 1 ? `the ${fs.slice(0, -1).join(", ")} and ${fs.at(-1)} families` : `the ${fs[0]} family`) : "no family");
+  for (const t of ["arch882_b8_consistent", "arch882_b22_consistent", "rc_b8", "rc_b22"]) def(`conf.above.${t}`, names(FAMILIES.filter((f) => cpy(`S.${f}`, t) > LEVEL + band(nPy)).map((f) => FAMILY_NAME[f])));
+  for (const t of ["corrected.spa_consistent", "corrected.reality_check"]) def(`conf.above.${t}`, names(FAMILIES.filter((f) => cjs("1", `S.${f}`, t) > LEVEL + band(nJs)).map((f) => FAMILY_NAME[f])));
+  def("band99.3000", `${pct(LEVEL - band(nPy), 2)}--${pct(LEVEL + band(nPy), 2)}`);
+}
+def("conf.maxdiff.corrected_rc", pct(Math.max(...SR.map((r) => Math.abs(cjs("1", r, "corrected.spa_consistent") - cjs("1", r, "corrected.reality_check")))), 1));
+def("conf.maxdiff.stepm_spa", pct(Math.max(...C_ROWS.map((r) => Math.abs(cjs("1", r, "corrected.stepm_any") - cjs("1", r, "corrected.spa_consistent")))), 2));
+def("conf.mingap.fixed_arch_b22", pct(Math.min(...SR.map((r) => cpy(r, "fixed_spa_c_b22") - cpy(r, "arch882_b22_consistent")))));
+const cfv = (rho, phi, t) => CCF.size[`rho${rho}_phi${phi}`][t]["0.05"];
+for (const phi of C_PHIS) for (const t of ["luck_trials", "haircut_bonferroni_one_sided", "luck_trials_lo", "haircut_bonferroni_lo_one_sided"]) def(`conf.L.${t}.${phi}`, pct(cjs("2", `L.phi${phi}`, t), 2));
+for (const phi of C_PHIS) for (const t of ["luck_trials", "haircut_bonferroni_one_sided"]) def(`conf.cf.${t}.0.${phi}`, pct(cfv(0, phi, t)));
+for (const t of ["luck_trials_lo", "haircut_bonferroni_lo_one_sided", "luck_trials", "haircut_bonferroni_one_sided"]) def(`conf.Lrange.${t}`, range(C_PHIS.map((phi) => cjs("2", `L.phi${phi}`, t)), 2));
+const C_CELLS = Object.values(CJS.experiments["3"].cells);
+for (const c of C_CELLS) for (const t of ["luck_trials", "haircut_bonferroni_one_sided", "luck_trials_lo", "haircut_bonferroni_lo_one_sided"]) def(`conf.C.${t}.${c.rho}.${c.phi}`, pct(c.rejections[t][1] / c.searches));
+for (const rho of [0.3, 0.6]) for (const phi of [0, 0.05, 0.1]) for (const t of ["luck_trials", "haircut_bonferroni_one_sided"]) def(`conf.cf.${t}.${rho}.${phi}`, pct(cfv(rho, phi, t)));
+for (const phi of [0, 0.05, 0.1]) for (const t of ["luck_trials", "haircut_bonferroni_one_sided"]) def(`conf.cf.${t}.0.${phi}`, pct(cfv(0, phi, t)), true);
+for (const [k, v] of Object.entries(CCF.elasticity_5pct_luck_trials)) def(`conf.elast.${k}`, v.toFixed(1));
+{
+  const zs = (h) => CEV.hypotheses[h].checks.map((c) => Math.abs(c.value));
+  def("conf.maxz.H9", Math.max(...zs("H9")).toFixed(1));
+  def("conf.maxz.H14", Math.max(...zs("H14")).toFixed(1));
+  const zc = (cell, t) => { const c = CJS.experiments["3"].cells[cell]; const pi = cfv(c.rho, c.phi, t); return (c.rejections[t][1] / c.searches - pi) / se(pi, c.searches); };
+  def("conf.z.rho06.phi0", `${Math.abs(zc("C.rho0.6.phi0", "haircut_bonferroni_one_sided")).toFixed(1)}--${Math.abs(zc("C.rho0.6.phi0", "luck_trials")).toFixed(1)}`.split("--").sort().join("--"));
+  def("conf.z.rho06.phi01", [zc("C.rho0.6.phi0.1", "haircut_bonferroni_one_sided"), zc("C.rho0.6.phi0.1", "luck_trials")].map((z) => z.toFixed(1)).sort().join("--"));
+  if (!(zc("C.rho0.6.phi0", "luck_trials") < 0 && zc("C.rho0.6.phi0.1", "luck_trials") > 0)) throw new Error("rho 0.6: the closed form no longer over- then under-states");
+  def("conf.minz.H15", Math.min(...CEV.hypotheses.H15.checks.map((c) => c.value)).toFixed(1));
+}
+const C_ROW_LABEL = (r) => (r.startsWith("S.") ? FAMILY_LABEL[r.slice(2)] : `AR(1), $\\phi=${r.slice(5)}$`);
+snoop += table({
+  caption: `Pre-registered confirmation (v2c): size of the joint tests on fresh seeds, nine families and three small autocorrelations (percent at a nominal 5\\%). Left: ${nf(nPy)} searches per row, arch at the merge commit of pull request 882 and this paper's fixed-variance SPA test and Reality Check on the same searches. Right: ${nf(nJs)} other searches per row, the author's implementation as v1 ran it and as corrected, with the same bootstrap draws.`,
+  label: "tab:confirm-joint", rows: C_ROWS, rowLabel: C_ROW_LABEL, tight: true, colspec: "lrrrrrrrrr",
+  groups: [["arch 882", 2], ["Fixed-variance SPA$_c$", 2], ["RC", 1], ["v1 code", 1], ["Corrected", 3]],
+  cols: [["p:arch882_b8_consistent", "8"], ["p:arch882_b22_consistent", "22"], ["p:fixed_spa_c_b8", "8"], ["p:fixed_spa_c_b22", "22"], ["p:rc_b8", "8"], ["j:v1.spa_consistent", "SPA$_c$"], ["j:corrected.spa_consistent", "SPA$_c$"], ["j:corrected.stepm_any", "StepM"], ["j:corrected.reality_check", "RC"]],
+  cell: (r, key) => { const [m, t] = key.split(":"); return m === "p" ? sizeCell(cpy(r, t), nPy) : sizeCell(cjs("1", r, t), nJs); },
+  note: `${BAND_NOTE(nPy)} 8, 22: mean block length (22 is arch's default for ${T_OBS} periods); the author's implementation uses 8. arch: consistent $p$-value, every resample studentized by its own long-run variance. StepM: at least one strategy declared superior at 5\\%. Pre-registration commit \\texttt{${values.get("conf.prereg.commit")}}; hypotheses H1--H7 and H11--H13 are scored on this table (Table~\\ref{tab:predictions-confirm}).`,
+});
+{
+  const rows = [...C_PHIS.map((p) => ["0", p]), ...[0.3, 0.6].flatMap((rho) => ["0", "0.05", "0.1"].map((p) => [String(rho), p]))];
+  const cellOf = (rho, phi) => (rho === "0" ? CJS.experiments["2"].cells[`L.phi${phi}`] : CJS.experiments["3"].cells[`C.rho${rho}.phi${phi}`]);
+  single += table({
+    caption: `Pre-registered confirmation (v2c): size of the best-of-${N_TRIALS} single-series tests under AR(1) returns with lag-one autocorrelation $\\phi$ and pairwise correlation $\\rho$ between strategies, simulated on fresh seeds (${nf(nS)} searches per row) and in closed form (percent at a nominal 5\\%).`,
+    label: "tab:confirm-single", rows, tight: true, head: "$\\rho$, $\\phi$", rowLabel: ([rho, phi]) => `${rho}, ${phi}`, colspec: "lrrrrrrrr",
+    groups: [["LET", 4], ["HL (one-sided)", 4]],
+    cols: [["s:luck_trials", "Sim."], ["b:luck_trials", "(b)"], ["a:luck_trials", "(a)"], ["s:luck_trials_lo", "Lo"], ["s:haircut_bonferroni_one_sided", "Sim."], ["b:haircut_bonferroni_one_sided", "(b)"], ["a:haircut_bonferroni_one_sided", "(a)"], ["s:haircut_bonferroni_lo_one_sided", "Lo"]],
+    cell: ([rho, phi], key) => {
+      const [m, t] = key.split(":");
+      const c = cellOf(rho, phi);
+      if (m === "s") return sizeCell(c.rejections[t][1] / c.searches, c.searches);
+      return pct(cfv(m === "a" ? 0 : rho, phi, t));
+    },
+    note: `${BAND_NOTE(nS)} (a): Proposition~2(a), equation~\\eqref{eq:ar1size}, which assumes independent strategies; (b): Proposition~2(b), equation~\\eqref{eq:ar1corr}; the two coincide at $\\rho=0$. Both were computed and committed before the run. Lo: the same test after Lo's factor at the best strategy's estimated autocorrelation. Hypotheses H8--H10, H14 and H15.`,
+  });
+}
+{
+  let t = `\\begin{table}[t]\n\\centering\n\\footnotesize\n\\caption{The ${CPRE.hypotheses.length} hypotheses registered before the confirmation run v2c (analysis/confirm/prereg-confirm.json, commit \\texttt{${values.get("conf.prereg.commit")}}) and their outcomes, as scored by analysis/confirm/evaluate\\_confirm.py. Each holds only if every one of its checks does.}\n\\label{tab:predictions-confirm}\n\\begin{tabular}{lp{0.64\\linewidth}rl}\n\\toprule\nID & Hypothesis & Checks & Outcome \\\\\n\\midrule\n`;
+  for (const h of CPRE.hypotheses) {
+    const e = CEV.hypotheses[h.id];
+    t += `${h.id} & ${h.statement.replaceAll("_", "\\_").replaceAll("%", "\\%").replaceAll("<=", "$\\le$").replaceAll(">=", "$\\ge$")} & ${e.checks_held}/${e.checks.length} & ${e.holds ? "held" : "\\textbf{did not hold}"} \\\\\n`;
+  }
+  t += `\\bottomrule\n\\end{tabular}\n`;
+  app += `${t}${tableNote("arch882: arch at the merge commit of pull request 882; spa\\_c: the fixed-variance SPA test; corrected: the author's implementation after canlicapital PR 562; v1: before it. Every check, with its value and bar, is in analysis/confirm/evaluation-confirm.json.")}\\end{table}\n\n`;
+}
 
 // ---- write -------------------------------------------------------------------------------------
 let out = `% Generated by analysis/tables.mjs from the result files. Do not edit.\n`;
